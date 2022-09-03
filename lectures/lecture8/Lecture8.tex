@@ -1,0 +1,563 @@
+\input{../utils/preamble}
+\createdgmtitle{8}
+\usepackage{tikz}
+
+\usetikzlibrary{arrows,shapes,positioning,shadows,trees}
+%--------------------------------------------------------------------------------
+\begin{document}
+%--------------------------------------------------------------------------------
+\begin{frame}[noframenumbering,plain]
+%\thispagestyle{empty}
+\titlepage
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	Images are discrete data, flow is a continuous model.
+	We need to convert a discrete data distribution to a continuous one.
+	
+	\begin{block}{Uniform dequantization bound}
+		\vspace{-0.5cm}
+		\[
+			\bx \sim \text{Categorical}(\bpi), \quad 
+			\bu \sim U[0, 1], \quad 
+			\by = \bx + \bu \sim \text{Continuous} 
+		\]
+		\vspace{-0.4cm}
+		\[
+			\log P(\bx | \btheta) \geq \int_{U[0, 1]} \log p(\bx + \bu | \btheta) d \bu.
+		\]
+	\end{block}
+	\vspace{-0.2cm}
+	\begin{block}{Variational dequantization bound}
+		Introduce variational dequantization noise distribution $q(\bu | \bx)$ and treat it as an approximate posterior. 
+		\vspace{-0.2cm}
+		\[
+			\log P(\bx | \btheta) \geq  \int q(\bu | \bx) \log \frac{p(\bx + \bu | \btheta)}{q(\bu | \bx)} d \bu = \mathcal{L}(q, \btheta).
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1902.00275}{Ho J. et al. Flow++: Improving Flow-Based Generative Models with Variational Dequantization and Architecture Design, 2019}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=1.0\linewidth]{figs/uniform_dequantization.png}
+		\end{figure}
+	\end{minipage}%
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=1.0\linewidth]{figs/variational_dequantization.png}
+		\end{figure}
+	\end{minipage}
+	\begin{block}{Flow model for dequantization}
+	\vspace{-0.3cm}
+	\[
+	q(\bu | \bx) = p(g^{-1}(\bu, \bx, \blambda)) \cdot \left| \det \left( \frac{\partial g^{-1}(\bu, \bx, \blambda)}{\partial \bu} \right) \right|.
+	\]
+	\vspace{-0.3cm}
+	\end{block}
+	\begin{block}{Variational dequantization bound}
+		\[
+		\mathcal{L}(q, \btheta) = \int q(\bu | \bx) \log \frac{p(\bx + \bu | \btheta)}{q(\bu | \bx)} d \bu.
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1902.00275}{Ho J. et al. Flow++: Improving Flow-Based Generative Models with Variational Dequantization and Architecture Design, 2019}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Theorem}
+		\vspace{-0.3cm}
+		\[
+			\frac{1}{n} \sum_{i=1}^n KL(q(\bz | \bx_i) || p(\bz)) = KL(q_{\text{agg}}(\bz) || p(\bz)) + \bbI_{q} [\bx, \bz],
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	
+	\begin{block}{ELBO surgery}
+		\vspace{-0.6cm}
+		{\small
+		\[
+		    \frac{1}{n} \sum_{i=1}^n \cL_i(q, \btheta) = \underbrace{\frac{1}{n} \sum_{i=1}^n \mathbb{E}_{q(\bz | \bx_i)} \log p(\bx_i | \bz, \btheta)}_{\text{Reconstruction loss}}
+		    - \underbrace{\vphantom{ \sum_{i=1}^n} \bbI_q [\bx, \bz]}_{\text{MI}} - \underbrace{\vphantom{ \sum_{i=1}^n} KL(q_{\text{agg}}(\bz) || p(\bz))}_{\text{Marginal KL}}
+		\]}
+	\end{block}
+	\vspace{-0.8cm}
+	\begin{block}{Optimal prior}
+		\vspace{-0.6cm}
+		\[
+			KL(q_{\text{agg}}(\bz) || p(\bz)) = 0 \quad \Leftrightarrow \quad p (\bz) = q_{\text{agg}}(\bz) = \frac{1}{n} \sum_{i=1}^n q(\bz | \bx_i).
+		\]
+		\vspace{-0.3cm}\\
+		The optimal prior distribution $p(\bz)$ is aggregated posterior $q(\bz)$.
+	\end{block}
+	\myfootnotewithlink{http://approximateinference.org/accepted/HoffmanJohnson2016.pdf}{Hoffman M. D., Johnson M. J. ELBO surgery: yet another way to carve up the variational evidence lower bound, 2016}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Optimal prior}
+		\vspace{-0.6cm}
+		\[
+			KL(q_{\text{agg}}(\bz) || p(\bz)) = 0 \quad \Leftrightarrow \quad p (\bz) = q_{\text{agg}}(\bz) = \frac{1}{n} \sum_{i=1}^n q(\bz | \bx_i).
+		\]
+		\vspace{-0.4cm}\\
+		The optimal prior distribution $p(\bz)$ is aggregated posterior $q(\bz)$.
+	\end{block}
+
+	\begin{block}{VampPrior}
+		\vspace{-0.4cm}
+		\[
+		p(\bz | \blambda) = \frac{1}{K} \sum_{k=1}^K q(\bz | \bu_k),
+		\]
+		\vspace{-0.2cm} \\
+		where $\blambda = \{\bu_1, \dots, \bu_K\}$ are trainable pseudo-inputs.
+	\end{block}
+	\begin{block}{Flow-based VAE prior}
+		\vspace{-0.5cm}
+		\[
+			\log p(\bz | \blambda) = \log p(\bz^*) + \log \left| \det \left( \frac{d \bz^*}{d\bz} \right) \right| = \log p(\bz^*) + \log \left| \det ( \bJ_g) \right| 
+		\]
+	\end{block}
+	\myfootnote{\href{https://arxiv.org/abs/1705.07120}{Tomczak J. M., Welling M. VAE with a VampPrior, 2017} \\
+	\href{https://arxiv.org/abs/1611.02731}{Chen X. et al. Variational Lossy Autoencoder, 2016}}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Standart ELBO}
+		\vspace{-0.3cm}
+		\[
+			p(\bx | \btheta) \geq \mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(\bz | \bx, \bphi)} \log \frac{p(\bx, \bz | \btheta)}{q(\bz| \bx, \bphi)} \rightarrow \max_{\bphi, \btheta}.
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Expressive flow-based VAE posterior}
+		\vspace{-0.3cm}
+		\[
+			\log q(\bz^* | \bx, \bphi, \blambda) = \log q(\bz | \bx, \bphi) + \log \left| \det \left( \frac{\partial g(\bz, \blambda)}{\partial \bz} \right) \right|
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	\begin{block}{ELBO with flow-based posterior}
+		\vspace{-0.8cm}
+		\begin{multline*}
+				\mathcal{L} (\bphi, \btheta, \blambda)  
+				= \mathbb{E}_{q(\bz^* | \bx, \bphi, \blambda)} \bigl[\log p(\bx, \bz^* | \btheta) - \log q(\bz^*| \bx, \bphi, \blambda) \bigr] = \\
+				= \mathbb{E}_{q(\bz | \bx, \bphi)} \bigg[\log p(\bx, g(\bz, \blambda) | \btheta) -  \log q(\bz | \bx, \bphi ) + \log \left| \det (\bJ_g) \right| \bigg].
+		\end{multline*}
+		\vspace{-0.6cm}
+	\end{block}
+	\begin{itemize}
+		\item Obtain samples $\bz$ from the encoder $q(\bz | \bx, \bphi)$.
+		\item Apply flow model $\bz^* = g(\bz, \blambda)$.
+		\item Compute likelihood for $\bz^*$ using the decoder, base distribution for $\bz^*$ and the Jacobian.
+	\end{itemize}
+	\myfootnotewithlink{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015} 
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Expressive flow-based VAE posterior}
+		\vspace{-0.3cm}
+		\[
+			\log q(\bz^* | \bx, \bphi, \blambda) = \log q(\bz | \bx, \bphi) + \log \det \left | \frac{\partial g(\bz, \blambda)}{\partial \bz}\right|
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Expressive flow-based VAE prior}
+		\vspace{-0.5cm}
+		\[
+			\log p(\bz | \blambda) = \log p(\bz^*) + \log \left | \det \left(\frac{d \bz^*}{d\bz}\right)\right|; \quad 
+			\bz = f(\bz^*, \blambda) = g^{-1}(\bz^*, \blambda)
+		\]
+	\end{block}
+	\vspace{-0.6cm}
+	\begin{block}{Theorem}
+	VAE with the flow-based prior for latent code $\bz$ is equivalent to VAE with flow-based posterior for latent code $\bz$.
+	\end{block}
+	\vspace{-0.6cm}
+	\begin{align*}
+		\mathcal{L}(\bphi, \btheta, \blambda) &= \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta) - \underbrace{KL( q(\bz | \bx, \bphi) || p(\bz | \blambda))}_{\text{flow-based prior}} \\
+		& = \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta) - \underbrace{KL( q(\bz | \bx, \bphi, \blambda) || p(\bz))}_{\text{flow-based posterior}}
+	\end{align*}
+	\myfootnotewithlink{https://arxiv.org/abs/1611.02731}{Chen X. et al. Variational Lossy Autoencoder, 2016}
+\end{frame}
+%=======
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
+\section{Disentanglement learning}
+%=======
+\begin{frame}{Disentangled representations}
+	\vspace{-0.2cm}
+	\textbf{Representation learning} is looking for an interpretable representation of the independent data generative factors. 
+	\begin{block}{Disentanglement informal definition}
+		Every single latent unit are sensitive to changes in a single generative factor, while being invariant to changes in other factors. 
+	\end{block}
+	\vspace{-0.2cm}
+	\begin{block}{ELBO objective}
+	\vspace{-0.2cm}
+	\[
+	    \mathcal{L}(q, \btheta, \beta) = \mathbb{E}_{q(\bz | \bx)} \log p(\bx | \bz, \btheta) - \beta \cdot KL (q(\bz | \bx) || p(\bz)).
+	\]
+	\vspace{-0.5cm}
+	\end{block}
+	What do we get at $\beta = 1$? \\
+	\begin{block}{Constrained optimization}
+		\vspace{-0.7cm}
+		\[
+			\max_{q, \btheta} \mathbb{E}_{q(\bz | \bx)} \log p(\bx | \bz, \btheta), \quad \text{subject to } KL (q(\bz | \bx) || p(\bz)) < \epsilon.
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\textbf{Note:} It leads to poorer reconstructions and a loss of high frequency details. 
+	\myfootnotewithlink{https://openreview.net/references/pdf?id=Sy2fzU9gl}{Higgins I. et al. beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework, 2017}
+\end{frame}
+%=======
+\begin{frame}{$\beta$-VAE samples}
+	\begin{figure}
+	    \centering
+	    \includegraphics[width=0.9\linewidth]{figs/betaVAE_1.png}
+	\end{figure}
+
+	\myfootnotewithlink{https://openreview.net/references/pdf?id=Sy2fzU9gl}{Higgins I. et al. beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework, 2017}
+\end{frame}
+%=======
+\begin{frame}{$\beta$-VAE analysis}
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=.95\linewidth]{figs/betaVAE_5.png}
+		\end{figure}
+
+	\myfootnotewithlink{https://openreview.net/references/pdf?id=Sy2fzU9gl}{Higgins I. et al. beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework, 2017}
+\end{frame}
+%=======
+\begin{frame}{$\beta$-VAE}
+	\begin{block}{ELBO}
+		\vspace{-0.2cm}
+		\[
+		\mathcal{L}(q, \btheta, \beta) = \mathbb{E}_{q(\bz | \bx)} \log p(\bx | \bz, \btheta) - \beta \cdot KL(q(\bz | \bx) || p(\bz)).
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	\begin{block}{ELBO surgery}
+		\vspace{-0.3cm}
+		{\small
+			\[
+			\frac{1}{n} \sum_{i=1}^n \cL_i(q, \btheta, \beta) = \underbrace{\frac{1}{n} \sum_{i=1}^n \mathbb{E}_{q(\bz | \bx_i)} \log p(\bx_i | \bz, \btheta)}_{\text{Reconstruction loss}} - \beta \cdot \underbrace{\bbI_{q} [\bx, \bz]\vphantom{\sum_{i=1}}}_{\text{MI}} - \beta \cdot \underbrace{KL(q_{\text{agg}}(\bz) || p(\bz))\vphantom{\sum_{i=1}}}_{\text{Marginal KL}}
+			\]}
+	\end{block}
+	\begin{block}{Minimization of MI}
+	\begin{itemize}
+		\item It is not necessary and not desirable for disentanglement. 
+		\item It hurts reconstruction.
+	\end{itemize}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1804.03599}{Burgess C. P. et al. Understanding disentangling in $\beta$-VAE, 2018}
+\end{frame}
+%=======
+\begin{frame}{DIP-VAE: disentangled posterior}
+	\begin{block}{Disentangled aggregated variational posterior}
+		\vspace{-0.3cm}
+		\[
+		q_{\text{agg}}(\bz) = \frac{1}{n} \sum_{i=1}^n q(\bz | \bx) = \prod_{j=1}^d q_{\text{agg}}(z_j)
+		\]
+		\vspace{-0.6cm}
+	\end{block}
+	\begin{block}{DIP-VAE objective}
+		\vspace{-0.7cm}
+		{\small
+			\begin{multline*}
+			\cL_{\text{DIP}}(q, \btheta) = \frac{1}{n} \sum_{i=1}^n \cL_i(q, \btheta) -\lambda \cdot KL(q_{\text{agg}}(\bz) || p(\bz)) = \\
+			= \underbrace{ \frac{1}{n} \sum_{i=1}^n \left[\bbE_{q(\bz | \bx_i)} \log p(\bx_i | \bz, \btheta)\right]}_{\text{Reconstruction loss}} - \underbrace{\vphantom{\sum_{i=1}^n} \bbI_{q} [\bx, \bz]}_{\text{MI}} - (1 + \lambda) \cdot \underbrace{\vphantom{\sum_{i=1}^n} KL(q_{\text{agg}}(\bz) || p(\bz))}_{\text{Marginal KL}}
+			\end{multline*}
+		}
+		\vspace{-0.3cm}
+	\end{block}
+	Marginal KL term is intractable. $\Rightarrow$
+	Let match the moments of $q_{\text{agg}}(\bz)$ and $p(\bz)$:
+	\vspace{-0.3cm}
+	\[
+		\text{cov}_{q_{\text{agg}}(\bz)}(\bz) = \bbE_{q_{\text{agg}}(\bz)} \left[ (\bz - \bbE_{q_{\text{agg}}(\bz)}(\bz)) (\bz - \bbE_{q_{\text{agg}}(\bz)}(\bz))^T \right].
+	\]
+	\myfootnotewithlink{https://arxiv.org/abs/1711.00848}{Kumar A., Sattigeri P., Balakrishnan A. Variational Inference of Disentangled Latent Concepts from Unlabeled Observations, 2017}
+\end{frame}
+%=======
+\begin{frame}{DIP-VAE: analysis}
+	Reconstructions become better.
+	\begin{figure}
+		\centering
+		\includegraphics[width=\linewidth]{figs/dip-vae_1}
+	\end{figure}
+
+	\myfootnotewithlink{https://arxiv.org/abs/1711.00848}{Kumar A., Sattigeri P., Balakrishnan A. Variational Inference of Disentangled Latent Concepts from Unlabeled Observations, 2017}
+\end{frame}
+%=======
+\begin{frame}{Challenging disentanglement assumptions}
+
+\begin{block}{Theorem}
+	Let $\bz$ has density $p(\bz) = \prod^d_{i=1} p(z_i)$. Then, there exists an \textbf{infinite} family of bijective functions $f : \text{supp}(\bz) \rightarrow \text{supp}(\bz)$:
+	\begin{itemize}
+		\item $\frac{\partial f_i(\bz)}{\partial z_j} \neq 0$ for all $i$ and $j$ ($\bz$ and $f(\bz)$ are completely entangled);
+		\item $P(\bz \leq \bu) = P(f(\bz) \leq \bu)$ for all $\bu \in \text{supp}(\bz)$.
+	\end{itemize}  
+\end{block}
+Consider a generative model with disentangled representation $\bz$.
+\begin{itemize}
+	\item $\exists$ $\hat{\bz} = f(\bz)$ where $\hat{\bz}$ is completely entangled
+	with respect to $\bz$.
+	\item The disentanglement method cannot distinguish between the two equivalent generative models:
+	\vspace{-0.3cm}
+	\[
+		p(\bx) = \int p(\bx | \bz) p(\bz) d\bz = \int p(\bx | \hat{\bz})p(\hat{\bz}) d \hat{\bz}.
+	\]
+	\vspace{-0.6cm}
+\end{itemize}
+Theorem claims that unsupervised disentanglement learning is impossible for arbitrary generative models with a factorized prior.
+
+\myfootnotewithlink{https://arxiv.org/abs/1811.12359}{Locatello F. et al. Challenging Common Assumptions in the Unsupervised Learning of Disentangled Representations, 2018}
+\end{frame}
+%=======
+\section{Likelihood-free learning}
+%=======
+\begin{frame}{Likelihood based models}
+	Is likelihood a good measure of model quality?
+	\begin{minipage}[t]{0.48\columnwidth}
+		\begin{block}{Poor likelihood \\ Great samples}
+			\vspace{-0.3cm}
+			\[
+				p_1(\bx) = \frac{1}{n} \sum_{i=1}^n \cN(\bx | \bx_i, \epsilon \bI)
+			\]
+			For small $\epsilon$ this model will generate samples with great quality, but likelihood will be very poor.
+		\end{block}
+	\end{minipage}%
+	\begin{minipage}[t]{0.52\columnwidth}
+		\begin{block}{Great likelihood \\ Poor samples}
+			\vspace{-0.3cm}
+			\[
+				p_2(\bx) = 0.01p(\bx) + 0.99p_{\text{noise}}(\bx)
+			\]
+			\begin{multline*}
+				\log \left[ 0.01p(\bx) + 0.99p_{\text{noise}}(\bx) \right] \geq  \\ \geq \log \left[ 0.01p(\bx) \right]  = \log p(\bx) - \log 100
+			\end{multline*}
+		Noisy irrelevant samples, but for high dimensions $\log p(\bx)$ becomes proportional to $m$.
+		\end{block}
+	\end{minipage}
+	\myfootnotewithlink{https://arxiv.org/abs/1511.01844}{Theis L., Oord A., Bethge M. A note on the evaluation of generative models, 2015}
+\end{frame}
+%=======
+\begin{frame}{Likelihood-free learning}
+	\begin{itemize}
+		\item Likelihood is not a perfect quality measure for generative model.
+		\item Likelihood could be intractable.
+	\end{itemize}
+	\begin{block}{Where did we start}
+	 We would like to approximate true data distribution $\pi(\bx)$.
+		Instead of searching true $\pi(\bx)$ over all probability distributions, learn function approximation $p(\bx | \btheta) \approx \pi(\bx)$.
+	\end{block}
+	Imagine we have two sets of samples 
+	\begin{itemize}
+		\item $\cS_1 = \{\bx_i\}_{i=1}^{n_1} \sim \pi(\bx)$ -- real samples;
+		\item $\cS_2 = \{\bx_i\}_{i=1}^{n_2} \sim p(\bx | \btheta)$ -- generated (or fake) samples.
+	\end{itemize}
+	\begin{block}{Two sample test}
+		\vspace{-0.3cm}
+		\[
+			H_0: \pi(\bx) = p(\bx | \btheta), \quad H_1: \pi(\bx) \neq p(\bx | \btheta)
+		\]
+	\end{block}
+	Define test statistic $T(\cS_1, \cS_2)$. The test statistic is likelihood free.
+	If $T(\cS_1, \cS_2) < \alpha$, then accept $H_0$, else reject it.
+\end{frame}
+%=======
+\begin{frame}{Likelihood-free learning}
+	\begin{block}{Two sample test}
+		\vspace{-0.5cm}
+		\[
+			H_0: \pi(\bx) = p(\bx | \btheta), \quad H_1: \pi(\bx) \neq p(\bx | \btheta)
+		\]
+		\vspace{-0.8cm}
+	\end{block}
+	\begin{block}{Desired behaviour}
+		\begin{itemize}
+			\item $p(\bx | \btheta)$ minimizes the value of test statistic~$T(\cS_1, \cS_2)$.
+			\item It is hard to find an appropriate test statistic in high dimensions. $T(\cS_1, \cS_2)$ could be learnable.
+		\end{itemize}
+	\end{block}
+	\vspace{-0.3cm}
+	\begin{block}{GAN objective}
+		\begin{itemize}
+			\item \textbf{Generator:} generative model $\bx = G(\bz)$, which makes generated sample more realistic.
+			\item \textbf{Discriminator:} a classifier $D(\bx) \in [0, 1]$, which distinguishes real samples from generated samples.
+		\end{itemize}
+		\[
+			\min_{G} \max_D V(G, D) = \min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz))) \right]
+		\]
+	\end{block}
+	 \myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
+\end{frame}
+%=======
+\section{Generative adversarial networks}
+%=======
+\begin{frame}{Generative models zoo}
+	\begin{tikzpicture}[
+	 	basic/.style  = {draw, text width=2cm, drop shadow, rectangle},
+	 	root/.style   = {basic, rounded corners=2pt, thin, text height=1.1em, text width=7em, align=center, fill=blue!40},
+	 	level 1/.style={sibling distance=55mm},
+	 	level 2/.style = {basic, rounded corners=6pt, thin, align=center, fill=blue!20, text height=1.1em, text width=9em, sibling distance=38mm},
+	 	level 3/.style = {basic, rounded corners=6pt, thin,align=center, fill=blue!20, text width=8.5em},
+	 	level 4/.style = {basic, thin, align=left, fill=pink!30, text width=7em},
+	 	level 5/.style = {basic, thin, align=left, fill=pink!90, text width=7em},
+		edge from parent/.style={->,draw},
+		>=latex]
+		
+		% root of the the initial tree, level 1
+		\node[root] {\Large Generative models}
+		% The first level, as children of the initial tree
+		child {node[level 2] (c1) {Likelihood-based}
+			child {node[level 3] (c11) {Tractable density}}
+			child {node[level 3] (c12) {Approximate density}}
+		}
+		child {node[level 2] (c2) {Implicit density}};
+		
+		% The second level, relatively positioned nodes
+		\begin{scope}[every node/.style={level 4}]
+		\node [below of = c11, yshift=-5pt, xshift=10pt] (c111) {Autoregressive models};
+		\node [below of = c111, yshift=-5pt] (c112) {Normalizing Flows};
+		
+		\node [below of = c12, xshift=10pt] (c121) {VAEs};
+		\node [below of = c121] (c122) {Diffusion models};
+		
+		\end{scope}
+		
+		% The second level, relatively positioned nodes
+		\begin{scope}[every node/.style={level 5}]
+		\node [below of = c2, xshift=10pt] (c21) {GANs};
+		\end{scope}
+		
+		
+		% lines from each level 1 node to every one of its "children"
+		\foreach \value in {1,2}
+		\draw[->] (c11.194) |- (c11\value.west);
+		
+		\foreach \value in {1,2}
+		\draw[->] (c12.194) |- (c12\value.west);
+		
+		\draw[->] (c2.194) |- (c21.west);
+		
+	\end{tikzpicture}
+\end{frame}
+%=======
+\begin{frame}{Vanilla GAN optimality}
+	\begin{block}{Theorem}
+	The minimax game 
+		\vspace{-0.1cm}
+		\[
+			\min_{G} \max_D V(G, D) = \min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz))) \right]
+		\]
+	has the global optimum $\pi(\bx) = p(\bx | \btheta)$, in this case $D^*(\bx) = 0.5$.
+	\end{block}
+	\begin{block}{Proof (fixed $G$)}
+		\vspace{-0.5cm}
+		\begin{align*}
+			V(G, D) &= \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bx | \btheta)} \log (1 - D(\bx)) \\
+			&= \int \underbrace{\left[ \pi(\bx) \log D(\bx) + p(\bx | \btheta)\log (1 - D(\bx) \right]}_{y(D)} d \bx
+		\end{align*}
+		\vspace{-0.2cm}
+		\[
+			\frac{d y(D)}{d D} = \frac{\pi(\bx)}{D(\bx)} - \frac{p(\bx | \btheta)}{1 - D(\bx)} = 0 \quad \Rightarrow \quad D^*(\bx) = \frac{\pi(\bx)}{\pi(\bx) + p(\bx | \btheta)}
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
+\end{frame}
+%=======
+\begin{frame}{Vanilla GAN optimality}
+	\begin{block}{Proof continued (fixed $D = D^*$)}
+		\vspace{-0.5cm}
+		\begin{multline*}
+			V(G, D^*) = \bbE_{\pi(\bx)} \log \frac{\pi(\bx)}{\pi(\bx) + p(\bx | \btheta)} + \bbE_{p(\bx | \btheta)} \log \frac{p(\bx | \btheta)}{\pi(\bx) + p(\bx | \btheta)} \\
+		 = KL \left(\pi(\bx) || \frac{\pi(\bx) + p(\bx | \btheta)}{2}\right) + KL \left(p(\bx | \btheta) || \frac{\pi(\bx) + p(\bx | \btheta)}{2}\right) - 2\log 2 \\
+		 = 2JSD(\pi(\bx) || p(\bx | \btheta)) - 2\log 2.
+		\end{multline*}
+	\end{block}
+	\vspace{-0.3cm}
+	\begin{block}{Jensen-Shannon divergence (symmetric KL divergence)}
+		\vspace{-0.2cm}
+		\footnotesize
+		\[
+			JSD(\pi(\bx) || p(\bx | \btheta)) = \frac{1}{2} \left[KL \left(\pi(\bx) || \frac{\pi(\bx) + p(\bx | \btheta)}{2}\right) + KL \left(p(\bx | \btheta) || \frac{\pi(\bx) + p(\bx | \btheta)}{2}\right) \right]
+		\]
+	\end{block}
+	Could be used as a distance measure!
+	\[
+		V(G^*, D^*) = -2\log 2, \quad \pi(\bx) = p(\bx | \btheta).
+	\]
+	
+	 \myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
+\end{frame}
+%=======
+\begin{frame}{Vanilla GAN optimality}
+	\begin{block}{Theorem}
+		The minimax game 
+		\vspace{-0.1cm}
+		\[
+			\min_{G} \max_D  V(G, D) = \min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz))) \right]
+		\]
+		has the global optimum $\pi(\bx) = p(\bx | \btheta)$, in this case $D^*(\bx) = 0.5$.
+	\end{block}
+	\vspace{-0.2cm}
+	\begin{block}{Proof}
+	for fixed $G$:
+	\[
+		D^*(\bx) = \frac{\pi(\bx)}{\pi(\bx) + p(\bx | \btheta)}
+	\]
+	\vspace{-0.5cm} \\
+	for fixed $D = D^*$:
+	\[
+		\min_{G} V(G, D^*) = \min_{G} \left[ 2 JSD(\pi || p) - \log 4 \right] = -\log 4, \quad \pi(\bx) = p(\bx | \btheta).
+	\]
+	\vspace{-0.6cm}
+	\end{block}
+	If the generator could be any function and the discriminator is optimal at every step, then the generator is guaranteed to converge to the data distribution.
+	 \myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
+\end{frame}
+%=======
+\begin{frame}{Vanilla GAN}
+	\begin{block}{Objective}
+		\vspace{-0.4cm}
+		\[
+		\min_{G} \max_D V(G, D) = \min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz))) \right]
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+
+	\begin{figure}
+		\centering
+		\includegraphics[width=1.0\linewidth]{figs/gan_1}
+	\end{figure}
+	\begin{itemize}
+		\item Generator updates are made in parameter space.
+		\item Discriminator is not optimal at every step.
+		\item Generator and discriminator loss keeps oscillating during GAN training.
+	\end{itemize}
+
+	 \myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
+\end{frame}
+%=======
+\begin{frame}{Summary}
+	\begin{itemize}
+		\item Disentanglement learning tries to make latent components more informative.
+		\vfill
+		\item $\beta$-VAE makes the latent components more independent, but the reconstructions get poorer. DIP-VAE does not make the reconstructions worse using ELBO surgery theorem.
+		\vfill
+		\item Majority of disentanglement learning models use heuristic objective or regularizers to achieve the goal, but the task itself could not be solved without good inductive bias.
+		\vfill
+		\item Likelihood is not a perfect criteria to measure quality of generative model.
+		\vfill		
+		\item Adversarial learning suggests to solve minimax problem to match the distributions.
+		\vfill
+		\item Vanilla GAN tries to optimize Jensen-Shannon divergence (in theory).
+	\end{itemize}
+\end{frame}
+\end{document} 

@@ -1,0 +1,495 @@
+\input{../utils/preamble}
+\createdgmtitle{14}
+
+\usepackage{tikz}
+
+\usetikzlibrary{arrows,shapes,positioning,shadows,trees}
+%--------------------------------------------------------------------------------
+\begin{document}
+%--------------------------------------------------------------------------------
+\begin{frame}[noframenumbering,plain]
+%\thispagestyle{empty}
+\titlepage
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Continuous dynamic}
+		\vspace{-0.5cm}
+		\[
+			\frac{d\bz(t)}{dt} = f(\bz(t), \btheta).
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Forward pass}
+		\vspace{-0.5cm}
+		\[
+			\bz(t_1) = \int^{t_1}_{t_0} f(\bz(t), \btheta) d t  + \bz_0 \quad \Rightarrow \quad \text{ODE Solver}
+		\]
+		\vspace{-0.6cm}
+	\end{block}
+	\begin{block}{Backward pass}
+		\vspace{-0.6cm}
+		\begin{equation*}
+			\left.
+				{\footnotesize 
+				\begin{aligned}
+					\frac{\partial L}{\partial \btheta(t_0)} &= \ba_{\btheta}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), \btheta)}{\partial \btheta(t)} dt + 0 \\
+					\frac{\partial L}{\partial \bz(t_0)} &= \ba_{\bz}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), \btheta)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_1)} \\
+					\bz(t_0) &= - \int^{t_0}_{t_1} f(\bz(t), \btheta) d t  + \bz_1.
+				\end{aligned}
+				}
+			\right\rbrace
+			 \Rightarrow
+			\text{ODE Solver}
+		\end{equation*}
+		\vspace{-0.4cm} 
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\vspace{-0.5cm}
+	\begin{block}{Continuous normalizing flows}
+		\[
+			\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial f (\bz(t), \btheta)}{\partial \bz(t)} \right).
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Forward transform + log-density}
+		\vspace{-0.4cm}
+		\[
+			\begin{bmatrix}
+				\bx \\
+				\log p(\bx | \btheta)
+			\end{bmatrix}
+			= 
+			\begin{bmatrix}
+				\bz \\
+				\log p(\bz)
+			\end{bmatrix} + 
+			\int_{t_0}^{t_1} 
+			\begin{bmatrix}
+				f(\bz(t), \btheta) \\
+				- \text{tr} \left( \frac{\partial f(\bz(t), \btheta)}{\partial \bz(t)} \right) 
+			\end{bmatrix} dt.
+		\]
+		\vspace{-0.4cm}
+	\end{block}	
+	\begin{block}{Hutchinson's trace estimator}
+		\vspace{-0.8cm}
+		\begin{multline*}
+		   \log p(\bz(t_1)) = \log p(\bz(t_0)) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial f (\bz(t), \btheta)}{\partial \bz(t)} \right) dt = \\ = \log p(\bz(t_0)) - \mathbb{E}_{p(\bepsilon)} \int_{t_0}^{t_1} \left[ {\color{violet}\bepsilon^T \frac{\partial f}{\partial \bz}} \bepsilon \right] dt.
+		\end{multline*}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018} 
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\vspace{-0.2cm}
+	\begin{block}{SDE basics}
+		Let define stochastic process $\bx(t)$ with initial condition $\bx(0) \sim p_0(\bx)$:
+		\[
+			d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw, 
+		\]
+		where $\bw(t)$ is the standard Wiener process (Brownian motion)
+		\vspace{-0.2cm}
+		\[		
+			\bw(t) - \bw(s) \sim \cN(0, (t - s) \bI), \quad d \bw = \bepsilon \cdot \sqrt{dt}, \, \text{where } \bepsilon \sim \cN(0, \bI).
+		\]
+	\end{block}
+	\vspace{-0.5cm}
+	\begin{block}{Langevin dynamics}
+		Let $\bx_0$ be a random vector. Then under mild regularity conditions for small enough $\eta$ samples from the following dynamics
+		\vspace{-0.2cm}
+		\[
+			\bx_{t + 1} = \bx_t + \eta \frac{1}{2} \nabla_{\bx_t} \log p(\bx_t | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI).
+		\]
+		will comes from $p(\bx | \btheta)$.
+	\end{block}
+	The density $p(\bx | \btheta)$ is a \textbf{stationary} distribution for the Langevin SDE.
+	\myfootnotewithlink{https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf}{Welling M. Bayesian Learning via Stochastic Gradient Langevin Dynamics, 2011}
+\end{frame}
+%=======
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
+\section{Score matching}
+%=======
+\begin{frame}{Score matching}
+	We could sample from the model if we have $\nabla_{\bx}\log p(\bx| \btheta)$.
+	\begin{block}{Fisher divergence}
+		\vspace{-0.3cm}
+		\[
+			D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \nabla_{\bx}\log p(\bx| \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Score function}
+		\vspace{-0.3cm}
+		\[
+			\bs(\bx, \btheta) = \nabla_{\bx}\log p(\bx| \btheta)
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	\textbf{Problem:} we do not know $\nabla_\bx \log \pi(\bx)$.
+	\begin{block}{Theorem}
+		Under some regularity conditions, it holds
+		\vspace{-0.2cm}
+		\[
+			\frac{1}{2} \bbE_{\pi}\bigl\| \bs(\bx, \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 = \bbE_{\pi}\Bigr[ \frac{1}{2}\| \bs(\bx, \btheta) \|_2^2 + \text{tr}\bigl(\nabla_{\bx} \bs(\bx, \btheta)\bigr) \Bigr] + \text{const}
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	Here $\nabla_{\bx} \bs(\bx, \btheta) = \nabla_{\bx}^2 \log p(\bx | \btheta)$ is a Hessian matrix.
+	\myfootnotewithlink{https://jmlr.org/papers/volume6/hyvarinen05a/old.pdf}{Hyvarinen A. Estimation of non-normalized statistical models by score matching, 2005} 
+\end{frame}
+%=======
+\begin{frame}{Score matching}
+	\begin{block}{Theorem}
+		\vspace{-0.6cm}
+		\[
+			\frac{1}{2} \bbE_{\pi}\bigl\| \bs(\bx, \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 = \bbE_{\pi}\Bigr[ \frac{1}{2}\| \bs(\bx, \btheta) \|_2^2 + \text{tr}\bigl(\nabla_{\bx} \bs(\bx, \btheta)\bigr) \Bigr] + \text{const}
+		\]
+		\vspace{-0.6cm}
+	\end{block}
+	\begin{block}{Proof (only for 1D)}
+		\vspace{-0.6cm}
+		{\small
+		\begin{multline*}
+			\bbE_{\pi}\bigl\| s(x) - \nabla_x \log \pi(x) \bigr\|^2_2 = \bbE_{\pi} \bigl[ s(x)^2 + (\nabla_x \log \pi(x))^2 - 2{\color{teal}[s(x) \nabla_x \log \pi(x) ] \bigr] }
+		\end{multline*}
+		\vspace{-0.8cm}
+		\begin{align*}
+			{\color{teal}\bbE_{\pi} [{\color{violet}s(x) } \nabla_x \log \pi(x) ] } &= \int {\color{olive}\pi(x) {\color{violet}\nabla_x \log p(x)} \nabla_x \log \pi(x)} d x \\ 
+			&= \int {\color{violet}\nabla_x \log p(x) } {\color{olive}\nabla_x \pi(x) } dx = \Bigl.\pi(x) \nabla_x \log p(x) \Bigr|_{-\infty}^{+\infty} \\
+			&- \int \nabla^2_x \log p(x)  \pi(x) dx =- \bbE_{\pi} \nabla^2_x \log p(x)
+		\end{align*}
+		\[
+			\frac{1}{2} \bbE_{\pi}\bigl\| s(x) - \nabla_x \log \pi(x) \bigr\|^2_2 = \frac{1}{2} \bbE_{\pi} \Bigr[s(x)^2 + \nabla_x s(x) \Bigl]+ \text{const}.
+		\]
+		}
+	\end{block}
+	\myfootnotewithlink{https://jmlr.org/papers/volume6/hyvarinen05a/old.pdf}{Hyvarinen A. Estimation of non-normalized statistical models by score matching, 2005} 
+\end{frame}
+%=======
+\begin{frame}{Score matching}
+	\vspace{-0.3cm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\linewidth]{figs/smld}
+	\end{figure}
+	\vspace{-0.6cm}
+	\begin{block}{Theorem (implicit score matching)}
+		\vspace{-0.6cm}
+		\[
+			\frac{1}{2} \bbE_{\pi}\bigl\| \bs(\bx, \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 = \bbE_{\pi}\Bigr[ \frac{1}{2}\| \bs(\bx, \btheta) \|_2^2 + \text{tr}\bigl(\nabla_{\bx} \bs(\bx, \btheta)\bigr) \Bigr] + \text{const}
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	\begin{enumerate}
+	    \item The left hand side is intractable due to unknown $\pi(\bx)$ -- \textbf{denoising score matching}. 
+	    \item The right hand side is complex due to Hessian matrix -- \textbf{sliced score matching}.
+	\end{enumerate}
+	\myfootnotewithlink{https://yang-song.github.io/blog/2019/ssm/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Score matching}
+	\vspace{-0.3cm}
+	\begin{block}{Sliced score matching (Hutchinson's trace estimation)}
+		\vspace{-0.3cm}
+		\[
+			\text{tr}\bigl(\nabla_{\bx} \bs(\bx, \btheta)\bigr) = \mathbb{E}_{p(\bepsilon)} \left[ {\color{violet}\bepsilon^T \nabla_{\bx} \bs(\bx, \btheta)} \bepsilon \right],
+		\]
+		where $\mathbb{E} [\bepsilon] = 0$ and $\text{Cov} (\bepsilon) = \bI$.
+	\end{block}
+	\vspace{-0.2cm}
+	\begin{block}{Denoising score mathing}
+		Let perturb original data by normal noise $p(\bx | \bx', \sigma) = \cN(\bx | \bx', \sigma^2 \bI)$
+		\vspace{-0.3cm}
+		\[
+			\pi(\bx | \sigma) = \int \pi(\bx') p(\bx | \bx', \sigma) d\bx'.
+		\]
+		\vspace{-0.6cm} \\
+		Then the solution of 
+		\vspace{-0.2cm}
+		\[
+			\frac{1}{2} \bbE_{\pi(\bx | \sigma)}\bigl\| \bs(\bx, \btheta, \sigma) - \nabla_\bx \log \pi(\bx | \sigma) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\]
+		\vspace{-0.5cm} \\
+		satisfies $\bs(\bx, \btheta, \sigma) \approx \bs(\bx, \btheta, 0) = \bs(\bx, \btheta)$ using small enough noise scale $\sigma$.
+	\end{block}
+	\myfootnote{\href{https://arxiv.org/abs/1905.07088}{Song Y. Sliced Score Matching: A Scalable Approach to Density and Score Estimation, 2019} \\
+	\href{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A connection between score matching and denoising autoencoders. Neural computation, 2011}}.
+\end{frame}
+%=======
+\begin{frame}{Denoising score matching}
+	\begin{block}{Theorem}
+		\vspace{-0.8cm}
+		\begin{multline*}
+			\bbE_{\pi(\bx | \sigma)}\bigl\| \bs(\bx, \btheta, \sigma) - \nabla_\bx \log \pi(\bx | \sigma) \bigr\|^2_2 = \\ = \bbE_{\pi(\bx')} \bbE_{p(\bx | \bx', \sigma)}\bigl\| \bs(\bx, \btheta, \sigma) - \nabla_\bx \log p(\bx | \bx', \sigma) \bigr\|^2_2	
+		\end{multline*}
+		\vspace{-0.8cm}
+	\end{block}
+	Here $\nabla_{\bx} \log p(\bx | \bx', \sigma) = - \frac{\bx - \bx'}{\sigma^2}$.
+	\begin{itemize}
+		\item The RHS does not need to compute $\nabla_{\bx} \log \pi(\bx | \sigma)$ and even more $\nabla_{\bx} \log \pi(\bx)$.
+		\item $\bs(\bx, \btheta, \sigma)$ tries to \textbf{denoise} a corrupted sample.
+		\item Score function $\bs(\bx, \btheta, \sigma)$ parametrized by $\sigma$. How to make it?
+	\end{itemize}
+	\myfootnotewithlink{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A Connection Between Score Matching and Denoising Autoencoders, 2010}
+\end{frame}
+%=======
+\begin{frame}{Denoising score matching}
+	\begin{itemize}
+		\item If $\sigma$ is \textbf{small}, the score function is not accurate and Langevin dynamics will probably fail to jump between modes.
+		\begin{figure}
+			\includegraphics[width=0.75\linewidth]{figs/pitfalls}
+		\end{figure}
+		\item If $\sigma$ is \textbf{large}, it is good for low-density regions and  multimodal distributions, but we will learn too corrupted distribution.
+		\begin{figure}
+			\includegraphics[width=0.75\linewidth]{figs/single_noise}
+		\end{figure}
+	\end{itemize}
+	\myfootnotewithlink{https://yang-song.github.io/blog/2019/ssm/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
+\end{frame}
+%=======
+\section{Noise conditioned score network}
+%=======
+\begin{frame}{Noise conditioned score network}
+	\begin{itemize}
+		\item Define the sequence of noise levels: $\sigma_1 > \sigma_2 > \dots > \sigma_L$.
+		\item Perturb the original data with the different noise level to get $\pi(\bx | \sigma_1), \dots, \pi(\bx | \sigma_L)$.
+		\item Train denoised score function $\bs(\bx, \btheta, \sigma)$ for each noise level:
+		\vspace{-0.2cm}
+		\[
+			\sum_{l=1}^L {\color{violet}\sigma_l^2} \bbE_{\pi(\bx')} \bbE_{p(\bx | \bx', \sigma_l)}\bigl\| \bs(\bx, \btheta, \sigma_l) - \nabla_\bx \log p(\bx | \bx', \sigma_l) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\]
+		\item Sample from \textbf{annealed} Langevin dynamics (for $l=1, \dots, L$).
+	\end{itemize}
+	\begin{figure}
+		\includegraphics[width=0.6\linewidth]{figs/multi_scale}
+	\end{figure}
+	\begin{figure}
+		\includegraphics[width=\linewidth]{figs/duoduo}
+	\end{figure}
+	\myfootnotewithlink{https://arxiv.org/abs/1907.05600}{Song Y. et al. Generative Modeling by Estimating Gradients of the Data Distribution, 2019}
+\end{frame}
+%=======
+\begin{frame}{Noise conditioned score network}
+	\begin{block}{Samples}
+		\begin{figure}
+			\includegraphics[width=\linewidth]{figs/NCSNv2}
+		\end{figure}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.09011}{Song Y. et al. Improved Techniques for Training Score-Based Generative Models, 2020}
+\end{frame}
+%=======
+\section{Diffusion models}
+%=======
+\begin{frame}{Forward diffusion process}
+	Let $\bx_0 = \bx \sim \pi(\bx)$, $\beta \in (0, 1)$. Define the Markov chain
+	\[
+		\bx_t = \sqrt{1 - \beta} \bx_{t - 1} + \sqrt{\beta} \bepsilon, \quad \text{where }\bepsilon \sim \cN(0, 1);
+	\]
+	\[
+		q(\bx_t | \bx_{t-1}) = \cN(\bx_t | \sqrt{1 - \beta} \bx_{t-1}, \beta \bI).
+	\]
+	\vspace{-0.5cm}
+	\begin{block}{Statement}
+		Applying the Markov chain to samples from any $\pi(\bx)$ we will get $\bx_{\infty} \sim p_{\infty}(\bx) = \cN(0, 1)$. Here $p_{\infty}(\bx)$ is a \textbf{stationary} distribution:
+		\vspace{-0.2cm}
+		\[
+			p_{\infty}(\bx) = \int q(\bx | \bx') p_{\infty}(\bx') d \bx'. 
+		\]
+		\vspace{-0.8cm}
+	\end{block}
+	\begin{block}{Statement}
+		Denote $\alpha_t = 1 - \beta_t$, $\bar{\alpha}_t = \prod_{s=1}^t \alpha_t$. Then 
+		\vspace{-0.2cm}
+		\[
+			\bx_t = \sqrt{\bar{\alpha}_t} \bx_{0} + \sqrt{1 - \bar{\alpha}_t} \bepsilon, \quad \text{where } \bepsilon \sim \cN(0, 1)
+		\]
+		\[
+			q(\bx_t | \bx_0) = \cN(\bx_t | \sqrt{\bar{\alpha}_t} \bx_0, (1 - \bar{\alpha}_t) \bI).
+		\]
+		We could sample from any timestamp using only $\bx_0$.
+	\end{block}
+	\myfootnotewithlink{http://proceedings.mlr.press/v37/sohl-dickstein15.pdf}{Sohl-Dickstein J. Deep Unsupervised Learning using Nonequilibrium Thermodynamics, 2015}
+\end{frame}
+%=======
+\begin{frame}{Forward diffusion process}
+	\textbf{Diffusion} refers to the flow of particles from high-density regions towards low-density regions.
+	\begin{figure}
+		\includegraphics[width=0.5\linewidth]{figs/diffusion_over_time}
+	\end{figure}
+	\vspace{-0.3cm}
+	\begin{enumerate}
+		\item $\bx_0 = \bx \sim \pi(\bx)$;
+		\item $\bx_t = \sqrt{1 - \beta} \bx_{t - 1} + \sqrt{\beta} \bepsilon$, where $\bepsilon \sim \cN(0, 1)$, $t \geq 1$;
+		\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, 1)$.
+	\end{enumerate}
+	Now our goal is to revert this process.
+	\myfootnotewithlink{https://ayandas.me/blog-tut/2021/12/04/diffusion-prob-models.html}{Das A. An introduction to Diffusion Probabilistic Models, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Reverse diffusion process}
+	\begin{figure}
+		\includegraphics[width=0.8\linewidth]{figs/DDPM}
+	\end{figure}
+	Let define the reverse process
+	\vspace{-0.2cm}
+	\[
+		p(\bx_{t - 1} | \bx_t, \btheta) = \cN(\bx_{t - 1} | \bmu(\bx_t, \btheta, t), \bsigma^2(\bx_t, \btheta, t))
+	\]
+	\vspace{-0.5cm}
+	\begin{minipage}{0.5\linewidth}
+		\begin{block}{Forward process}
+			\begin{enumerate}
+				\item $\bx_0 = \bx \sim \pi(\bx)$;
+				\item $\bx_t = \sqrt{1 - \beta} \bx_{t - 1} + \sqrt{\beta} \bepsilon$, where $\bepsilon \sim \cN(0, 1)$, $t \geq 1$;
+				\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, 1)$.
+			\end{enumerate}
+		\end{block}
+	\end{minipage}%
+	\begin{minipage}{0.5\linewidth}
+		\begin{block}{Reverse process}
+			\begin{enumerate}
+				\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, 1)$;
+				\item $\bx_{t - 1} = \bsigma(\bx_t, \btheta, t) \cdot \bx_t + \bmu(\bx_t, \btheta, t)$;
+				\item $\bx_0 = \bx \sim \pi(\bx)$;
+			\end{enumerate}
+		\end{block}
+	\end{minipage}
+	\myfootnotewithlink{https://lilianweng.github.io/posts/2021-07-11-diffusion-models/}{Weng L. What are Diffusion Models?, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Diffusion model}
+	\begin{figure}
+		\includegraphics[width=0.75\linewidth]{figs/diffusion_pgm}
+	\end{figure}
+	\begin{itemize}
+		\item Let treat $\bz = (\bx_1, \dots, \bx_T)$ as a latent variable.
+		\item Variational posterior distribution
+		\vspace{-0.3cm}
+		\[
+			q(\bz | \bx) = q(\bx_1, \dots, \bx_T | \bx_0) = \prod_{t = 1}^T q(\bx_t | \bx_{t - 1}).
+		\]
+		\vspace{-0.5cm}
+		\item Probabilistic model
+		\[
+			p(\bx, \bz | \btheta) = p(\bx | \bz, \btheta) p(\bz | \btheta)
+		\]
+		\item Generative distribution and prior
+		\vspace{-0.3cm}
+		\[
+			p(\bx | \bz, \btheta) = p(\bx_0 | \bx_1, \btheta); \quad 
+			p(\bz | \btheta) = \prod_{t=2}^T p(\bx_{t - 1} | \bx_t, \btheta)
+		\]
+	\end{itemize}
+	\myfootnotewithlink{https://ayandas.me/blog-tut/2021/12/04/diffusion-prob-models.html}{Das A. An introduction to Diffusion Probabilistic Models, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Diffusion model}
+	\begin{block}{ELBO}
+		\vspace{-0.4cm}
+		\[
+			\log p(\bx | \btheta) \geq \int q(\bz | \bx) \frac{p(\bx, \bz | \btheta)}{q(\bz | \bx)} d \bz = \cL(q, \btheta) \rightarrow \max_{q, \theta}
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Statement}
+		\vspace{-0.8cm}
+		\begin{multline*}
+			\cL(q, \btheta) = \bbE_{q(\bx_1, \dots, \bx_T | \bx_0)}\frac{p(\bx_0, \bx_1, \dots, \bx_T | \btheta)}{q(\bx_1, \dots, \bx_T | \bx_0)} = \\ 
+			= \bbE_{q} \Bigl[ {\color{violet}KL\bigl(q(\bx_T | \bx_0) || p(\bx_T)\bigr)}
+			+ \sum_{t=2}^T \underbrace{\color{teal}KL \bigl(q(\bx_{t-1} | \bx_t, \bx_0) || p(\bx_{t - 1} || \bx_t, \btheta )\bigr)}_{\cL_t} - \\
+			- {\color{olive}\log p(\bx_0 | \bx_1, \btheta)} \Bigr]
+		\end{multline*}
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{itemize}
+		\item {\color{violet}First term} is constant (KL between two standard normals).
+		\item {\color{olive}Third term} is a decoder distribution (could be AR model or discretized distribution (like mixture of logistics)). 
+	\end{itemize}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+\end{frame}
+%=======
+\begin{frame}{Diffusion model}
+	\[
+		\cL_t = {\color{teal}KL \bigl(q(\bx_{t-1} | \bx_t, \bx_0) || p(\bx_{t - 1} || \bx_t, \btheta )\bigr)},
+	\]
+	Here
+	\[
+		q(\bx_{t-1} | \bx_t, \bx_0) = \cN(\bx_{t-1} | \tilde{\bmu}_t(\bx_t, \bx_0), \tilde{\beta}_t \bI),
+	\]
+	$\tilde{\bmu}_t(\bx_t, \bx_0)$ and $\tilde{\beta}_t$ have analytical formulas (we omit it) and both dependent on $\beta_t$.
+	\begin{itemize}
+		\item Assume $\bsigma^2(\bx_t, \btheta, t) = \tilde{\beta}_t \bI$ {\color{gray}(reminder: $p(\bx_{t - 1} | \bx_t, \btheta) = \cN(\bx_{t - 1} | \bmu(\bx_t, \btheta, t), \bsigma^2(\bx_t, \btheta, t))$)}.
+		\item Use KL formula for normal distributions.
+		\item Use the fact $\bx_t = \sqrt{\bar{\alpha}_t} \bx_{0} + \sqrt{1 - \bar{\alpha}_t} \bepsilon$
+	\end{itemize}
+	\begin{multline*}
+		\cL_t = \bbE_{\bepsilon} \left[ \frac{1}{2\tilde{\beta}_t} \| {\color{violet} \tilde{\bmu}_t(\bx_t, \bx_0)} - \bmu(\bx_t, \btheta, t) \|^2 \right] = \\ 
+		= \bbE_{\bepsilon} \left[ \frac{1}{2\tilde{\beta}_t} \left\| {\color{violet} \frac{1}{\sqrt{\alpha_t}}\left( \bx_t - \frac{\beta_t}{\sqrt{1 - \bar{\alpha}_t} } \bepsilon \right)} - \bmu(\bx_t, \btheta, t) \right\|^2 \right]
+	\end{multline*}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+	\end{frame}
+%=======
+\begin{frame}{Diffusion model}
+	\begin{block}{Reparametrization}
+		\vspace{-0.3cm}
+		\[
+			\bmu(\bx_t, \btheta, t) = \frac{1}{\sqrt{\alpha_t}}\left( \bx_t - \frac{\beta_t}{\sqrt{1 - \bar{\alpha}_t} } \bepsilon(\bx_t, \btheta, t) \right) 
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{KL term}
+		\vspace{-0.7cm}
+		\begin{multline*}
+			\cL_t = \bbE_{\bepsilon} \left[ \frac{1}{2\tilde{\beta}_t} \left\|\frac{1}{\sqrt{\alpha_t}}\left( \bx_t - \frac{\beta_t}{\sqrt{1 - \bar{\alpha}_t} } \bepsilon \right) - \bmu(\bx_t, \btheta, t) \right\|^2 \right] \\ 
+			= {\color{olive}\bbE_{\bepsilon}} \left[ \frac{\beta_t^2}{2\tilde{\beta}_t \alpha_t (1 - \bar{\alpha_t})} \left\| {\color{violet}\bepsilon} - {\color{teal}\bepsilon(\bx_t, \btheta, t)}\right\|^2 \right]
+		\end{multline*}
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Noise conditioned score network}
+		\vspace{-0.2cm}
+		\[
+			{\color{olive}\bbE_{p(\bx | \bx', \sigma_l)}}\bigl\| {\color{teal}\bs(\bx, \btheta, \sigma_l)} - {\color{violet}\nabla_\bx \log p(\bx | \bx', \sigma_l)} \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+	\end{frame}
+%=======
+\begin{frame}{Denoising diffusion probabilistic model}
+	\begin{block}{Samples}
+		\begin{figure}
+			\includegraphics[width=\linewidth]{figs/ddpm_samples}
+		\end{figure}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+\end{frame}
+%=======
+\begin{frame}{The poorest course overview :)}
+	\begin{figure}
+		\includegraphics[width=\linewidth]{figs/generative-overview}
+	\end{figure}
+	\myfootnotewithlink{https://lilianweng.github.io/posts/2021-07-11-diffusion-models/}{Weng L. What are Diffusion Models?, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Summary}
+	\begin{itemize}
+		\item Score matching proposes to minimize Fisher divergence to get score function.
+		\vfill
+		\item Sliced score matching and denoising score matching are two techniques to get scalable algorithm for fitting Fisher divergence.
+		\vfill
+		\item Noise conditioned score nework uses multiple noise levels and annealed Langevin dynamics to fit score function.
+		\vfill
+		\item Gaussian diffusion process is a Markov chain that inject Gaussian noise.
+		\vfill
+		\item Diffusion model is a VAE model which revert gaussian diffusion process using variational inference.
+		\vfill
+		\item Objective of diffusion model is closely related to the noise conditioned score network.
+	\end{itemize}
+\end{frame}
+\end{document} 

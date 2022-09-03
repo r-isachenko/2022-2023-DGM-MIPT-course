@@ -1,0 +1,445 @@
+\input{../utils/preamble}
+\createdgmtitle{9}
+
+%--------------------------------------------------------------------------------
+\begin{document}
+%--------------------------------------------------------------------------------
+\begin{frame}[noframenumbering,plain]
+%\thispagestyle{empty}
+\titlepage
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Disentanglement learning}
+	A disentangled representation is a one where single latent units are sensitive to changes in single generative factors, while being invariant to changes in other factors. 
+	\end{block}
+	\begin{block}{$\beta$-VAE}
+	\vspace{-0.2cm}
+	\[
+	    \mathcal{L}(q, \btheta, \beta) = \mathbb{E}_{q(\bz | \bx)} \log p(\bx | \bz, \btheta) - \beta \cdot KL (q(\bz | \bx) || p(\bz)).
+	\]
+	Representations becomes disentangled by setting a stronger constraint with $\beta > 1$. However, it leads to poorer reconstructions and a loss of high frequency details. 
+	\end{block}
+	
+	\begin{block}{ELBO surgery}
+		\vspace{-0.3cm}
+		{\footnotesize
+			\[
+			\frac{1}{n} \sum_{i=1}^n \cL_i(q, \btheta, \beta) = \underbrace{\frac{1}{n} \sum_{i=1}^n \mathbb{E}_{q(\bz | \bx_i)} \log p(\bx_i | \bz, \btheta)}_{\text{Reconstruction loss}} - \beta \cdot \underbrace{\bbI_{q} [\bx, \bz]\vphantom{\sum_{i=1}}}_{\text{MI}} - \beta \cdot \underbrace{KL(q_{\text{agg}}(\bz) || p(\bz))\vphantom{\sum_{i=1}}}_{\text{Marginal KL}}
+			\]}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1804.03599}{Burgess C. P. et al. Understanding disentangling in $\beta$-VAE, 2018}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Likelihood-free learning}
+		\begin{itemize}
+			\item Likelihood is not a perfect quality measure for generative model.
+			\item Likelihood could be intractable.
+		\end{itemize}
+	\end{block}
+	Imagine we have two sets of samples 
+	\begin{itemize}
+		\item $\cS_1 = \{\bx_i\}_{i=1}^{n_1} \sim \pi(\bx)$ -- real samples;
+		\item $\cS_2 = \{\bx_i\}_{i=1}^{n_2} \sim p(\bx | \btheta)$ -- generated (or fake) samples.
+	\end{itemize}
+	\begin{block}{Two sample test}
+		\vspace{-0.3cm}
+		\[
+			H_0: \pi(\bx) = p(\bx | \btheta), \quad H_1: \pi(\bx) \neq p(\bx | \btheta)
+		\]
+	\end{block}
+	If test statistic $T(\cS_1, \cS_2) < \alpha$, then accept $H_0$, else reject it.
+		\begin{itemize}
+			\item $p(\bx | \btheta)$ minimizes the value of test statistic~$T(\cS_1, \cS_2)$.
+			\item It is hard to find an appropriate test statistic in high dimensions. $T(\cS_1, \cS_2)$ could be learnable.
+		\end{itemize}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{itemize}
+		\item \textbf{Generator:} generative model $\bx = G(\bz)$, which makes generated sample more realistic.
+		\item \textbf{Discriminator:} a classifier $D(\bx) \in [0, 1]$, which distinguishes real samples from generated samples.
+	\end{itemize}
+	
+	\begin{block}{GAN optimality theorem}
+		The minimax game 
+		\vspace{-0.2cm}
+		\[
+			\min_{G} \max_D V(G, D) = \min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz))) \right]
+		\]
+		 has the global optimum $\pi(\bx) = p(\bx | \btheta)$, in this case $D^*(\bx) = 0.5$.
+	\end{block}
+	\vspace{-0.5cm}
+	\[
+		\min_{G} V(G, D^*) = \min_{G} \left[ 2 JSD(\pi || p) - \log 4 \right] = -\log 4, \quad \pi(\bx) = p(\bx | \btheta).
+	\]
+	\vspace{-0.4cm} \\
+	If the generator could be any function and the discriminator is optimal at every step, then the generator is guaranteed to converge to the data distribution.
+	 \myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
+\end{frame}
+%=======
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
+\section{Vanishing gradients and mode collapse}
+%=======
+\begin{frame}{Vanishing gradients}
+	\begin{block}{Objective}
+		\vspace{-0.4cm}
+		\[
+			\min_{\btheta} \max_{\bphi} \left[ \bbE_{\pi(\bx)} \log D(\bx, \bphi) + \bbE_{p(\bz)} \log (1 - D(G(\bz, \btheta), \bphi)) \right]
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	Early in learning, $G$ is poor, $D$ can reject samples with high confidence. In this case, $\log (1 - D(G(\bz, \btheta), \bphi))$ saturates.
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.9\linewidth]{figs/vanishing_gradients_1}
+		\end{figure}
+	\end{minipage}%
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.9\linewidth]{figs/vanishing_gradients_2}
+		\end{figure}
+	\end{minipage}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.04862}{Arjovsky M., Bottou L. Towards Principled Methods for Training Generative Adversarial Networks, 2017}
+\end{frame}
+%=======
+\begin{frame}{Vanishing gradients}
+	\begin{block}{Objective}
+		\vspace{-0.4cm}
+				\[
+					\min_{\btheta} \max_{\bphi} \left[ \bbE_{\pi(\bx)} \log D(\bx, \bphi) + \bbE_{p(\bz)} \log (1 - D(G(\bz, \btheta), \bphi)) \right]
+				\]
+		\vspace{-0.4cm}
+	\end{block}
+	\begin{minipage}[t]{0.45\columnwidth}
+		\begin{block}{Non-saturating GAN}
+		\begin{itemize}
+			\item Maximize $\log D(G(z))$ instead of minimizing $\log (1 - D(G(\bz)))$. \\
+			\item Gradients are getting much stronger, but the training is unstable (with increasing mean and variance).
+		\end{itemize}
+		\end{block}
+	\end{minipage}%
+	\begin{minipage}[t]{0.55\columnwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=1.0\linewidth]{figs/vanishing_gradients_3}
+		\end{figure}
+	\end{minipage}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.04862}{Arjovsky M., Bottou L. Towards Principled Methods for Training Generative Adversarial Networks, 2017}
+\end{frame}
+%=======
+\begin{frame}{Mode collapse}
+	The phenomena where the generator of a GAN collapses to one or few distribution modes.
+	\vspace{-0.15cm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.75\linewidth]{figs/mode_collapse_1}
+	\end{figure}
+	\vspace{-0.3cm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=1.0\linewidth]{figs/mode_collapse_4}
+	\end{figure}
+	Alternate architectures, adding regularization terms, injecting small noise
+	perturbations and other millions bags and tricks are used to avoid the mode collapse.
+	
+	\myfootnote{\href{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014} \\
+	\href{https://arxiv.org/abs/1611.02163}{Metz L. et al. Unrolled Generative Adversarial Networks, 2016}}
+\end{frame}
+%=======
+\begin{frame}{Jensen-Shannon vs Kullback-Leibler }
+	\begin{block}{Mode covering vs mode seeking}
+		\vspace{-0.2cm}
+		\[
+			KL(\pi || p) = \int \pi(\bx) \log \frac{\pi(\bx)}{p(\bx)}d\bx, \quad KL(p || \pi) = \int p(\bx) \log \frac{p(\bx)}{\pi(\bx)}d\bx
+		\]
+		\[
+		JSD(\pi || p) = \frac{1}{2} \left[KL \left(\pi(\bx) || \frac{\pi(\bx) + p(\bx)}{2}\right) + KL \left(p(\bx) || \frac{\pi(\bx) + p(\bx)}{2}\right) \right]
+		\]
+		\vspace{-0.4cm}
+		
+	\begin{minipage}[t]{0.33\columnwidth}
+		\begin{figure}
+			\includegraphics[width=\linewidth]{figs/forward_KL}
+		\end{figure}
+	\end{minipage}%
+	\begin{minipage}[t]{0.33\columnwidth}
+			\begin{figure}
+				\includegraphics[width=\linewidth]{figs/reverse_KL}
+			\end{figure}
+	\end{minipage}%
+	\begin{minipage}[t]{0.33\columnwidth}
+			\begin{figure}
+				\includegraphics[width=\linewidth]{figs/JSD}
+			\end{figure}
+	\end{minipage}
+	\vspace{-0.3cm}
+	\end{block}
+\end{frame}
+%=======
+\section{Adversatial variational Bayes}
+%=======
+\begin{frame}{VAE recap}
+	\vspace{-0.3cm}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=\linewidth]{figs/vae-gaussian.png}
+	\end{figure}
+	\vspace{-0.5cm}
+	\begin{itemize}
+		\item Encoder $q(\bz | \bx, \bphi) = \cN(\bz | \bmu_{\bphi}(\bx), \bsigma_{\bphi}(\bx))$.
+		\item Variational posterior $q(\bz | \bx, \bphi)$ originally approximates the true posterior $p(\bz | \bx, \btheta)$.
+		\item Which methods are you already familiar with to make the posterior is more flexible?
+	\end{itemize}
+	\myfootnotewithlink{https://lilianweng.github.io/lil-log/2018/08/12/from-autoencoder-to-beta-vae.html}{image credit: https://lilianweng.github.io/lil-log/2018/08/12/from-autoencoder-to-beta-vae.html}
+\end{frame}
+%=======
+\begin{frame}{Adversarial Variational Bayes}
+	\begin{block}{ELBO objective}
+		\vspace{-0.5cm}
+		\[
+			 \mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[\log p(\bx | \bz, \btheta) - KL(q(\bz| \bx, \bphi) || p(\bz)) \right] \rightarrow \max_{\bphi, \btheta}.
+		\]	
+		\vspace{-0.5cm}
+	\end{block}
+	What is the problem to make the variational posterior model an implicit model?
+	\begin{itemize}
+	\item The first term is reconstruction loss that needs only samples from $q(\bz | \bx, \bphi)$ to evaluate.
+	\item Reparametrization trick allows to get gradients of reconstruction loss
+		\vspace{-0.4cm}
+		\begin{multline*}
+			\nabla_{\bphi}\int q(\bz|\bx, \bphi) f(\bz) d\bz = \nabla_{\bphi}\int r(\bepsilon)  f(\bz) d\bepsilon \\ = \int r(\bepsilon) \nabla_{\bphi} f(g(\bx, \bepsilon, \bphi)) d\bepsilon \approx \nabla_{\bphi} f(g(\bx, \bepsilon^*, \bphi)),
+		\end{multline*}
+		\vspace{-0.6cm} \\
+		where $\bepsilon^* \sim r(\bepsilon), \quad \bz = g(\bx, \bepsilon, \bphi), \quad \bz \sim q(\bz | \bx, \bphi)$.
+	\end{itemize}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.04722}{Mescheder L., Nowozin S., Geiger A. Adversarial variational bayes: Unifying variational autoencoders and generative adversarial networks, 2017}
+\end{frame}
+%=======
+\begin{frame}{Adversarial Variational Bayes}
+	\begin{block}{ELBO objective}
+		\vspace{-0.5cm}
+		\[
+			 \mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(\bz | \bx, \bphi)} \bigl[\log p(\bx | \bz, \btheta) - KL(q(\bz| \bx, \bphi) || p(\bz))  \bigr] \rightarrow \max_{\bphi, \btheta}.
+		\]	
+		\vspace{-0.5cm}
+	\end{block}
+	What is the problem to make the variational posterior model an implicit model?
+	\begin{itemize}
+	\item The third term requires the explicit the value of $q(\bz | \bx, \bphi)$.
+	\item We could join second and third terms:
+		\vspace{-0.2cm}
+		{\small
+		\[
+			KL(q(\bz| \bx, \bphi) || p(\bz)) = \mathbb{E}_{q(\bz | \bx, \bphi)} \log \frac{q(\bz| \bx, \bphi)}{p(\bz)} = \mathbb{E}_{q(\bz | \bx, \bphi)} \log \frac{q(\bz| \bx, \bphi) \pi (\bx)}{p(\bz) \pi(\bx)}.
+		\]
+		}
+		\vspace{-0.5cm}
+	\item We have to estimate density ratio 
+		\vspace{-0.2cm}
+		\[
+			r(\bx, \bz) = \frac{q_1(\bx, \bz)}{q_2(\bx, \bz)} = \frac{q(\bz| \bx, \bphi) \pi (\bx)}{p(\bz) \pi(\bx)}.
+		\] 
+	\end{itemize}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.04722}{Mescheder L., Nowozin S., Geiger A. Adversarial variational bayes: Unifying variational autoencoders and generative adversarial networks, 2017}
+\end{frame}
+%=======
+\begin{frame}{Density ratio trick}
+	Consider two distributions $q_1(\bx)$, $q_2(\bx)$ and probabilistic model
+	\[
+		p(\bx | y) = \begin{cases}
+			q_1(\bx), \text{ if } y = 1, \\
+			q_2(\bx), \text{ if } y = 0,
+		\end{cases}
+		\quad 
+		y \sim \text{Bern}(0.5).
+	\]
+	\vspace{-0.3cm}
+	\begin{block}{Density ratio}
+		\vspace{-0.7cm}
+		{\small
+		\begin{multline*}
+			\frac{q_1(\bx)}{q_2(\bx)} = \frac{p(\bx | y = 1)}{p(\bx | y = 0)} = \frac{p(y = 1 | \bx) p(\bx)}{p(y=1)} \bigg/ \frac{p(y = 0 | \bx) p(\bx)}{p(y=0)} = \\
+			= \frac{p(y = 1 | \bx)}{p(y = 0 | \bx)} = \frac{p(y = 1 | \bx)}{1 - p(y = 1 | \bx)} = \frac{D(\bx)}{1 - D(\bx)}
+		\end{multline*}
+		}
+		Here $D(\bx)$ is a discriminator model the output of which is a probability that $\bx$ is a sample
+		from $q_1(\bx)$ rather than from $q_2(\bx)$.
+	\end{block}
+	\begin{block}{Adversarial Variational Bayes}
+		\vspace{-0.6cm}
+		\[
+			\max_D \left[ \bbE_{\pi(\bx)} \bbE_{q(\bz | \bx, \bphi)} \log D(\bx, \bz) + \bbE_{\pi(\bx)} \bbE_{p(\bz)} \log (1 - D(\bx, \bz)) \right]
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.04722}{Mescheder L., Nowozin S., Geiger A. Adversarial variational bayes: Unifying variational autoencoders and generative adversarial networks, 2017}
+\end{frame}
+%=======
+\begin{frame}{Adversarial Variational Bayes}
+	\begin{block}{ELBO objective}
+		\vspace{-0.5cm}
+		\[
+			 \mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[\log p(\bx | \bz, \btheta) - \log \frac{q(\bz| \bx, \bphi)}{p(\bz)} \right] \rightarrow \max_{\bphi, \btheta}.
+		\]	
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{figure}
+		\includegraphics[width=0.7\linewidth]{figs/avb_scheme}
+	\end{figure}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.04722}{Mescheder L., Nowozin S., Geiger A. Adversarial variational bayes: Unifying variational autoencoders and generative adversarial networks, 2017}
+\end{frame}
+%=======
+\section{Wasserstein distance}
+%=======
+\begin{frame}{Informal theoretical results}
+	\begin{itemize}
+		\footnotesize
+		\item Since $\bz$ usually has lower dimensionality compared to $\bx$, manifold $G(\bz, \btheta)$ has a measure 0 in $\bx$ space. Hence, support of $p(\bx | \btheta)$ lies on low-dimensional manifold.
+		\item Distribution of real images $\pi(\bx)$ is also concentrated on a low dimensional manifold.
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.5\linewidth]{figs/low_dim_manifold}
+		\end{figure}
+		\item If $\pi(\bx)$ and $p(\bx | \btheta)$ have disjoint supports, then there is a smooth optimal discriminator. We are not able to learn anything by backproping through it.
+		\item For such low-dimensional disjoint manifolds
+		\vspace{-0.1cm}
+		\[
+			KL(\pi || p) = KL(p || \pi) = \infty, \quad JSD(\pi || p) = \log 2
+		\]
+		\vspace{-0.7cm}
+		\item Adding continuous noise to the inputs of the discriminator smoothes the distributions of the probability mass.
+	\end{itemize}
+	\myfootnote{\href{https://arxiv.org/abs/1904.08994}{Weng L. From GAN to WGAN, 2019} \\ 
+	\href{https://arxiv.org/abs/1701.04862}{Arjovsky M., Bottou L. Towards Principled Methods for Training Generative Adversarial Networks, 2017}}
+\end{frame}
+%=======
+\begin{frame}{Wasserstein distance (discrete)}
+	Also called Earth Mover's distance.
+	The minimum cost of moving and transforming a pile of dirt in the shape of one probability distribution to the shape of the other distribution.
+	\begin{figure}
+		\centering
+		\includegraphics[width=.9\linewidth]{figs/EM_distance_discrete}
+	\end{figure}
+	\[
+		W(P, Q) = 2 \text{(step 1)} + 2 \text{(step 2)} + 1 \text{(step 3)}  = 5
+	\]
+	\myfootnotewithlink{https://arxiv.org/abs/1904.08994}{Weng L. From GAN to WGAN, 2019} 
+	
+\end{frame}
+%=======
+\begin{frame}{Wasserstein distance (continuous)}
+	\[
+		W(\pi, p) = \inf_{\gamma \in \Gamma(\pi, p)} \bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \| =  \inf_{\gamma \in \Gamma(\pi, p)} \int \| \bx - \by \| \gamma (\bx, \by) d \bx d \by
+	\]
+	\begin{itemize}
+		\item $\gamma(\bx, \by)$ -- transportation plan (the amount of "dirt" that should be transported from point $\bx$ to point $\by$)
+		\[
+			 \int \gamma(\bx, \by) d \bx = p(\by); \quad \int \gamma(\bx, \by) d \by = \pi(\bx).
+		\]
+		\item $\gamma(\bx, \by)$ -- the amount, $\|\bx - \by \|$-- the distance.
+		\item $\Gamma(\pi, p)$ -- the set of all joint distributions $\Gamma (\bx, \by)$ with marginals $\pi$ and $p$.
+	\end{itemize}
+	For better understanding of transportation plan function $\gamma$, try to write down the plan for previous discrete case.
+	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
+\end{frame}
+%=======
+\begin{frame}{Wasserstein distance vs KL vs JSD}
+	
+	\begin{minipage}[t]{0.48\columnwidth}
+		\vspace{0.1cm}
+		Consider 2d distributions
+		\[
+			\pi(x, y) = (0, U[0,1])
+		\]	
+		\[
+			p(x, y | \theta) = (\theta, U[0, 1])
+		\]
+	\end{minipage}%
+	\begin{minipage}[t]{0.52\columnwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.8\linewidth]{figs/w_kl_jsd}
+		\end{figure}
+	\end{minipage}
+	\begin{itemize}
+		\footnotesize
+		\item $\theta = 0$.
+		Distributions are the same 
+		\[
+			KL(\pi || p) = KL(p || \pi) = JSD(p || \pi) = W(\pi, p) = 0
+		\]
+		\item $\theta \neq 0$
+		\[
+			KL(\pi || p) = \int_{U[0, 1]} 1 \log \frac{1}{0} d y = \infty = KL(p || \pi)
+		\]
+		\[
+			JSD(\pi || p) = \frac{1}{2}\left( \int_{U[0, 1]}1 \log \frac{1}{1/2} dy + \int_{U[0, 1]}1 \log \frac{1}{1/2} dy \right) = \log 2
+		\]
+		\[
+			W(\pi, p) = |\theta|
+		\]
+	\end{itemize}
+	
+	\myfootnote{\href{https://arxiv.org/abs/1904.08994}{Weng L. From GAN to WGAN, 2019} \\ 
+	\href{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}}
+\end{frame}
+%=======
+\begin{frame}{Wasserstein distance vs KL vs JSD}
+	\begin{block}{Theorem 1}
+		Let $G(\bz, \btheta)$ be (almost) any feedforward neural network, and $p(\bz)$ a prior over $\bz$ such that $\bbE_{p(\bz)} \|\bz\| < \infty$. Then therefore $W(\pi, p)$ is continuous everywhere and differentiable almost everywhere.
+	\end{block}
+	\begin{block}{Theorem 2}
+		Let $\pi$ be a distribution on a compact space $\cX$ and $\{p_t\}_{t=1}^\infty$ be a sequence of distributions on $\cX$. 
+		\begin{align}
+			KL(\pi || p_t) &\rightarrow 0 \, (\text{or }KL (p_t || \pi) \rightarrow 0) \\
+			JSD(\pi || p_t) &\rightarrow 0 \\
+			W(\pi || p_t) &\rightarrow 0
+		\end{align}
+		
+		Then, considering limits as $t \rightarrow \infty$, (1) implies (2), (2) implies (3).
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
+\end{frame}
+%=======
+\begin{frame}{Wasserstein GAN}
+	\begin{block}{Wasserstein distance}
+		\vspace{-0.4cm}
+		\[
+			W(\pi || p) = \inf_{\gamma \in \Gamma(\pi, p)} \bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \| =  \inf_{\gamma \in \Gamma(\pi, p)} \int \| \bx - \by \| \gamma (\bx, \by) d \bx d \by
+		\]
+	\end{block}
+	The infimum across all possible joint distributions in $\Gamma(\pi, p)$ is intractable.
+	\begin{block}{Theorem (Kantorovich-Rubinstein duality)}
+		\[
+			W(\pi || p) = \frac{1}{K} \max_{\| f \|_L \leq K} \left[ \bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)\right],
+		\]
+		where $\| f \|_L \leq K$ are $K-$Lipschitz continuous functions ($f: \cX \rightarrow \bbR$)
+		\[
+			|f(\bx_1) - f(\bx_2)| \leq K \| \bx_1 - \bx_2 \|, \quad \text{for all } \bx_1, \bx_2 \in \cX.
+		\]
+	\end{block}
+
+	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
+\end{frame}
+%=======
+\begin{frame}{Summary}
+	\begin{itemize}
+		\item Mode collapse and vanishing gradients are the two main problems of vanilla GAN.  Lots of tips and tricks has to be used to make the GAN training is stable and scalable.
+		\vfill
+		\item Adversarial Variational Bayes uses density ratio trick to get more powerful variational posterior.
+		\vfill
+		\item KL and JS divergences work poorly as model objective in the case of disjoint supports.
+		\vfill
+		\item Earth-Mover distance is a more appropriate objective function for distribution matching problem.	
+		\vfill
+		\item Kantorovich-Rubinstein duality gives the way to calculate the EM distance using only samples.
+	\end{itemize}
+\end{frame}
+%=======
+\end{document} 

@@ -1,0 +1,540 @@
+\input{../utils/preamble}
+\createdgmtitle{2}
+
+\usepackage{tikz}
+
+\usetikzlibrary{arrows,shapes,positioning,shadows,trees}
+%--------------------------------------------------------------------------------
+\begin{document}
+%--------------------------------------------------------------------------------
+\begin{frame}[noframenumbering,plain]
+	%\thispagestyle{empty}
+	\titlepage
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	We are given i.i.d. samples $\{\bx_i\}_{i=1}^n \in \cX$ (e.g. $\cX = \bbR^m$) from unknown distribution $\pi(\bx)$.
+
+	\begin{block}{Goal}
+		We would like to learn a distribution $\pi(\bx)$ for 
+		\begin{itemize}
+		    \item evaluating $\pi(\bx)$ for new samples (how likely to get object $\bx$?);
+		    \item sampling from $\pi(\bx)$ (to get new objects $\bx \sim \pi(\bx)$).
+		\end{itemize}
+	\end{block}
+	Instead of searching true $\pi(\bx)$ over all probability distributions, learn function approximation $p(\bx | \btheta) \approx \pi(\bx)$.
+	\begin{block}{Divergence}
+		\begin{itemize}
+			\item $D(\pi || p) \geq 0$ for all $\pi, p \in \cS$;
+			\item $D(\pi || p) = 0$ if and only if $\pi \equiv p$.
+		\end{itemize}
+	\end{block}
+	\begin{block}{Divergence minimization task}
+		\vspace{-0.3cm}
+		\[
+		\min_{\btheta} D(\pi || p).
+		\]
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Forward KL}
+		\vspace{-0.2cm}
+		\[
+		KL(\pi || p) = \int \pi (\bx) \log \frac{\pi(\bx)}{p(\bx | \btheta)} d \bx \rightarrow \min_{\btheta}
+		\]
+	\end{block}
+	\begin{block}{Reverse KL}
+		\vspace{-0.2cm}
+		\[
+		KL(p || \pi) = \int p (\bx| \btheta) \log \frac{p(\bx| \btheta)}{\pi(\bx)} d \bx \rightarrow \min_{\btheta}
+		\]
+	\end{block}
+	
+	\begin{block}{Maximum likelihood estimation (MLE)}
+		\vspace{-0.5cm}
+		\[
+		\btheta^* = \argmax_{\btheta} p(\bX | \btheta) = \argmax_{\btheta} \prod_{i=1}^n p(\bx_i | \btheta) = \argmax_{\btheta} \sum_{i=1}^n \log p(\bx_i | \btheta).
+		\]
+		\vspace{-0.1cm}
+	\end{block}
+	Maximum likelihood estimation is equivalent to minimization of the Monte-Carlo estimate of forward KL.
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Likelihood as product of conditionals}
+		Let $\bx = (x_1, \dots, x_m)$, $\bx_{1:j} = (x_1, \dots, x_j)$. Then 
+		\[
+		p(\bx | \btheta) = \prod_{j=1}^m p(x_j | \bx_{1:j - 1}, \btheta); \quad 
+		\log p(\bx | \btheta) = \sum_{j=1}^m \log p(x_j | \bx_{1:j - 1}, \btheta).
+		\]
+	\end{block}
+	\vspace{-0.3cm}
+	\begin{block}{MLE problem for autoregressive model}
+		\vspace{-0.5cm}
+		\[
+		\btheta^* = \argmax_{\btheta} p(\bX | \btheta) = \argmax_{\btheta} \sum_{i=1}^n \sum_{j=1}^m \log p(x_{ij} | \bx_{i, 1:j - 1}\btheta).
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Sampling}
+		\vspace{-0.5cm}
+		\[
+			\hat{x}_1 \sim p(x_1 | \btheta), \quad \hat{x}_2 \sim p(x_2 | \hat{x}_1, \btheta), \dots, \quad \hat{x}_m \sim p(x_m | \hat{\bx}_{1:m-1}, \btheta)
+		\]
+		New generated object is $\hat{\bx} = (\hat{x}_1, \hat{x}_2, \dots, \hat{x}_m)$.
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Autoregressive MLP}
+		\vspace{-0.3cm}
+ 		\begin{figure}
+		     \centering
+		     \includegraphics[width=0.75\linewidth]{figs/sequential_MLP}
+		 \end{figure}
+	\end{block}
+	\vspace{-0.3cm}
+	\begin{block}{Autoregressive RNN}
+	   	\vspace{-0.3cm}
+		\begin{figure}
+		   \centering
+		   \includegraphics[width=0.75\linewidth]{figs/sequential_RNN}
+		\end{figure}
+	\end{block}
+	 \myfootnotewithlink{https://jmtomczak.github.io/blog/2/2\_ARM.html}{image credit: https://jmtomczak.github.io/blog/2/2\_ARM.html}
+\end{frame}
+%=======
+\begin{frame}{Outline}
+    \tableofcontents
+\end{frame}
+%=======
+\section{Autoregressive models (WaveNet, PixelCNN, PixelCNN++)}
+%=======
+\begin{frame}{Autoregressive models}
+	\begin{itemize}
+		\item Convolutions could be used for autoregressive models, but they have to be \textbf{causal}. \\
+		\item Try to find and understand the difference between Conv A/B.
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.7\linewidth]{figs/sequential_CNN}
+		\end{figure}
+		\item Could learn long-range dependecies.
+		\item Do not suffer from gradient issues.
+		\item Easy to estimate probability for given input, but hard generation of new samples (the sequential process).
+	\end{itemize}
+	\myfootnotewithlink{https://jmtomczak.github.io/blog/2/2\_ARM.html}{image credit: https://jmtomczak.github.io/blog/2/2\_ARM.html}
+\end{frame}
+%=======
+\begin{frame}{WaveNet}
+	\begin{block}{Goal}
+		Efficient generation of raw audio waveforms with natural sounds.
+	\end{block}
+	\begin{figure}
+	  \centering
+	  \includegraphics[width=0.9\linewidth]{figs/wavenet_ex.png}
+	\end{figure}
+	\begin{block}{Solution}
+		Autoregressive model
+		\vspace{-0.3cm}
+		\[
+		    p(\bx| \btheta) = \prod_{t=1}^T p(x_t|\bx_{1:t-1}, \btheta).
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	\begin{itemize}
+		\item Each conditional $p(x_t|\bx_{1:t-1}, \btheta)$ models the distribution for the timestamp $t$.
+		\item The model uses \textbf{causal} dilated convolutions.
+	\end{itemize}
+	\myfootnotewithlink{https://arxiv.org/abs/1609.03499}{Oord A. et al. Wavenet: A generative model for raw audio, 2016}
+\end{frame}
+%=======
+\begin{frame}{WaveNet}
+	\begin{figure}
+	    \centering
+	    \includegraphics[width=0.9\linewidth]{figs/wavenet1.png}
+	\end{figure}
+	
+	\begin{figure}
+	    \centering
+	    \includegraphics[width=0.9\linewidth]{figs/wavenet2.png}
+	\end{figure}
+	\myfootnotewithlink{https://arxiv.org/abs/1609.03499}{Oord A. et al. Wavenet: A generative model for raw audio, 2016}
+\end{frame}
+%=======
+\begin{frame}{PixelCNN}
+	\begin{block}{Goal}
+		Model a distribution $\pi(\bx)$ of natural images.
+	\end{block}
+	\begin{block}{Solution}
+		Autoregressive model on 2D pixels
+		\[
+		    p(\bx | \btheta) = \prod_{j=1}^{\text{width} \times \text{height}} p(x_j|\bx_{1:j-1}, \btheta).
+		\]
+		\begin{itemize}
+			\item We need to introduce the ordering of image pixels.
+		    \item The convolution should be \textbf{masked} to make them causal.
+		    \item The image has RGB channels, these dependencies could be addressed.
+		\end{itemize}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1601.06759}{Oord A., Kalchbrenner N., Kavukcuoglu K. Pixel recurrent neural networks, 2016}
+\end{frame}
+%=======
+\begin{frame}{PixelCNN}
+	\vspace{-0.2cm}
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{block}{Raster ordering}
+			\begin{figure}
+				\centering
+		        \includegraphics[width=0.7\linewidth]{figs/pixelcnn1.png}
+			\end{figure}
+		\end{block}
+		\vspace{-0.5cm}
+		\begin{block}{Masked convolution kernel}
+			\begin{figure}
+				\centering
+		        \includegraphics[width=0.35\linewidth]{figs/pixelcnn_0_1.png}
+			\end{figure}
+		\end{block}
+	\end{minipage}%
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{block}{Dependencies between pixels}
+			\begin{figure}
+				\centering
+		        \includegraphics[width=0.5\linewidth]{figs/pixelcnn_0_2.png}
+			\end{figure}
+			\vspace{-0.3cm}
+			\begin{figure}
+				\centering
+		        \includegraphics[width=0.65\linewidth]{figs/pixelcnn2.png}
+			\end{figure}
+		\end{block}
+	\end{minipage}
+	\myfootnotewithlink{https://arxiv.org/abs/1601.06759}{Oord A., Kalchbrenner N., Kavukcuoglu K. Pixel recurrent neural networks, 2016}
+\end{frame}
+%=======
+\begin{frame}{PixelCNN++}
+	\begin{block}{CIFAR-10 pixel values distribution}
+		\begin{figure}
+			\includegraphics[width=0.3\linewidth]{figs/pixelcnn++_pixels_distr}
+		\end{figure}
+	\end{block}
+	\vspace{-0.5cm}
+	\begin{itemize}
+		\item Standard PixelCNN outputs softmax probabilities for values $\{0, 255\}$ (256 outputs feature maps). 
+		\item Categorical distribution do not know anything about numerical relationships (220 is close to 221 and far from 15).
+		\item If pixel value is not presented in the training dataset, it won't be predicted.
+		\item (Look at the edges of the distributions: they have higher probability mass).
+	\end{itemize}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.05517}{Salimans T. et al. PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications, 2017}
+\end{frame}
+%=======
+\begin{frame}{PixelCNN++}
+		\begin{minipage}[t]{0.55\columnwidth}
+		\begin{block}{Mixture of logistic distributions}
+			\begin{align*}
+				p(x | \mu, s) &= \frac{\exp^{-(x - \mu) / s}}{s (1 + \exp^{-(x - \mu) / s})^2}; \\
+				p(x | \bmu, \bs, \bpi) &= \sum_{k=1}^K \pi_k p(x | \mu_k, s_k);
+			\end{align*}
+		\end{block}
+		\end{minipage}%
+		\begin{minipage}[t]{0.45\columnwidth}
+				\begin{figure}
+					\includegraphics[width=\linewidth]{figs/picelcnn++logistic}
+				\end{figure}
+		\end{minipage}
+	To adopt probability calculation to discrete values:
+	\[
+		P_d(x | \bmu, \bs, \bpi) = P(x + 0.5 | \bmu, \bs, \bpi) - P(x - 0.5 | \bmu, \bs, \bpi)
+	\]
+	For the edge case of 0, replace $x - 0.5$ by $-\infty$, and for 255 replace $x + 0.5$ by $+\infty$.
+	\myfootnotewithlink{https://arxiv.org/abs/1701.05517}{Salimans T. et al. PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications, 2017}
+\end{frame}
+%=======
+\begin{frame}{CIFAR-10 generated samples}
+	\begin{block}{PixelCNN}
+		\vspace{-0.2cm}
+		\begin{figure}
+			\includegraphics[width=0.8\linewidth]{figs/pixelcnn_samples}
+		\end{figure}
+	\end{block}
+	\vspace{-0.5cm}
+	\begin{block}{PixelCNN++}
+		\vspace{-0.2cm}
+		\begin{figure}
+	  		\includegraphics[width=0.8\linewidth]{figs/pixelcnn++_samples}
+		\end{figure}
+	\end{block}
+	\myfootnote{\href{https://arxiv.org/abs/1601.06759}{Oord A., Kalchbrenner N., Kavukcuoglu K. Pixel recurrent neural networks, 2016} \\
+	\href{https://arxiv.org/abs/1701.05517}{Salimans T. et al. PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications, 2017}}
+\end{frame}
+%=======
+\begin{frame}{Generative models zoo}
+	\begin{tikzpicture}[
+	 	basic/.style  = {draw, text width=2cm, drop shadow, rectangle},
+	 	root/.style   = {basic, rounded corners=2pt, thin, text height=1.1em, text width=7em, align=center, fill=blue!40},
+	 	level 1/.style={sibling distance=55mm},
+	 	level 2/.style = {basic, rounded corners=6pt, thin, align=center, fill=blue!20, text height=1.1em, text width=9em, sibling distance=38mm},
+	 	level 3/.style = {basic, rounded corners=6pt, thin,align=center, fill=blue!20, text width=8.5em},
+	 	level 4/.style = {basic, thin, align=left, fill=pink!30, text width=7em},
+	 	level 5/.style = {basic, thin, align=left, fill=pink!90, text width=7em},
+		edge from parent/.style={->,draw},
+		>=latex]
+		
+		% root of the the initial tree, level 1
+		\node[root] {\Large Generative models}
+		% The first level, as children of the initial tree
+		child {node[level 2] (c1) {Likelihood-based}
+			child {node[level 3] (c11) {Tractable density}}
+			child {node[level 3] (c12) {Approximate density}}
+		}
+		child {node[level 2] (c2) {Implicit density}};
+		
+		% The second level, relatively positioned nodes
+		\begin{scope}[every node/.style={level 5}]
+		\node [below of = c12, xshift=10pt] (c121) {\textbf{VAEs}};
+		\end{scope}
+	
+		% The second level, relatively positioned nodes
+		\begin{scope}[every node/.style={level 4}]
+			\node [below of = c11, yshift=-5pt, xshift=10pt] (c111) {Autoregressive models};
+			\node [below of = c111, yshift=-5pt] (c112) {Normalizing Flows};
+			
+			\node [below of = c121] (c122) {Diffusion models};
+			
+			\node [below of = c2, xshift=10pt] (c21) {GANs};
+		\end{scope}
+	
+		
+		% lines from each level 1 node to every one of its "children"
+		\foreach \value in {1,2}
+		\draw[->] (c11.194) |- (c11\value.west);
+		
+		\foreach \value in {1,2}
+		\draw[->] (c12.194) |- (c12\value.west);
+		
+		\draw[->] (c2.194) |- (c21.west);
+		
+	\end{tikzpicture}
+\end{frame}
+%=======
+\section{Bayesian framework}
+%=======
+\begin{frame}{Bayesian framework}
+	\begin{block}{Bayes theorem}
+		\[
+			p(\bt | \bx) = \frac{p(\bx | \bt) p(\bt)}{p(\bx)} = \frac{p(\bx | \bt) p(\bt)}{\int p(\bx | \bt) p(\bt) d \bt} 
+		\]
+		\begin{itemize}
+			\item $\bx$ -- observed variables, $\bt$ -- unobserved variables (latent variables/parameters);
+			\item $p(\bx | \bt)$ -- likelihood;
+			\item $p(\bx) = \int p(\bx | \bt) p(\bt) d \bt$ -- evidence;
+			\item $p(\bt)$ -- prior distribution, $p(\bt | \bx)$ -- posterior distribution.
+		\end{itemize}
+	\end{block}
+	\begin{block}{Meaning}
+		We have unobserved variables $\bt$ and some prior knowledge about them $p(\bt)$. Then, the data $\bx$ has been observed. 
+		Posterior distribution $p(\bt | \bx)$ summarizes the knowledge after the observations.
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Bayesian framework}
+	Let consider the case, where the unobserved variables $\bt$ is our model parameters $\btheta$.
+	\begin{itemize}
+		\item $\bX = \{\bx_i\}_{i=1}^n$ -- observed samples;
+		\item $p(\btheta)$ -- prior parameters distribution (we treat model parameters $\btheta$ as random variables).
+	\end{itemize}
+	\begin{block}{Posterior distribution}
+		\[
+			p(\btheta | \bX) = \frac{p(\bX | \btheta) p(\btheta)}{p(\bX)} = \frac{p(\bX | \btheta) p(\btheta)}{\int p(\bX | \btheta) p(\btheta) d \btheta} 
+		\]
+		\vspace{-0.2cm}
+	\end{block}
+	\begin{block}{Bayesian inference}
+		\vspace{-0.2cm}
+		\[
+			p(\bx | \bX) = \int p(\bx | \btheta) p(\btheta | \bX) d \btheta
+		\]
+	\end{block}
+ 	Note the difference from
+	 	\[
+	 		p(\bx) = \int p(\bx | \btheta) p(\btheta) d \btheta.
+	 	\]
+\end{frame}
+%=======
+\begin{frame}{Bayesian framework}
+	\begin{block}{Posterior distribution}
+		\[
+		p(\btheta | \bX) = \frac{p(\bX | \btheta) p(\btheta)}{p(\bX)} = \frac{p(\bX | \btheta) p(\btheta)}{\int p(\bX | \btheta) p(\btheta) d \btheta} 
+		\]
+		\vspace{-0.2cm}
+	\end{block}
+	\begin{block}{Bayesian inference}
+		\vspace{-0.2cm}
+		\[
+		p(\bx | \bX) = \int p(\bx | \btheta) p(\btheta | \bX) d \btheta
+		\]
+	\end{block}
+	If evidence $p(\bX)$ is intractable (due to multidimensional integration), we can't get posterior distribution and perform the precise inference.
+    \begin{block}{Maximum a posteriori (MAP) estimation}
+    \vspace{-0.2cm}
+    \[
+        \btheta^* = \argmax_{\btheta} p(\btheta | \bX) = \argmax_{\btheta} \bigl(\log p(\bX | \btheta) + \log p(\btheta) \bigr)
+    \]
+    \end{block}
+\end{frame}
+%=======
+\begin{frame}{Bayesian framework}
+	\begin{block}{MAP estimation}
+		\vspace{-0.2cm}
+		\[
+		\btheta^* = \argmax_{\btheta} p(\btheta | \bX) = \argmax_{\btheta} \bigl(\log p(\bX | \btheta) + \log p(\btheta) \bigr)
+		\]
+	\end{block}
+	Estimated $\btheta^*$ is a deterministic variable, but we could treat it as a random variable with density $p(\btheta | \bX) = \delta(\btheta - \btheta^*)$.
+	\begin{block}{Dirac delta function}
+		\[
+			\delta(x) = 
+			\begin{cases}
+				+\infty, \quad x = 0; \\
+				0, \quad x \neq 0;
+			\end{cases} \, 
+			\int \delta(x) dx = 1; \,\, 
+			\int f(x) \delta (x - y) dx = f(y).
+		\]
+	\end{block}
+	\begin{block}{MAP inference}
+		\[
+			p(\bx | \bX) = \int p(\bx| \btheta) p(\btheta | \bX ) d \btheta \approx p(\bx | \btheta^*).
+		\]
+	\end{block}
+\end{frame}
+%=======
+\section{Latent variable models (LVM)}
+%=======
+\begin{frame}{Latent variable models (LVM)}
+	\begin{block}{MLE problem}
+		\vspace{-0.5cm}
+		\[
+		\btheta^* = \argmax_{\btheta} p(\bX | \btheta) = \argmax_{\btheta} \prod_{i=1}^n p(\bx_i | \btheta) = \argmax_{\btheta} \sum_{i=1}^n \log p(\bx_i | \btheta).
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	The distribution $p(\bx | \btheta)$ could be very complex and intractable (as well as real distribution $\pi(\bx)$).
+	\begin{block}{Extended probabilistic model}
+		Introduce latent variable $\bz$ for each sample $\bx$
+		\[
+		p(\bx, \bz | \btheta) = p(\bx | \bz, \btheta) p(\bz); \quad 
+		\log p(\bx, \bz | \btheta) = \log p(\bx | \bz, \btheta) + \log p(\bz).
+		\]
+		\[
+		p(\bx | \btheta) = \int p(\bx, \bz | \btheta) d\bz = \int p(\bx | \bz, \btheta) p(\bz) d\bz.
+		\]
+	\end{block}
+	\vspace{-0.3cm}
+	\begin{block}{Motivation}
+		The distributions $p(\bx | \bz, \btheta)$ and $p(\bz)$ could be quite simple.
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Latent variable models (LVM)}
+	\[
+	\log p(\bx | \btheta) = \log \int p(\bx | \bz, \btheta) p(\bz) d\bz \rightarrow \max_{\btheta}
+	\]
+	\vspace{-0.6cm}
+	\begin{block}{Examples}
+		\begin{minipage}[t]{0.45\columnwidth}
+			\textit{Mixture of gaussians} \\
+			\vspace{-0.5cm}
+			\begin{figure}
+				\centering
+				\includegraphics[width=0.75\linewidth]{figs/mixture_of_gaussians}
+			\end{figure}
+			\vspace{-0.5cm}
+			\begin{itemize}
+				\item $p(\bx | z, \btheta) = \cN(\bx | \bmu_z, \bSigma_z)$
+				\item $p(z) = \text{Categorical}(\bpi)$
+			\end{itemize}
+		\end{minipage}%
+		\begin{minipage}[t]{0.53\columnwidth}
+			\textit{PCA model} \\
+			\vspace{-0.5cm}
+			\begin{figure}
+				\centering
+				\includegraphics[width=.7\linewidth]{figs/pca}
+			\end{figure}
+			\vspace{-0.3cm}
+			\begin{itemize}
+				\item $p(\bx | \bz, \btheta) = \cN(\bx | \bW \bz + \bmu, \sigma^2 \bI)$
+				\item $p(\bz) = \cN(\bz | 0, \bI)$
+			\end{itemize}
+		\end{minipage}
+	\end{block}
+	\myfootnote{Bishop\,C. Pattern Recognition and Machine Learning, 2006}
+\end{frame}
+%=======
+\begin{frame}{Latent variable models (LVM)}
+	\[
+	\log p(\bx | \btheta) = \log \int p(\bx | \bz, \btheta) p(\bz) d\bz \rightarrow \max_{\btheta}
+	\]
+	\textbf{PCA} projects original data $\bX$ onto a low dimensional latent space while maximizing the variance of the projected data. 
+	\begin{figure}
+		\centering
+		\includegraphics[width=.7\linewidth]{figs/bayesian_pca}
+	\end{figure}
+	\vspace{-0.5cm}
+	\begin{itemize}
+		\item $p(\bx | \bz, \btheta) = \cN(\bx | \bW \bz + \bmu, \sigma^2 \bI)$
+		\item $p(\bz) = \cN(\bz | 0, \bI)$
+		\item $p(\bx) = \cN(\bx | \bmu, \bW \bW^T + \sigma^2 \bI)$
+		\item $p(\bz | \bx) = \cN \bigl(\bM^{-1} \bW^T (\bx - \bmu), \sigma^2 \bM\bigr)$, where $\bM = \bW \bW^T + \sigma^2 \bI$
+	\end{itemize}
+\end{frame}
+%=======
+\begin{frame}{Maximum likelihood estimation for LVM}
+	\begin{block}{MLE for extended problem}
+		\vspace{-0.7cm}
+		\begin{multline*}
+			\vspace{-0.5cm}
+			\btheta^* = \argmax_{\btheta} p(\bX, \bZ | \btheta) = \argmax_{\btheta} \prod_{i=1}^n p(\bx_i, \bz_i | \btheta) = \\ = \argmax_{\btheta} \sum_{i=1}^n \log p(\bx_i, \bz_i | \btheta).
+		\end{multline*}
+		\vspace{-0.5cm}
+	\end{block}
+	However, $\bZ$ is unknown.
+	\begin{block}{MLE for original problem}
+		\vspace{-0.7cm}
+		\begin{multline*}
+			\btheta^* = \argmax_{\btheta} \log p(\bX| \btheta) = \argmax_{\btheta} \sum_{i=1}^n \log p(\bx_i | \btheta) = \\ =  \argmax_{\btheta}  \sum_{i=1}^n \log \int p(\bx_i, \bz_i | \btheta) d \bz_i = \\ = \argmax_{\btheta} \log \sum_{i=1}^n \int p(\bx_i| \bz_i, \btheta) p(\bz_i) d\bz_i.
+		\end{multline*}
+	\end{block}
+	
+\end{frame}
+%=======
+\begin{frame}{Naive approach}
+	\begin{figure}
+		\includegraphics[width=.75\linewidth]{figs/lvm_diagram}
+	\end{figure}
+	\begin{block}{Monte-Carlo estimation}
+		\vspace{-0.7cm}
+		\[
+			p(\bx | \btheta) = \int p(\bx | \bz, \btheta) p(\bz) d\bz = \bbE_{p(\bz)} p(\bx | \bz, \btheta) \approx \frac{1}{K} \sum_{k=1}^{K} p(\bx | \bz_k, \btheta),
+		\]
+		\vspace{-0.5cm} \\
+		where $\bz_k \sim p(\bz)$. \\
+		\textbf{Challenge:} to cover the space properly, the number of samples grows exponentially with respect to dimensionality of $\bz$. 
+	\end{block}
+	\myfootnotewithlink{https://jmtomczak.github.io/blog/4/4\_VAE.html}{image credit: https://jmtomczak.github.io/blog/4/4\_VAE.html}
+\end{frame}
+%=======
+\begin{frame}{Summary}
+	\begin{itemize}
+		\item WaveNet and PixelCNN models use masked causal convolutions (1D or 2D) to get autoregressive model.
+		\vfill
+		\item PixelCNN++ proposes to use discretized mixture of logistics for output distribution.
+		\vfill
+		\item Bayesian inference is a generalization of most common machine learning tasks. It allows to construct MLE, MAP and bayesian inference, to compare models complexity and many-many more cool stuff.
+		\vfill
+		\item LVM introduces latent representation of observed samples to make model more interpretable.
+	\end{itemize}
+\end{frame}
+\end{document} 
