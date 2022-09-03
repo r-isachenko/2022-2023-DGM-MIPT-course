@@ -68,6 +68,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 ### Final grade: `floor(relu(#points/8 - 2))`
 
 ## Previous episodes
+- [2022, autumn, AIMasters](https://github.com/r-isachenko/2022-2023-DGM-AIMasters-course)
 - [2022, spring, OzonMasters](https://github.com/r-isachenko/2022-DGM-Ozon-course)
 - [2021, autumn, MIPT](https://github.com/r-isachenko/2021-DGM-MIPT-course)
 - [2021, spring, OzonMasters](https://github.com/r-isachenko/2021-DGM-Ozon-course)
