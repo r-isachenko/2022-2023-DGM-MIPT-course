@@ -1,4 +1,4 @@
-# Deep Generative Models course, MIPT, 2022
+# Deep Generative Models course, MIPT, 2022-2023
 
 ## Description
 The course is devoted to modern generative models (mostly in the application to computer vision). 
@@ -20,8 +20,8 @@ The course is accompanied by practical tasks that allow you to understand the pr
 
 | # | Date | Description | Slides |
 |---------|------|-------------|---------|
-| 0 | September, ?? | Logistics and intro. | [slides](lectures/intro.pdf) |
-| 1 |  | <b>Lecture:</b> Motivation. Divergence minimization framework. Autoregressive modelling. | [slides](lectures/lecture1/Lecture1.pdf) |
+| 0 | September, 6 | Logistics and intro. | [slides](lectures/intro.pdf) |
+| 1 | September, 6 | <b>Lecture:</b> Motivation. Divergence minimization framework. Autoregressive modelling. | [slides](lectures/lecture1/Lecture1.pdf) |
 |  |  | <b>Seminar:</b> Introduction. Density estimation in 1D. MADE theory. | TBA |
 | 2 |  | <b>Lecture:</b> Autoregressive models (WaveNet, PixelCNN, PixelCNN++). Bayesian Framework. Latent Variable Models. | TBA |
 |  |  | <b>Seminar:</b> MADE practice. PixelCNN implementation hints. Bayesian inference intro, conjugate distributions. | TBA |
