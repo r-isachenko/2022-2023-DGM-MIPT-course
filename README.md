@@ -20,7 +20,6 @@ The course is accompanied by practical tasks that allow you to understand the pr
 
 | # | Date | Description | Slides |
 |---------|------|-------------|---------|
-| 0 | September, 6 | Logistics and intro. | [slides](lectures/intro.pdf) |
 | 1 | September, 6 | <b>Lecture:</b> Motivation. Divergence minimization framework. Autoregressive modelling. | [slides](lectures/lecture1/Lecture1.pdf) |
 |  |  | <b>Seminar:</b> Introduction. Density estimation in 1D. MADE theory. | TBA |
 | 2 |  | <b>Lecture:</b> Autoregressive models (WaveNet, PixelCNN, PixelCNN++). Bayesian Framework. Latent Variable Models. | TBA |
