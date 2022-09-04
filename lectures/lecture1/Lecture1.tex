@@ -59,15 +59,7 @@
 	\end{tikzpicture}
 \end{frame}
 %=======
-\begin{frame}{Applications}
-	\begin{figure}
-		\centering
-		\includegraphics[width=\linewidth]{figs/applications}
-	\end{figure}
-	\myfootnotewithlink{https://jmtomczak.github.io/blog/1/1\_introduction.html}{image credit: https://jmtomczak.github.io/blog/1/1\_introduction.html}
-\end{frame}
-%=======
-\begin{frame}{Applications: Image generation (VAE)}
+\begin{frame}{VAE -- first scalable approach for image generation}
     \begin{figure}
         \centering
         \includegraphics[width=0.8\linewidth]{figs/vae.png}
@@ -75,7 +67,7 @@
 \myfootnotewithlink{https://arxiv.org/abs/1312.6114}{Kingma D. P., Welling M. Auto-encoding variational bayes, 2013}
 \end{frame}
 %=======
-\begin{frame}{Applications: Image generation (DCGAN)}
+\begin{frame}{DCGAN -- first convolutional GAN for image generation}
     \begin{figure}
         \centering
         \includegraphics[width=1.0\linewidth]{figs/dcgan.png}
@@ -83,7 +75,7 @@
 \myfootnotewithlink{https://arxiv.org/abs/1511.06434}{Radford A., Metz L., Chintala S. Unsupervised representation learning with deep convolutional generative adversarial networks, 2015}
 \end{frame}
 %=======
-\begin{frame}{Applications: Face generation (StyleGAN)}
+\begin{frame}{StyleGAN -- high quality generation of faces}
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.85\linewidth]{figs/gan_evolution}
@@ -96,7 +88,7 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1812.04948}{Karras T., Laine S., Aila T. A style-based generator architecture for generative adversarial networks, 2018}
 \end{frame}
 %=======
-\begin{frame}{Applications: Face generation (VQ-VAE-2)}
+\begin{frame}{VQ-VAE-2 -- high quality generation without GANs}
     \begin{figure}
         \centering
         \includegraphics[width=0.7\linewidth]{figs/vq_vae.png}
@@ -104,30 +96,19 @@
 \myfootnotewithlink{https://arxiv.org/abs/1906.00446}{Razavi A., Oord A., Vinyals O. Generating Diverse High-Fidelity Images with VQ-VAE-2, 2019}
 \end{frame}
 %=======
-\begin{frame}{Applications: Language modelling}
-	\begin{figure}
-		\includegraphics[width=0.65\linewidth]{figs/gpt2-sizes}
-	\end{figure}
-	\vspace{-0.2cm}
+\begin{frame}{Language modelling at scale}
 	\begin{figure}
 		\includegraphics[width=0.7\linewidth]{figs/nlp_models}
 	\end{figure}
+	\vspace{-0.3cm}
+	\begin{figure}
+		\includegraphics[width=0.55\linewidth]{figs/nlp_models2}
+	\end{figure}
 \myfootnote{\href{http://jalammar.github.io/illustrated-gpt2}{image credit: http://jalammar.github.io/illustrated-gpt2} \\
-\href{https://arxiv.org/abs/1910.01108}{Sanh V. et al. DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter, 2019.}}
+\href{https://huggingface.co/blog/hf-bitsandbytes-integration}{image credit: https://huggingface.co/blog/hf-bitsandbytes-integration}}
 \end{frame}
 %=======
-\begin{frame}{Applications: Image generation, new era}
-	\begin{figure}
-		\includegraphics[width=0.8\linewidth]{figs/taming_transformers_1}
-	\end{figure}
-	\vspace{-0.5cm}
-	\begin{figure}
-		\includegraphics[width=\linewidth]{figs/taming_transformers_2}
-	\end{figure}
-\myfootnotewithlink{https://arxiv.org/abs/2012.09841}{Esser P., Rombach R., Ommer B. Taming Transformers for High-Resolution Image Synthesis, 2020}
-\end{frame}
-%=======
-\begin{frame}{Applications: Cross-modal image-text models}
+\begin{frame}{DALL-E -- cross-modal image-text model}
 	\begin{figure}
 		\includegraphics[width=\linewidth]{figs/dalle1}
 	\end{figure}
@@ -139,29 +120,69 @@
 		\href{https://arxiv.org/abs/2102.1209}{Ramesh A. et al. Zero-shot text-to-image generation, 2021}}
 \end{frame}
 %=======
-\begin{frame}{Applications: Image generation}
+\begin{frame}{DDPM - diffusion model}
 	\begin{figure}
 		\includegraphics[width=\linewidth]{figs/diffusion_models}
 	\end{figure}
 	\myfootnotewithlink{https://arxiv.org/abs/2105.05233}{Dhariwal P., Nichol A. Diffusion Models Beat GANs on Image Synthesis, 2021}
 \end{frame}
 %=======
-\begin{frame}{Problem statement}
-We are given i.i.d. samples $\{\bx_i\}_{i=1}^n \in \cX$ (e.g. $\cX = \bbR^m$) from unknown distribution $\pi(\bx)$.
-
-\begin{block}{Goal}
-	We would like to learn a distribution $\pi(\bx)$ for 
-	\begin{itemize}
-	    \item evaluating $\pi(\bx)$ for new samples (how likely to get object $\bx$?);
-	    \item sampling from $\pi(\bx)$ (to get new objects $\bx \sim \pi(\bx)$).
-	\end{itemize}
-\end{block}
-\begin{block}{Challenge}
-	 Data is complex and high-dimensional. E.g. the dataset of images lies in the space $\cX \subset \bbR^{\text{width} \times \text{height} \times \text{channels}}$.
-\end{block}
+\begin{frame}{Stable Diffusion - awesome text to image results}
+	\begin{figure}
+		\includegraphics[width=\linewidth]{figs/stable_diffusion}
+	\end{figure}
+	\myfootnote{\href{https://arxiv.org/abs/2112.10752}{Rombach R., et al. High-Resolution Image Synthesis with Latent Diffusion Models, 2021} \\
+	\href{https://github.com/CompVis/stable-diffusion}{https://github.com/CompVis/stable-diffusion} \\
+	\href{https://laion.ai/blog/laion-5b/}{LAION-5B dataset}}
 \end{frame}
 %=======
 \section{Problem statement}
+%=======
+\begin{frame}{Course tricks 1}
+	\begin{block}{Monte-Carlo estimation}
+		Expected value could be estimated using only the samples:
+		\[
+			\bbE_{p(\bx)} f(\bx) = \int p(\bx) f(\bx) d \bx \approx \frac{1}{n} \sum_{i=1}^n f(\bx_i), \quad 
+			\text{where } \bx_i \sim p(\bx).
+		\]
+	\end{block}
+	\begin{block}{Law of the unconscious statistician (LOTUS)}
+		Let $\bx$ be a random variable and let $\by=f(\bx)$. Then
+		\[
+			\bbE_{p_y} \by = \int p(\by) \by d \by = \int p(\bx) f(\bx) d \bx = \bbE_{p_x} f(\bx).
+		\]
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Course tricks 2}
+	\begin{block}{Jensen's Inequality}
+		Let $\bx$ be a random variable and $f(\cdot)$ is a convex function. Then
+		\[
+			\bbE [f(\bx)] \geq f(\bbE[\bx]).
+		\]
+	\end{block}
+	\begin{block}{Decomposition to conditionals}
+	If $\bx = (x_1, x_2, \dots, x_m) \in \bbR^m$, then 
+	\[
+		p(\bx) = p(x_1) \cdot p(x_2 | x_1) \cdot p(x_3 | x_2, x_1) \cdot \dots \cdot p(x_m|x_{m-1},\dots,x_1)
+	\]
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Problem statement}
+	We are given i.i.d. samples $\{\bx_i\}_{i=1}^n \in \cX$ (e.g. $\cX = \bbR^m$) from unknown distribution $\pi(\bx)$.
+	
+	\begin{block}{Goal}
+		We would like to learn a distribution $\pi(\bx)$ for 
+		\begin{itemize}
+		    \item evaluating $\pi(\bx)$ for new samples (how likely to get object $\bx$?);
+		    \item sampling from $\pi(\bx)$ (to get new objects $\bx \sim \pi(\bx)$).
+		\end{itemize}
+	\end{block}
+	\begin{block}{Challenge}
+		 Data is complex and high-dimensional. E.g. the dataset of images lies in the space $\cX \subset \bbR^{\text{width} \times \text{height} \times \text{channels}}$.
+	\end{block}
+\end{frame}
 %=======
 \begin{frame}{Histogram as a generative model}
 	
@@ -188,30 +209,6 @@ We are given i.i.d. samples $\{\bx_i\}_{i=1}^n \in \cX$ (e.g. $\cX = \bbR^m$) fr
 	    \pi(\bx) &= \pi(x_1) \cdot \pi(x_2)\cdot \dots \cdot \pi(x_m); \\
 	    \pi(\bx) &= \pi(x_1) \cdot \pi(x_2 | x_1) \cdot \dots \cdot \pi(x_m | x_{m-1}).
 	\end{align*}
-\end{frame}
-%=======
-\begin{frame}{Course tricks}
-	\begin{block}{Monte-Carlo estimation}
-		\vspace{-0.5cm}
-		\[
-			\bbE_{p(\bx)} f(\bx) = \int p(\bx) f(\bx) d \bx \approx \frac{1}{n} \sum_{i=1}^n f(\bx_i), \quad 
-			\text{where } \bx_i \sim p(\bx).
-		\]
-		Expected value could be estimated using only the samples.
-	\end{block}
-	\begin{block}{Law of the unconscious statistician (LOTUS)}
-		Let $X$ be a random variable and let $Y=f(X)$. Then
-		\[
-			\bbE_{p_Y} Y = \int p(\by) \by d \by = \bbE_{p_X} f(X) = \int p(\bx) f(\bx) d \bx.
-		\]
-	\end{block}
-	\vspace{-0.5cm}
-	\begin{block}{Jensen's Inequality}
-		Let $X$ be a random variable and $f(\cdot)$ is a convex function. Then
-		\[
-			\bbE f(\bx) \geq f(\bbE[\bx]).
-		\]
-	\end{block}
 \end{frame}
 %=======
 \section{Divergence minimization framework}
@@ -389,33 +386,34 @@ We are given i.i.d. samples $\{\bx_i\}_{i=1}^n \in \cX$ (e.g. $\cX = \bbR^m$) fr
 \end{frame}
 %=======
 \begin{frame}{Autoregressive models}
-		For large $j$ the conditional distribution $p(x_j | \bx_{1:j - 1}, \btheta)$ could be infeasible. Moreover, the history $\bx_{1:j-1}$ has non-fixed length.
-		\begin{block}{Markov assumption}
-			\vspace{-0.5cm}
-			\[
-				p(x_j | \bx_{1:j - 1}, \btheta) = p(x_j | \bx_{j - d:j - 1}, \btheta), \quad d \text{ is a fixed model parameter}.
-			\]
-		\end{block}
+	For large $j$ the conditional distribution $p(x_j | \bx_{1:j - 1}, \btheta)$ could be infeasible. Moreover, the history $\bx_{1:j-1}$ has non-fixed length.
+	\begin{block}{Markov assumption}
 		\vspace{-0.5cm}
-		\begin{block}{Example}
-			\begin{minipage}[t]{0.39\columnwidth}
-				{\small
-				\begin{itemize}
-					\item $d = 2$;
-					\item $x_j \in \{0, 255\}$;
-					\item $\bh_j = \text{MLP}_{\btheta}(x_{j - 1}, x_{j - 2})$;
-					\item $\bpi_j = \text{softmax}(\bh_j)$;
-					\item $p(x_j | x_{j - 1}, x_{j - 2}, \btheta) = \text{Categorical}(\bpi_j)$.
-				\end{itemize}
-				}
-			\end{minipage}%
-			\begin{minipage}[t]{0.61\columnwidth}
-	   \begin{figure}
-	       \centering
-	       \includegraphics[width=1.0\linewidth]{figs/sequential_MLP}
-	   \end{figure}
-			\end{minipage}
-		\end{block}
+		\[
+			p(x_j | \bx_{1:j - 1}, \btheta) = p(x_j | \bx_{j - d:j - 1}, \btheta), \quad d \text{ is a fixed model parameter}.
+		\]
+	\end{block}
+	\vspace{-0.5cm}
+	\begin{block}{Example}
+		\begin{minipage}[t]{0.39\columnwidth}
+			{\small
+			\begin{itemize}
+				\item $d = 2$;
+				\item $x_j \in \{0, 255\}$;
+				\item $\bh_j = \text{MLP}_{\btheta}(x_{j - 1}, x_{j - 2})$;
+				\item $\bpi_j = \text{softmax}(\bh_j)$;
+				\item $p(x_j | x_{j - 1}, x_{j - 2}, \btheta) = \text{Categorical}(\bpi_j)$.
+			\end{itemize}
+			}
+		\end{minipage}%
+		\begin{minipage}[t]{0.61\columnwidth}
+			 \begin{figure}
+			   \centering
+			   \includegraphics[width=1.0\linewidth]{figs/sequential_MLP}
+			 \end{figure}
+			 Is it possible to model continuous distributions instead of discrete one?
+		\end{minipage}
+	\end{block}
 	 \myfootnotewithlink{https://jmtomczak.github.io/blog/2/2\_ARM.html}{image credit: https://jmtomczak.github.io/blog/2/2\_ARM.html}
 \end{frame}
 %=======
