@@ -88,62 +88,6 @@
 	\tableofcontents
 \end{frame}
 %=======
-\section{Variational lower bound (ELBO)}
-%=======
-\begin{frame}{Variational lower bound (ELBO)}
-	\begin{block}{Derivation 1 (inequality)}
-		\vspace{-0.7cm}
-		\begin{multline*}
-			\log p(\bx| \btheta) 
-			= \log \int p(\bx, \bz | \btheta) d\bz = \log \int \frac{q(\bz)}{q(\bz)} p(\bx, \bz | \btheta) d\bz = \\
-			= \log \bbE_{q} \left[\frac{p(\bx, \bz| \btheta)}{q(\bz)} \right] \geq \bbE_{q} \log \frac{p(\bx, \bz| \btheta)}{q(\bz)} =  \cL(q, \btheta)
-		\end{multline*}
-		\vspace{-0.7cm}
-	\end{block}
-	\begin{block}{Derivation 2 (equality)}
-		\vspace{-0.7cm}
-		\begin{multline*}
-			\mathcal{L} (q, \btheta) = \int q(\bz) \log \frac{p(\bx, \bz | \btheta)}{q(\bz)}d\bz = 
-			\int q(\bz) \log \frac{p(\bz|\bx, \btheta)p(\bx| \btheta)}{q(\bz)}d\bz = \\
-			= \int q(\bz) \log p(\bx| \btheta) d\bz + \int q(\bz) \log \frac{p(\bz|\bx, \btheta)}{q(\bz)}d\bz = \\
-			= \log p(\bx| \btheta) - KL(q(\bz) || p(\bz|\bx, \btheta))
-		\end{multline*}
-	\end{block}
-	\vspace{-0.7cm}
-	\begin{block}{Variational decomposition}
-		\[
-			\log p(\bx| \btheta) = \mathcal{L} (q, \btheta) + KL(q(\bz) || p(\bz|\bx, \btheta)) \geq \mathcal{L} (q, \btheta).
-		\]
-	\end{block}
-\end{frame}
-%=======
-\begin{frame}{Variational lower bound (ELBO)}
-	\vspace{-0.5cm}
-	\begin{align*}
- 	 \mathcal{L} (q, \btheta) &= \int q(\bz) \log \frac{p(\bx, \bz | \btheta)}{q(\bz)}d\bz = \\ 
-	  &= \int q(\bz) \log p(\bx | \bz, \btheta) d\bz + \int q(\bz) \log \frac{p(\bz)}{q(\bz)}d\bz \\ 
-	  &= \mathbb{E}_{q} \log p(\bx | \bz, \btheta) - KL (q(\bz) || p(\bz))
-	\end{align*}
-	\vspace{-0.5cm}
-	\begin{block}{Log-likelihood decomposition}
-		\vspace{-0.5cm}
-		\[
-			 \log p(\bx| \btheta) = \mathbb{E}_{q} \log p(\bx | \bz, \btheta) - KL (q(\bz) || p(\bz)) + KL(q(\bz) || p(\bz|\bx, \btheta)).
-		\]
-	\end{block}
-	\begin{itemize}
-	\item Instead of maximizing incomplete likelihood, maximize ELBO
-   	\[
-	    \max_{\btheta} p(\bx | \btheta) \quad \rightarrow \quad \max_{q, \btheta} \mathcal{L} (q, \btheta)
-   	\]
-   	\item Maximization of ELBO by variational distribution $q$ is equivalent to minimization of KL
-  	\[
-	    \max_q \mathcal{L} (q, \btheta) \equiv \min_q KL(q(\bz) || p(\bz|\bx, \btheta)).
-  	\]
-  	\end{itemize}
-	   	    
-\end{frame}
-%=======
 \section{EM-algorithm, amortized inference}
 %=======
 \begin{frame}{EM-algorithm}
@@ -318,8 +262,6 @@
 %=======
 \begin{frame}{Summary}
 	\begin{itemize}
-		\item LVM maximizes variational evidence lower bound (ELBO) to find MLE for the parameters.
-		\vfill
 		\item The general variational EM algorithm maximizes ELBO objective.
 		\vfill
 		\item Amortized variational inference allows to efficiently compute the stochastic gradients for ELBO using Monte-Carlo estimation.

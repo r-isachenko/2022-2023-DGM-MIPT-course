@@ -56,6 +56,44 @@
 %=======
 \section{Data dequantization}
 %=======
+\begin{frame}{PixelCNN++}
+	\begin{block}{CIFAR-10 pixel values distribution}
+		\begin{figure}
+			\includegraphics[width=0.3\linewidth]{figs/pixelcnn++_pixels_distr}
+		\end{figure}
+	\end{block}
+	\vspace{-0.5cm}
+	\begin{itemize}
+		\item Standard PixelCNN outputs softmax probabilities for values $\{0, 255\}$ (256 outputs feature maps). 
+		\item Categorical distribution do not know anything about numerical relationships (220 is close to 221 and far from 15).
+		\item If pixel value is not presented in the training dataset, it won't be predicted.
+		\item (Look at the edges of the distributions: they have higher probability mass).
+	\end{itemize}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.05517}{Salimans T. et al. PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications, 2017}
+\end{frame}
+%=======
+\begin{frame}{PixelCNN++}
+		\begin{minipage}[t]{0.55\columnwidth}
+		\begin{block}{Mixture of logistic distributions}
+			\begin{align*}
+				p(x | \mu, s) &= \frac{\exp^{-(x - \mu) / s}}{s (1 + \exp^{-(x - \mu) / s})^2}; \\
+				p(x | \bmu, \bs, \bpi) &= \sum_{k=1}^K \pi_k p(x | \mu_k, s_k);
+			\end{align*}
+		\end{block}
+		\end{minipage}%
+		\begin{minipage}[t]{0.45\columnwidth}
+				\begin{figure}
+					\includegraphics[width=\linewidth]{figs/picelcnn++logistic}
+				\end{figure}
+		\end{minipage}
+	To adopt probability calculation to discrete values:
+	\[
+		P_d(x | \bmu, \bs, \bpi) = P(x + 0.5 | \bmu, \bs, \bpi) - P(x - 0.5 | \bmu, \bs, \bpi)
+	\]
+	For the edge case of 0, replace $x - 0.5$ by $-\infty$, and for 255 replace $x + 0.5$ by $+\infty$.
+	\myfootnotewithlink{https://arxiv.org/abs/1701.05517}{Salimans T. et al. PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications, 2017}
+\end{frame}
+%=======
 \begin{frame}{Dequantization}
 	\begin{itemize}
 		\item Images are discrete data, pixels lie in the \{0, 255\} integer domain (the model is $P(\bx | \btheta) = \text{Categorical}(\bpi(\btheta))$).
@@ -573,6 +611,8 @@ What are the pros and cons of each of them? \\
 %=======
 \begin{frame}{Summary}
 	\begin{itemize}
+		\item PixelCNN++ proposes to use discretized mixture of logistics for output distribution.
+		\vfill
 		\item Dequantization allows to fit discrete data using continuous model.
 		\vfill
 		\item Uniform dequantization is the simplest form of dequantization. Variational dequantization is a more natural type that was proposed in Flow++ model.
