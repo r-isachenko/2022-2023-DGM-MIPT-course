@@ -139,17 +139,17 @@
 \section{Problem statement}
 %=======
 \begin{frame}{Course tricks 1}
+	\begin{block}{Law of the unconscious statistician (LOTUS)}
+		Let $\bx$ be a random variable with density $p_x(\bx)$ and let $\by=f(\bx)$ with density $p_y(\by)$. Then
+		\[
+			\bbE_{p_y} \by = \int p_y(\by) \by d \by = \int p_x(\bx) f(\bx) d \bx = \bbE_{p_x} f(\bx).
+		\]
+	\end{block}
 	\begin{block}{Monte-Carlo estimation}
 		Expected value could be estimated using only the samples:
 		\[
 			\bbE_{p(\bx)} f(\bx) = \int p(\bx) f(\bx) d \bx \approx \frac{1}{n} \sum_{i=1}^n f(\bx_i), \quad 
 			\text{where } \bx_i \sim p(\bx).
-		\]
-	\end{block}
-	\begin{block}{Law of the unconscious statistician (LOTUS)}
-		Let $\bx$ be a random variable and let $\by=f(\bx)$. Then
-		\[
-			\bbE_{p_y} \by = \int p(\by) \by d \by = \int p(\bx) f(\bx) d \bx = \bbE_{p_x} f(\bx).
 		\]
 	\end{block}
 \end{frame}
@@ -162,9 +162,9 @@
 		\]
 	\end{block}
 	\begin{block}{Decomposition to conditionals}
-	If $\bx = (x_1, x_2, \dots, x_m) \in \bbR^m$, then 
+	Let $\bx = (x_1, x_2, \dots, x_m) \in \bbR^m$ be a random variable. Then 
 	\[
-		p(\bx) = p(x_1) \cdot p(x_2 | x_1) \cdot p(x_3 | x_2, x_1) \cdot \dots \cdot p(x_m|x_{m-1},\dots,x_1)
+		p(\bx) = p(x_1) \cdot p(x_2 | x_1) \cdot p(x_3 | x_2, x_1) \cdot \dots \cdot p(x_m|x_{m-1},\dots,x_1).
 	\]
 	\end{block}
 \end{frame}
@@ -264,6 +264,7 @@
 	What is the difference between these two formulations?
 	
 	\begin{block}{Maximum likelihood estimation (MLE)}
+	Let $\bX = \{\bx_i\}_{i=1}^n$ be the set of the given i.i.d. samples.
 		\vspace{-0.5cm}
 		\[
 		\btheta^* = \argmax_{\btheta} p(\bX | \btheta) = \argmax_{\btheta} \prod_{i=1}^n p(\bx_i | \btheta) = \argmax_{\btheta} \sum_{i=1}^n \log p(\bx_i | \btheta).
