@@ -71,6 +71,11 @@ The course is accompanied by practical tasks that allow you to understand the pr
 - maximum points: 78 + 26 = **104 points**
 ### Final grade: `floor(relu(#points/8 - 2))`
 
+## Prerequisities
+- probability theory + statistics
+- machine learning + basics of deep learning
+- python + basics of one of DL frameworks (pytorch/tensorflow/etc)
+
 ## Previous episodes
 - [2022, autumn, AIMasters](https://github.com/r-isachenko/2022-2023-DGM-AIMasters-course)
 - [2022, spring, OzonMasters](https://github.com/r-isachenko/2022-DGM-Ozon-course)
