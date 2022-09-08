@@ -16,6 +16,11 @@ The aim of the course is to introduce the student to widely used advanced method
 
 The course is accompanied by practical tasks that allow you to understand the principles of the considered models.
 
+## Contact the author to join the course or for any other questions :)
+
+- **telegram:** [@roman_isachenko](https://t.me/roman_isachenko)
+- **e-mail:** roman.isachenko@phystech.edu
+
 ## Materials
 
 | # | Date | Description | Slides | Video |
@@ -72,8 +77,3 @@ The course is accompanied by practical tasks that allow you to understand the pr
 - [2021, autumn, MIPT](https://github.com/r-isachenko/2021-DGM-MIPT-course)
 - [2021, spring, OzonMasters](https://github.com/r-isachenko/2021-DGM-Ozon-course)
 - [2020, autumn, MIPT](https://github.com/r-isachenko/2020-DGM-MIPT-course)
-
-## Author, feel free to contact :)
-
-- **telegram:** [@roman_isachenko](https://t.me/roman_isachenko)
-- **e-mail:** roman.isachenko@phystech.edu
