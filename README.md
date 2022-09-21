@@ -26,8 +26,8 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | # | Date | Description | Slides | Video |
 |---|---|---|---|---|
 | 1 | September, 6 | <b>Lecture:</b> Logistics. Generative Models overview/Motivation. Problem statement. Divergence minimization framework. Autoregressive modelling. | [slides](lectures/lecture1/Lecture1.pdf) | [video](https://youtu.be/6iJnWstvn3g) |
-|  | September, 13 | <b>Seminar:</b> Introduction. Maximum Likelihood estimation. Histograms an KDE. | [notebook](seminars/seminar1/seminar1.ipynb) | TBA |
-| 2 | September, 20 | <b>Lecture:</b> Autoregressive models (WaveNet, PixelCNN). Bayesian Framework. Latent Variable Models. Variational lower bound (ELBO). | [slides](lectures/lecture2/Lecture2.pdf) | [video](https://youtu.be/BNVvMZvs_VM) |
+| 2 | September, 13 | <b>Seminar:</b> Introduction. Maximum likelihood estimation. Kernel density estimation (KDE). Histograms an KDE. | [notebook](seminars/seminar1/seminar1.ipynb) | [video](https://youtu.be/6RGjcdNwT-8) |
+| 3 | September, 20 | <b>Lecture:</b> Autoregressive models (WaveNet, PixelCNN). Bayesian Framework. Latent Variable Models. Variational lower bound (ELBO). | [slides](lectures/lecture2/Lecture2.pdf) | [video](https://youtu.be/BNVvMZvs_VM) |
 |  |  | <b>Seminar:</b> MADE theory and practice. PixelCNN implementation hints. Bayesian inference intro, conjugate distributions. | TBA | TBA |
 | 3 |  | <b>Lecture:</b> Variational lower bound. EM-algorithm, amortized inference. ELBO gradients, reparametrization trick. | TBA | TBA |
 |  |  | <b>Seminar:</b> Mean field approximation. | TBA | TBA |
