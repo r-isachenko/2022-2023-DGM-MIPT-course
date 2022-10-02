@@ -34,6 +34,9 @@
 \input{../utils/newcommands}
 \input{../utils/title}
 
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes,positioning,shadows,trees}
+
 \newcommand\myfootnote[1]{%
   \tikz[remember picture,overlay]
   \draw (current page.south west) +(1in + \oddsidemargin,0.5em)
