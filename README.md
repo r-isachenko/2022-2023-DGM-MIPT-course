@@ -30,7 +30,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 3 | September, 20 | <b>Lecture:</b> Autoregressive models (WaveNet, PixelCNN). Bayesian Framework. Latent Variable Models (LVM). Variational lower bound (ELBO). | [slides](lectures/lecture2/Lecture2.pdf) | [video](https://youtu.be/BNVvMZvs_VM) |
 | 4 | September, 27 | <b>Seminar:</b> MADE theory and practice. PixelCNN implementation hints. Gaussian MADE. | [notebook](seminars/seminar2/seminar2.ipynb) | [video](https://youtu.be/etX4zcThxgM) |
 | 3 | October, 4 | <b>Lecture:</b> EM-algorithm, amortized inference. ELBO gradients, reparametrization trick. Variational Autoencoder (VAE). | [slides](lectures/lecture3/Lecture3.pdf) | [video](https://youtu.be/544zO_mYcg4) |
-|  | October, 11 | <b>Seminar:</b> Latent Variable Models. Gaussian Mixture Model (GMM). GMM and MLE. ELBO and EM-algorithm. GMM via EM-algorithm | [notebook](seminars/seminar3/seminar3.ipynb) | TBA |
+|  | October, 11 | <b>Seminar:</b> Latent Variable Models. Gaussian Mixture Model (GMM). GMM and MLE. ELBO and EM-algorithm. GMM via EM-algorithm | [notebook](seminars/seminar3/seminar3.ipynb) | [video](https://youtu.be/vU4oZIMCEs4) |
 | 4 |  | <b>Lecture:</b> Variational Autoencoder (VAE). Posterior collapse and decoder weakening. Tighter ELBO (IWAE). | TBA | TBA |
 |  |  | <b>Seminar:</b> EM-algorithm. VAE theory. Automatic differentiation through random graph. | TBA | TBA |
 | 5 |  | <b>Lecture:</b> Flow models definition. Forward and reverse KL divergence. Linear flows (Glow). Residual flows (Planar/Sylvester flows). | TBA | TBA |
