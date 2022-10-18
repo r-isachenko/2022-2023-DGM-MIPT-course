@@ -50,13 +50,13 @@
       \rlap{\rule{10em}{0.4pt}}\raggedright\scriptsize\href{#1}{\textit{#2}}}};}
       
 \AtBeginSection[]
-{
-	\begin{frame}{Outline}
-		\tableofcontents[currentsection,subsectionstyle=hide]
-	\end{frame}
-}
-\AtBeginSubsection[]{
-	\begin{frame}{Outline}
-		\tableofcontents[currentsection,currentsubsection]
-	\end{frame}
+      {
+      	\begin{frame}{Outline}
+      		\tableofcontents[currentsection]
+      	\end{frame}
+      }
+      \AtBeginSubsection[]{
+      	\begin{frame}{Outline}
+      		\tableofcontents[currentsection,currentsubsection]
+      	\end{frame}
 }
