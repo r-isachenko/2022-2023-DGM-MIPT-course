@@ -30,9 +30,9 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 3 | September, 20 | <b>Lecture 2:</b> Autoregressive models (WaveNet, PixelCNN). Bayesian Framework. Latent Variable Models (LVM). Variational lower bound (ELBO). | [slides](lectures/lecture2/Lecture2.pdf) | [video](https://youtu.be/BNVvMZvs_VM) |
 | 4 | September, 27 | <b>Seminar 2:</b> MADE theory and practice. PixelCNN implementation hints. Gaussian MADE. | [notebook](seminars/seminar2/seminar2.ipynb) | [video](https://youtu.be/etX4zcThxgM) |
 | 5 | October, 4 | <b>Lecture 3:</b> EM-algorithm, amortized inference. ELBO gradients, reparametrization trick. Variational Autoencoder (VAE). | [slides](lectures/lecture3/Lecture3.pdf) | [video](https://youtu.be/544zO_mYcg4) |
-| 6 | October, 11 | <b>Seminar 3:</b> Latent Variable Models. Gaussian Mixture Model (GMM). GMM and MLE. ELBO and EM-algorithm. GMM via EM-algorithm | [notebook](seminars/seminar3/seminar3.ipynb) | [video](https://youtu.be/vU4oZIMCEs4) |
+| 6 | October, 11 | <b>Seminar 3:</b> Latent Variable Models. Gaussian Mixture Model (GMM). GMM and MLE. ELBO and EM-algorithm. GMM via EM-algorithm. | [notebook](seminars/seminar3/seminar3.ipynb) | [video](https://youtu.be/vU4oZIMCEs4) |
 | 7 | October, 18 | <b>Lecture 4:</b> VAE limitations. Posterior collapse and decoder weakening. Tighter ELBO (IWAE). Normalizing flows prerequisities.  | [slides](lectures/lecture4/Lecture4.pdf) | [video](https://youtu.be/pHpHnERLB_Y) |
-| 8 |  | <b>Seminar 4:</b> VAE implementation hints. IWAE theory. | [notebook](seminars/seminar4/seminar4.ipynb) | TBA |
+| 8 | October, 25 | <b>Seminar 4:</b> VAE implementation hints. IWAE theory. | [notebook](seminars/seminar4/seminar4.ipynb) | [video](https://youtu.be/q3mzc8Vm_34) |
 | 9 |  | <b>Lecture 5:</b> Flow models definition. Forward and reverse KL divergence. Linear flows (Glow). Residual flows (Planar/Sylvester flows). | TBA | TBA |
 | 10 |  | <b>Seminar 5:</b> IWAE theory. IWAE variational posterior. VAE vs Normalizing flows. | TBA | TBA |
 | 11 |  | <b>Lecture 6:</b> Autoregressive flows (MAF/IAF). Coupling layer (RealNVP). | TBA | TBA |
