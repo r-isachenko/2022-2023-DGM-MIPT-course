@@ -34,7 +34,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 7 | October, 18 | <b>Lecture 4:</b> VAE limitations. Posterior collapse and decoder weakening. Tighter ELBO (IWAE). Normalizing flows prerequisities.  | [slides](lectures/lecture4/Lecture4.pdf) | [video](https://youtu.be/pHpHnERLB_Y) |
 | 8 | October, 25 | <b>Seminar 4:</b> VAE implementation hints. IWAE theory. | [notebook](seminars/seminar4/seminar4.ipynb) | [video](https://youtu.be/q3mzc8Vm_34) |
 | 9 | November, 1 | <b>Lecture 5:</b> Normalizing Flow (NF) intuition and definition. Forward and reverse KL divergence for NF. Linear flows. | [slides](lectures/lecture5/Lecture5.pdf) | TBA |
-| 10 |  | <b>Seminar 5:</b> IWAE theory. IWAE variational posterior. VAE vs Normalizing flows. | TBA | TBA |
+| 10 |  | <b>Seminar 5:</b> Flows. Planar flows. Forward KL vs Reverse KL. Planar flows via Forward KL and Reverse KL. | [notebook](seminars/seminar5/seminar5.ipynb)<br>[planar_flow_practice](seminars/seminar5/planar_flow.ipynb)<br>[autograd_jacobian](seminars/seminar5/jacobian_note.ipynb) | TBA |
 | 11 |  | <b>Lecture 6:</b> Autoregressive flows (MAF/IAF). Coupling layer (RealNVP). | TBA | TBA |
 | 12 |  | <b>Seminar 6:</b> Planar flows. Forward vs Reverse KL. | TBA | TBA |
 | 13 |  | <b>Lecture 7:</b> Uniform and variational dequantization. ELBO surgery and optimal VAE prior. Flows-based VAE posterior vs flow-based VAE prior. | TBA | TBA |
