@@ -13,27 +13,6 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
-	\begin{minipage}[t]{0.55\columnwidth}
-		\begin{block}{Variational autoencoder (VAE)}
-		    \begin{itemize}
-			    \item VAE learns stochastic mapping between $\bx$-space, from $\pi(\bx)$, and a latent $\bz$-space, with simple distribution. 
-			    \item The generative model learns  distribution $p(\bx, \bz | \btheta) = p(\bz) p(\bx |\bz, \btheta)$, with a prior distribution $p(\bz)$, and a stochastic decoder $p(\bx|\bz, \btheta)$. 
-			    \item The stochastic encoder $q(\bz|\bx, \bphi)$ (inference model), approximates the true but intractable posterior $p(\bz|\bx, \btheta)$.
-		    \end{itemize}
-	    \end{block}
-	\end{minipage}%
-	\begin{minipage}[t]{0.45\columnwidth}
-		\vspace{0.7cm}
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=\linewidth]{figs/vae_scheme}
-		\end{figure}
-	\end{minipage}
-	
-	\myfootnotewithlink{https://arxiv.org/abs/1906.02691}{Kingma D. P., Welling M. An introduction to variational autoencoders, 2019}
-\end{frame}
-%=======
-\begin{frame}{Recap of previous lecture}
 	\begin{block}{LVM}
 		\vspace{-0.3cm}
 		\[
@@ -43,18 +22,19 @@
 	\end{block}
 	\begin{itemize}
 		\item More powerful $p(\bx | \bz, \btheta)$ leads to more powerful generative model $p(\bx | \btheta)$.
-		\item Too powerful $p(\bx | \bz, \btheta)$ could lead to posterior collapse: $q(\bz | \bx)$ will not carry any information about $\bx$ and close to prior $p(\bz)$.
+		\item Too powerful $p(\bx | \bz, \btheta)$ could lead to posterior collapse: $q(\bz | \bx, \bphi)$ will not carry any information about $\bx$ and close to prior $p(\bz)$.
 	\end{itemize}
 	\begin{block}{Autoregressive decoder}
-		\vspace{-0.2cm}
+		\vspace{-0.3cm}
 		\[
-		    p(\bx | \bz , \btheta) = \prod_{j=1}^m p(x_j | \bx_{1:j - 1}, \bz , \btheta)
+			p(\bx | \bz , \btheta) = \prod_{j=1}^m p(x_j | {\color{teal}\bx_{1:j - 1}}, {\color{violet}\bz}, \btheta)
 		\]
+		\vspace{-0.3cm}
+		\begin{itemize}
+			\item Global structure is captured by latent variables ${\color{violet}\bz}$.
+			\item Local statistics are captured by limited receptive field of autoregressive context ${\color{teal}\bx_{1:j - 1}}$.
+		\end{itemize}
 	\end{block}
-	\begin{itemize}
-		\item Global structure is captured by latent variables.
-		\item Local statistics are captured by limited receptive field autoregressive model.
-	\end{itemize}
 	
 	\myfootnotewithlink{https://arxiv.org/abs/1611.05013}{Gulrajani I. et al. PixelVAE: A Latent Variable Model for Natural Images, 2016}
 \end{frame}
@@ -70,7 +50,7 @@
 	\begin{block}{KL annealing}
 		\vspace{-0.6cm}
 		\[
-		    \mathcal{L}(q, \btheta, \beta) = \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta) - \beta \cdot KL (q(\bz | \bx, \bphi) || p(\bz))
+			\mathcal{L}(\bphi, \btheta, \beta) = \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta) - {\color{violet}\beta} \cdot KL (q(\bz | \bx, \bphi) || p(\bz))
 		\]
 		Start training with $\beta = 0$, increase it until $\beta = 1$ during training.
 	\end{block}
@@ -78,7 +58,7 @@
 	\begin{block}{Free bits}
 		Ensure the use of less than $\lambda$ bits of information:
 		\[
-		    \mathcal{L}(q, \btheta, \lambda) = \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta) - \max(\lambda, KL (q(\bz | \bx, \bphi) || p(\bz))).
+		\mathcal{L}(\bphi, \btheta, \lambda) = \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta) - {\color{violet}\max(\lambda,} KL (q(\bz | \bx, \bphi) || p(\bz)){\color{violet})}.
 		\]
 		This results in $KL (q(\bz | \bx, \bphi) || p(\bz)) \geq \lambda$.
 	\end{block}
@@ -113,51 +93,45 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1509.00519}{Burda Y., Grosse R., Salakhutdinov R. Importance Weighted Autoencoders, 2015}
 \end{frame}
 %=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Jacobian matrix}
+		Let $f: \mathbb{R}^m \rightarrow \mathbb{R}^m$ be a differentiable function.
+		\[
+		\bz = f(\bx), \quad 
+		\bJ =  \frac{\partial \bz}{\partial \bx} =
+		\begin{pmatrix}
+			\frac{\partial z_1}{\partial x_1} & \dots & \frac{\partial z_1}{\partial x_m} \\
+			\dots & \dots & \dots \\ 
+			\frac{\partial z_m}{\partial x_1} & \dots & \frac{\partial z_m}{\partial x_m}
+		\end{pmatrix} \in \bbR^{m \times m}
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	\begin{block}{Change of variable theorem (CoV)}
+		Let $\bx$ be a random variable with density function $p(\bx)$ and $f: \mathbb{R}^m \rightarrow \mathbb{R}^m$ is a differentiable, invertible function (diffeomorphism). If $\bz = f(\bx)$, $\bx = f^{-1}(\bz) = g(\bz)$, then
+		\begin{align*}
+			p(\bx) &= p(\bz) |\det(\bJ_f)| = p(\bz) \left|\det \left(  \frac{\partial \bz}{\partial \bx} \right) \right| = p(f(\bx)) \left|\det \left(  \frac{\partial f(\bx)}{\partial \bx} \right) \right| \\
+			p(\bz) &= p(\bx) |\det(\bJ_g)|= p(\bx) \left|\det \left(  \frac{\partial \bx}{\partial \bz} \right) \right| = p(g(\bz)) \left|\det \left(  \frac{\partial g(\bz)}{\partial \bz} \right) \right|.
+		\end{align*}
+		\vspace{-0.5cm}
+	\end{block}
+\end{frame}
+%=======
 \begin{frame}{Outline}
 	\tableofcontents
 \end{frame}
 %=======
-\section{Normalizing flows}
-%=======
-\begin{frame}{Likelihood-based models so far...}
-	\begin{minipage}[t]{0.5\columnwidth}
-		\begin{block}{Autoregressive models}
-			\vspace{-0.5cm}
-			\[
-				p(\bx|\btheta) = \prod_{j=1}^m p(x_j | \bx_{1:j - 1}, \btheta)
-			\]
-			\vspace{-0.2cm}
-			\begin{itemize}
-				\item tractable likelihood, 
-				\item no inferred latent factors.
-			\end{itemize}
-		\end{block}
-	\end{minipage}%
-	\begin{minipage}[t]{0.5\columnwidth}
-		\begin{block}{Latent variable models}
-			\[
-				p(\bx| \btheta) = \int p(\bx, \bz | \btheta) d \bz
-			\]
-			\begin{itemize}
-				\item latent feature representation, 
-				\item intractable likelihood.
-			\end{itemize}
-		\end{block}
-	\end{minipage}
-	
-	\vspace{1cm } 
-	How to build model with latent variables and tractable likelihood?
-\end{frame}
+\section{Normalizing flows (NF)}
 %=======
 \begin{frame}{Generative models zoo}
 	\begin{tikzpicture}[
-	 	basic/.style  = {draw, text width=2cm, drop shadow, rectangle},
-	 	root/.style   = {basic, rounded corners=2pt, thin, text height=1.1em, text width=7em, align=center, fill=blue!40},
-	 	level 1/.style={sibling distance=55mm},
-	 	level 2/.style = {basic, rounded corners=6pt, thin, align=center, fill=blue!20, text height=1.1em, text width=9em, sibling distance=38mm},
-	 	level 3/.style = {basic, rounded corners=6pt, thin,align=center, fill=blue!20, text width=8.5em},
-	 	level 4/.style = {basic, thin, align=left, fill=pink!30, text width=7em},
-	 	level 5/.style = {basic, thin, align=left, fill=pink!90, text width=7em},
+		basic/.style  = {draw, text width=2cm, drop shadow, rectangle},
+		root/.style   = {basic, rounded corners=2pt, thin, text height=1.1em, text width=7em, align=center, fill=blue!40},
+		level 1/.style={sibling distance=55mm},
+		level 2/.style = {basic, rounded corners=6pt, thin, align=center, fill=blue!20, text height=1.1em, text width=9em, sibling distance=38mm},
+		level 3/.style = {basic, rounded corners=6pt, thin,align=center, fill=blue!20, text width=8.5em},
+		level 4/.style = {basic, thin, align=left, fill=pink!30, text width=7em},
+		level 5/.style = {basic, thin, align=left, fill=pink!90, text width=7em},
 		edge from parent/.style={->,draw},
 		>=latex]
 		
@@ -172,12 +146,12 @@
 		
 		% The second level, relatively positioned nodes
 		\begin{scope}[every node/.style={level 4}]
-		\node [below of = c11, yshift=-5pt, xshift=10pt] (c111) {Autoregressive models};
-		
-		\node [below of = c12, xshift=10pt] (c121) {VAEs};
-		\node [below of = c121] (c122) {Diffusion models};
-		\node [below of = c2, xshift=10pt] (c21) {GANs};
-		
+			\node [below of = c11, yshift=-5pt, xshift=10pt] (c111) {Autoregressive models};
+			
+			\node [below of = c12, xshift=10pt] (c121) {VAEs};
+			\node [below of = c121] (c122) {Diffusion models};
+			\node [below of = c2, xshift=10pt] (c21) {GANs};
+			
 		\end{scope}
 		
 		% The second level, relatively positioned nodes
@@ -198,34 +172,12 @@
 	\end{tikzpicture}
 \end{frame}
 %=======
-\begin{frame}{Normalizing flows prerequisites}
-	\begin{block}{Jacobian matrix}
-		\[
-			\bz = f(\bx), \quad 
-			\bJ =  \frac{\partial \bz}{\partial \bx} =
-			\begin{pmatrix}
-				\frac{\partial z_1}{\partial x_1} & \dots & \frac{\partial z_1}{\partial x_m} \\
-				\dots & \dots & \dots \\ 
-				\frac{\partial z_m}{\partial x_1} & \dots & \frac{\partial z_m}{\partial x_m}
-			\end{pmatrix} \in \bbR^{m \times m}
-		\]
-	\end{block}
-	\begin{block}{Change of variable theorem (CoV)}
-		Let $\bx$ be a random variable with density function $p(\bx)$ and $f: \mathbb{R}^m \rightarrow \mathbb{R}^m$ is a differentiable, invertible function (diffeomorphism). If $\bz = f(\bx)$, $\bx = f^{-1}(\bz) = g(\bz)$, then
-		\begin{align*}
-			p(\bx) &= p(\bz) |\det(\bJ_f)| = p(\bz) \left|\det \left(  \frac{\partial \bz}{\partial \bx} \right) \right| = p(f(\bx)) \left|\det \left(  \frac{\partial f(\bx)}{\partial \bx} \right) \right| \\
-			p(\bz) &= p(\bx) |\det(\bJ_g)|= p(\bx) \left|\det \left(  \frac{\partial \bx}{\partial \bz} \right) \right| = p(g(\bz)) \left|\det \left(  \frac{\partial g(\bz)}{\partial \bz} \right) \right|.
-		\end{align*}
-		\vspace{-0.5cm}
-	\end{block}
-\end{frame}
-%=======
 \begin{frame}{Jacobian determinant}
 	\begin{block}{Inverse function theorem}
 		If function $f$ is invertible and Jacobian matrix is continuous and non-singular, then
 		\vspace{-0.3cm}
 		\[
-			\bJ_f = \bJ_{g^{-1}} = \bJ_g^{-1}, \quad |\det (\bJ_f)| = \frac{1}{|\det (\bJ_g)|}
+		\bJ_f = \bJ_{g^{-1}} = \bJ_g^{-1}; \quad |\det (\bJ_f)| = \frac{1}{|\det (\bJ_g)|}.
 		\]
 		\vspace{-0.3cm}
 	\end{block}
@@ -235,7 +187,7 @@
 			\vfill
 			\item $f(\bx, \btheta)$ could be parametric function.
 			\vfill
-			\item Determinant  of Jacobian matrix $\mathbf{J} =\frac{\partial f(\bx, \btheta)}{\partial \bx}$ shows how the volume changes under the transorfmation.
+			\item Determinant  of Jacobian matrix $\mathbf{J} =\frac{\partial f(\bx, \btheta)}{\partial \bx}$ shows how the volume changes under the transformation.
 		\end{itemize}
 	\end{minipage}%
 	\begin{minipage}{0.45\columnwidth}
@@ -246,14 +198,14 @@
 	\myfootnotewithlink{https://jmtomczak.github.io/blog/3/3\_flows.html}{https://jmtomczak.github.io/blog/3/3\_flows.html}
 \end{frame}
 %=======
-\begin{frame}{Fitting flows}
+\begin{frame}{Fitting normalizing flows}
 	\begin{block}{MLE problem}
 		\vspace{-0.3cm}
 		\[
-			p(\bx|\btheta) = p(\bz) \left|\det \left(  \frac{\partial \bz}{\partial \bx} \right) \right|  = p(f(\bx, \btheta)) \left|\det \left( \frac{\partial f(\bx, \btheta)}{\partial \bx} \right) \right|
+		p(\bx|\btheta) = p(\bz) \left|\det \left(  \frac{\partial \bz}{\partial \bx} \right) \right|  = p(f(\bx, \btheta)) \left|\det \left( \frac{\partial f(\bx, \btheta)}{\partial \bx} \right) \right|
 		\]
 		\[
-			\log p(\bx|\btheta) = \log p(f(\bx, \btheta)) + \log  |\det (\bJ_f) | \rightarrow \max_{\btheta}
+		\log p(\bx|\btheta) = \log p(f(\bx, \btheta)) + \log  |\det (\bJ_f) | \rightarrow \max_{\btheta}
 		\]
 	\end{block}
 	\vspace{-0.2cm}
@@ -263,29 +215,29 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1605.08803}{Dinh L., Sohl-Dickstein J., Bengio S. Density estimation using Real NVP, 2016} 
 \end{frame}
 %=======
-\begin{frame}{Composition of flows}
+\begin{frame}{Composition of normalizing flows}
 	\begin{block}{Theorem}
 		Diffeomorphisms are \textbf{composable} (If $\{f_k\}_{k=1}^K$ satisfy conditions of the change of variable theorem, then $\bz = f(\bx) = f_K \circ \dots \circ f_1(\bx)$ also satisfies it).
 	\end{block}
 	\vspace{-0.5cm}
 	{ \footnotesize
-	\begin{multline*}
-		p(\bx) = p(f(\bx)) \left|\det \left(\frac{\partial f(\bx)}{\partial \bx} \right) \right| =
-		p(f(\bx)) \left|\det \left(\frac{\partial \textbf{f}_K}{\partial \textbf{f}_{K-1}} \dots \frac{\partial \textbf{f}_1}{\partial \bx} \right) \right| = \\ = p(f(\bx)) \prod_{k=1}^K \left|\det \left(\frac{\partial \textbf{f}_{k}}{\partial \textbf{f}_{k-1}} \right) \right|
-		= p(f(\bx)) \prod_{k=1}^K |\det ( \bJ_{f_k}) |
-	\end{multline*}
+		\begin{multline*}
+			p(\bx) = p(f(\bx)) \left|\det \left(\frac{\partial f(\bx)}{\partial \bx} \right) \right| =
+			p(f(\bx)) \left|\det \left(\frac{\partial \textbf{f}_K}{\partial \textbf{f}_{K-1}} \dots \frac{\partial \textbf{f}_1}{\partial \bx} \right) \right| = \\ = p(f(\bx)) \prod_{k=1}^K \left|\det \left(\frac{\partial \textbf{f}_{k}}{\partial \textbf{f}_{k-1}} \right) \right|
+			= p(f(\bx)) \prod_{k=1}^K |\det ( \bJ_{f_k}) |
+		\end{multline*}
 	}
 	\vspace{-0.3cm}
 	\begin{figure}
-		\includegraphics[width=0.9\linewidth]{figs/normalizing-flow}
+		\includegraphics[width=0.95\linewidth]{figs/normalizing-flow}
 	\end{figure}
 	\myfootnotewithlink{https://lilianweng.github.io/lil-log/2018/10/13/flow-based-deep-generative-models.html}{https://lilianweng.github.io/lil-log/2018/10/13/flow-based-deep-generative-models.html}
 \end{frame}
 %=======
-\begin{frame}{Flows}
+\begin{frame}{Normalizing flows (NF)}
 	\vspace{-0.3cm}
 	\[
-		\log p(\bx|\btheta) = \log p(f(\bx, \btheta)) + \log |\det (\bJ_f)|
+	\log p(\bx|\btheta) = \log p(f(\bx, \btheta)) + \log |\det (\bJ_f)|
 	\]
 	\vspace{-0.4cm}
 	\begin{block}{Definition}
@@ -301,20 +253,21 @@
 		\begin{block}{Log likelihood}
 			\vspace{-0.4cm}
 			\[
-				\log p(\bx | \btheta) = \log p(f_K \circ \dots \circ f_1(\bx)) + \sum_{k=1}^K\log |\det (\bJ_{f_k})|,
+			\log p(\bx | \btheta) = \log p(f_K \circ \dots \circ f_1(\bx)) + \sum_{k=1}^K\log |\det (\bJ_{f_k})|,
 			\]
 			\vspace{-0.4cm} \\
 			where $\bJ_{f_k} = \frac{\partial \mathbf{f}_k}{\partial \mathbf{f}_{k-1}}$.
 		\end{block}
 	\end{itemize}
+	\textbf{Note:} Here we consider only \textbf{continuous} random variables.
 \end{frame}
 %=======
-\begin{frame}{Flows}
+\begin{frame}{Normalizing flows}
 	\begin{block}{Example of a 4-step flow}
-	\vspace{-0.2cm}
-	\begin{figure}
+		\vspace{-0.2cm}
+		\begin{figure}
 			\includegraphics[width=\linewidth]{figs/flow_4_steps_example.png}
-	\end{figure}
+		\end{figure}
 	\end{block}
 	\vspace{-0.5cm}
 	\begin{block}{Flow log likelihood}
@@ -325,31 +278,33 @@
 		\vspace{-0.3cm}
 	\end{block}
 	What is the complexity of the determinant computation?
-	\begin{block}{What we want}
+	\begin{block}{What we need:}
 		\begin{itemize}
-			\item Efficient computation of the Jacobian matrix $\bJ_f = \frac{\partial f(\bx, \btheta)}{\partial \bx}$;
-			\item Efficient sampling from the base distribution $p(\bz)$;
-			\item Efficient inversion of $f(\bx, \btheta)$.
+			\item efficient computation of the Jacobian matrix $\bJ_f = \frac{\partial f(\bx, \btheta)}{\partial \bx}$;
+			\item efficient inversion of $f(\bx, \btheta)$;
+			\item loss function to minimize.
 		\end{itemize}
 	\end{block}
-		\myfootnotewithlink{https://arxiv.org/abs/1912.02762}{Papamakarios G. et al. Normalizing flows for probabilistic modeling and inference, 2019} 
+	\myfootnotewithlink{https://arxiv.org/abs/1912.02762}{Papamakarios G. et al. Normalizing flows for probabilistic modeling and inference, 2019} 
 \end{frame}
 %=======
-\section{Forward and Reverse KL for Normalizing flows}
+\section{Forward and Reverse KL for NF}
 %=======
 \begin{frame}{Forward KL vs Reverse KL}
-	\begin{block}{Forward KL}
+	\begin{block}{Forward KL $\equiv$ MLE}
 		\vspace{-0.5cm}
 		\begin{align*}
 			KL(\pi || p) &= \int \pi (\bx) \log \frac{\pi(\bx)}{p(\bx | \btheta)} d \bx \\
 			&= - \bbE_{\pi(\bx)} \log p(\bx | \btheta) + \text{const} \rightarrow \min_{\btheta}
 		\end{align*}
-		Maximum likelihood estimation is equivalent to minimization of the Monte-Carlo estimation of forward KL.
 	\end{block}
-	\begin{block}{Forward KL for flow model}
+	\begin{block}{Forward KL for NF model}
 	    \vspace{-0.1cm}
 		\[
 			\log p(\bx|\btheta) = \log p(f(\bx, \btheta)) + \log  |\det (\bJ_f)|
+		\]		
+		\[
+			KL(\pi || p)  = - \bbE_{\pi(\bx)} \left[\log p(f(\bx, \btheta)) + \log  |\det (\bJ_f)|\right] + \text{const} 
 		\]
 		\vspace{-0.2cm}
 		\begin{itemize}
@@ -365,18 +320,19 @@
 	  	\vspace{-0.5cm}
 			\begin{align*}
 				KL(p || \pi) &= \int p(\bx | \btheta) \log \frac{p(\bx | \btheta)}{\pi(\bx)} d \bx \\
-				&= \bbE_{p(\bx | \btheta)} \left[\log p(\bx | \btheta) - \log \pi(\bx)\right] \rightarrow \min_{\btheta}
+				&= \bbE_{p(\bx | \btheta)} \left[{\color{violet}\log p(\bx | \btheta)} - \log \pi(\bx)\right] \rightarrow \min_{\btheta}
 			\end{align*}
 		\vspace{-0.7cm}
 	\end{block}
-	\begin{block}{Reverse KL for flow model}
+	\begin{block}{Reverse KL for NF model (LOTUS trick)}
   		\vspace{-0.3cm}
 		\[
 			 \log p(\bx | \btheta) = \log p(\bz) +  \log  |\det (\bJ_f)| = \log p(\bz) - \log |\det (\bJ_g)| 
 		\]
 		\[
-			KL(p || \pi)  = \bbE_{p(\bz)} \left[  \log p(\bz) -  \log |\det (\bJ_g)| - \log \pi(g(\bz, \btheta)) \right]
+			KL(p || \pi)  = \bbE_{p(\bz)} \left[ {\color{violet} \log p(\bz) -  \log |\det (\bJ_g)| } - \log \pi(g(\bz, \btheta)) \right]
 		\]
+		\vspace{-0.3cm}
 		\begin{itemize}
 		\item We need to be able to compute $g(\bz, \btheta)$ and its Jacobian.
 		\item We need to be able to sample from the density $p(\bz)$ (do not need to evaluate it) and to evaluate(!) $\pi(\bx)$.
@@ -387,69 +343,73 @@
 %=======
 \begin{frame}{Flow KL duality}
 	\begin{block}{Theorem}
-		Fitting flow model $p(\bx| \btheta)$ to the target distribution $\pi(\bx)$ using forward KL (MLE) is equivalent to fitting the induced distribution $p(\bz| \btheta)$ to the base $p(\bz)$ using reverse KL:
+		Fitting NF model $p(\bx| \btheta)$ to the target distribution $\pi(\bx)$ using forward KL (MLE) is equivalent to fitting the induced distribution $p(\bz| \btheta)$ to the base $p(\bz)$ using reverse KL:
+		\vspace{-0.2cm}
 		\[
 			\argmin_{\btheta} KL(\pi(\bx) || p(\bx | \btheta)) = \argmin_{\btheta} KL(p(\bz | \btheta) || p(\bz)).
 		\]
-		\vspace{-0.3cm}
-		\begin{itemize}
-			\item $p(\bz)$ is a base distribution; $\pi(\bx)$ is a data distribution;
-			\item $\bz \sim p(\bz)$, $\bx = g(\bz, \btheta)$, $\bx \sim p(\bx| \btheta)$;
-			\item $\bx \sim \pi(\bx)$, $\bz = f(\bx, \btheta)$, $\bz \sim p(\bz | \btheta)$;
-		\end{itemize}
-		\begin{align*}
-			\log p(\bz | \btheta) &= \log \pi(g(\bz, \btheta)) + \log | \det ( \bJ_g) |; \\
-			\log p(\bx | \btheta) &= \log p(f(\bx, \btheta)) + \log | \det ( \bJ_f) |.
-		\end{align*}
+		\vspace{-0.7cm}
 	\end{block}
+	\begin{figure}
+		\includegraphics[width=0.85\linewidth]{figs/flows_how2}
+	\end{figure}
 	\myfootnotewithlink{https://arxiv.org/abs/1912.02762}{Papamakarios G. et al. Normalizing flows for probabilistic modeling and inference, 2019} 
 \end{frame}
 %=======
 \begin{frame}{Flow KL duality}
 	\begin{block}{Theorem}
-		Fitting flow model $p(\bx| \btheta)$ to the target distribution $\pi(\bx)$ using forward KL (MLE) is equivalent to fitting the induced distribution $p(\bz| \btheta)$ to the base $p(\bz)$ using reverse KL:
+		\vspace{-0.3cm}
 		\[
 			\argmin_{\btheta} KL(\pi(\bx) || p(\bx | \btheta)) = \argmin_{\btheta} KL(p(\bz | \btheta) || p(\bz)).
 		\]
-		\vspace{-0.7cm}
+		\vspace{-0.5cm}
 	\end{block}
 	\begin{block}{Proof}
-		\vspace{-0.7cm}
+		\begin{itemize}
+			\item $\bz \sim p(\bz)$, $\bx = g(\bz, \btheta)$, $\bx \sim p(\bx| \btheta)$;
+			\item $\bx \sim \pi(\bx)$, $\bz = f(\bx, \btheta)$, $\bz \sim p(\bz | \btheta)$;
+		\end{itemize}
+		\vspace{-0.3cm}
+		\begin{align*}
+			\log p(\bz | \btheta) &= \log \pi(g(\bz, \btheta)) + \log | \det ( \bJ_g) |; \\
+			\log p(\bx | \btheta) &= \log p(f(\bx, \btheta)) + \log | \det ( \bJ_f) |.
+		\end{align*}
+		\vspace{-0.9cm}
 		\begin{multline*}
-			KL\left(p(\bz | \btheta) || p(\bz) \right) = \mathbb{E}_{p(\bz | \btheta)} \bigl[ \log p(\bz | \btheta) - \log p(\bz) \bigr] = \\ 
-			= \mathbb{E}_{p(\bz | \btheta)} \left[ \log \pi(g(\bz, \btheta)) +  \log |\det (\bJ_g)| - \log p(\bz) \right] = \\
-			= \mathbb{E}_{\pi(\bx)} \left[ \log \pi(\bx) -  \log |\det (\bJ_f)| - \log p(f(\bx, \btheta)) \right] = \\
-			= \mathbb{E}_{\pi(\bx)} \bigl[ \log \pi(\bx) - \log p(\bx | \btheta) \bigr] = KL (\pi(\bx) || p(\bx | \btheta)).
+			KL\left(p(\bz | \btheta) || p(\bz) \right) = \mathbb{E}_{p(\bz | \btheta)} \bigl[ {\color{violet}\log p(\bz | \btheta)} - \log p(\bz) \bigr] = \\ 
+			= \mathbb{E}_{{\color{olive}p(\bz | \btheta)}} \left[ {\color{violet}\log \pi(g(\bz, \btheta)) +  \log |\det (\bJ_g)|} - \log p(\bz) \right] = \\
+			= \mathbb{E}_{{\color{olive}\pi(\bx)}} \left[ \log \pi(\bx) {\color{teal} - \log |\det (\bJ_f)| - \log p(f(\bx, \btheta))} \right] = \\
+			= \mathbb{E}_{\pi(\bx)} \bigl[ \log \pi(\bx) {\color{teal} -\log p(\bx | \btheta)} \bigr] = KL (\pi(\bx) || p(\bx | \btheta)).
 		\end{multline*}
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1705.07057}{Papamakarios G., Pavlakou T., Murray I. Masked Autoregressive Flow for Density Estimation, 2017} 
 \end{frame}
 %=======
-\section{Residual and Linear flows}
+\section{Linear flows}
 %=======
 \begin{frame}{Jacobian structure}
-	\begin{block}{Flow log-likelihood}
+	\begin{block}{Normalizing flows log-likelihood}
 		\[
 			\log p(\bx|\btheta) = \log p(f(\bx, \btheta)) + \log \left|\det \left( \frac{\partial f(\bx, \btheta)}{\partial \bx} \right) \right|
 		\]
 	\end{block}
 	The main challenge is a determinant of the Jacobian matrix.
-	\begin{enumerate}
-		\begin{block}{What is the $det(\bJ)$ in the following cases?}
-			\item Consider a linear layer $\bz = \bW \bx$.
+	\begin{block}{What is the $det(\bJ)$ in the following cases?}
+		Consider a linear layer $\bz = \bW \bx$, $\bW \in \bbR^{m \times m}$.
+		\begin{enumerate}
 			\item Let $\bz$ be a permutation of $\bx$. 
-			\item Let $z_j$ depend only on $\bx_j$. 
+			\item Let $z_j$ depend only on $x_j$. 
 			\[
-				\log \left|\det \left( \frac{\partial f(\bx, \btheta)}{\partial \bx} \right) \right| = \log \left| \prod_{j=1}^m f_j'(x_j, \btheta) \right| = \sum_{j=1}^m \log \left| f_j'(x_j, \btheta) \right|.
+				\log \left|\det \left( \frac{\partial f(\bx, \btheta)}{\partial \bx} \right) \right| = \log \left| \prod_{j=1}^m \frac{\partial f_j(x_j, \btheta)}{\partial x_j} \right| = \sum_{j=1}^m \log \left|  \frac{\partial f_j(x_j, \btheta)}{\partial x_j} \right|.
 			\]
 			\item Let $z_j$ depend only on $\bx_{1:j}$ (autoregressive dependency). 
-		\end{block}
-	\end{enumerate}
+		\end{enumerate}
+	\end{block}
 \end{frame}
 %=======
 \begin{frame}{Linear flows}
 	\[
-		\bz = f(\bx, \btheta) = \bW \bx, \quad \bW \in \bbR^{m \times m}, \quad \btheta = \bW, \quad \bJ_f = \bW
+		\bz = f(\bx, \btheta) = \bW \bx, \quad \bW \in \bbR^{m \times m}, \quad \btheta = \bW, \quad \bJ_f = \bW^T
 	\]
 	In general, we need $O(m^3)$ to invert matrix.
 	\begin{block}{Invertibility}
@@ -470,19 +430,19 @@
 \end{frame}
 %=======
 \begin{frame}{Linear flows}
-	\vspace{-0.3cm}
+	\vspace{-0.5cm}
 	\[
-		\bz = f(\bx, \btheta) = \bW \bx, \quad \bW \in \bbR^{m \times m}, \quad \btheta = \bW, \quad \bJ_f = \bW
+		\bz = f(\bx, \btheta) = \bW \bx, \quad \bW \in \bbR^{m \times m}, \quad \btheta = \bW, \quad \bJ_f = \bW^T
 	\]
-	\vspace{-0.3cm}
+	\vspace{-0.7cm}
 	\begin{block}{Matrix decompositions}
 		\begin{itemize}
-			\item LU-decomposition
+			\item \textbf{LU-decomposition}
 			\[
 				\bW = \mathbf{P} \bL \bU,
 			\]
 			where $\mathbf{P}$ is a permutation matrix, $\mathbf{L}$ is lower triangular with positive diagonal, $\mathbf{U}$ is upper triangular with positive diagonal.
-			\item QR-decomposition
+			\item \textbf{QR-decomposition}
 			\[
 				\bW = \bQ \mathbf{R},
 			\]
@@ -490,72 +450,22 @@
 		\end{itemize}
 	\end{block}
 
+	Decomposition should be done only once in the beggining. Next, we fit decomposed matrices ($\bP/\bL/\bU$ or $\bQ/\bR$).
+
 	\myfootnote{\href{https://arxiv.org/abs/1807.03039}{Kingma D. P., Dhariwal P. Glow: Generative Flow with Invertible 1x1 Convolutions, 2018}  \\
-	\href{https://arxiv.org/abs/1901.11137}{Hoogeboom E., Van Den Berg R., and Welling M. Emerging convolutions for generative normalizing flows, 2019}
+	\href{https://arxiv.org/abs/1901.11137}{Hoogeboom E., et al. Emerging convolutions for generative normalizing flows, 2019}
 	}
-\end{frame}
-%=======
-\begin{frame}{Residual Flows}
-	\begin{block}{Matrix determinant lemma}
-		\vspace{-0.5cm}
-		\[
-			\det \left( \bI_m + \bV \bW^T \right) = \det ( \bI_d + \bW^T \bV ), \quad \text{where } \bV, \bW \in \bbR^{m \times d}.
-		\]
-		\vspace{-0.5cm}
-	\end{block}
-	\begin{block}{Planar flow}
-		\vspace{-0.2cm}
-		\[
-			\bx = g(\bz, \btheta) = \bz + \bv \, \sigma(\bw^T\bz + b).
-		\]
-		\vspace{-0.3cm}
-	\end{block}
-	Here $\btheta = \{\bv, \bw, b\}$, $\sigma(\cdot)$ is a smooth element-wise non-linearity.
-	{\small
-	\[
-		\left| \det \left( \frac{\partial g(\bz, \btheta)}{\partial \bz} \right)\right| = \left| \det \left( \bI + \sigma'(\bw^T \bz + b) \bv \bw^T\right) \right| = \left| 1 + \sigma'(\bw^T \bz + b) \bw^T \bv \right|
-	\]}
-	The transformation is invertible, for example, if
-	\[
-		\sigma = \tanh; \quad \sigma'(\bw^T \bz + b) \bw^T \bv \geq -1.
-	\]
-	\myfootnotewithlink{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015} 
-\end{frame}
-%=======
-\begin{frame}{Residual Flows}
-	\begin{block}{Expressiveness of planar flows}
-		\vspace{-0.5cm}
-		\[
-			\bz_K = g_1 \circ \dots \circ g_K (\bz); \quad g_k = g(\bz_k, \btheta_k) = \bz_k + \bv_k\, \sigma(\bw_k^T\bz_k + b_k).
-		\]
-		\vspace{-0.8cm}
-		\begin{figure}
-			\centering
-			\includegraphics[width=0.7\linewidth]{figs/planar_flows.png}
-		\end{figure}
-		\vspace{-0.5cm}
-	\end{block}
-	\begin{block}{Sylvester flow: planar flow extension}
-		\vspace{-0.3cm}
-		\[
-		g(\bz, \btheta) = \bz + \bV \, \sigma(\bW^T\bz + \mathbf{b}).
-		\]
-	\end{block}
-	\myfootnote{\href{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015}\\
-	\href{https://arxiv.org/abs/1803.05649}{Berg R. et al. Sylvester normalizing flows for variational inference, 2018}}
 \end{frame}
 %=======
 \begin{frame}{Summary}
 	\begin{itemize}
-		\item Flow models transform a simple base distribution to a complex one via a sequence of invertible transformations with tractable Jacobian.
+		\item Normalizing flows transform a simple base distribution to a complex one via a sequence of invertible transformations with tractable Jacobian.
 		\vfill
-		\item Flow models have a tractable likelihood that is given by the change of variable theorem.
+		\item Normalizing flows have a tractable likelihood that is given by the change of variable theorem.
 		\vfill
-		\item Flows could be fitted using forward and reverse KL minimization. We will consider each of the scenarios later in the course.
+		\item We fit normalizing flows using forward or reverse KL minimization. 
 		\vfill 
 		\item Linear flows try to parametrize set of invertible matrices via matrix decompositions.
-		\vfill
-		\item Planar and Sylvester flows are residual flows which use matrix determinant lemma. 
 	\end{itemize}
 \end{frame}
 \end{document} 

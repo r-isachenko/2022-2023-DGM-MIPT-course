@@ -194,7 +194,7 @@
 	\begin{block}{ELBO objective}
 		\vspace{-0.3cm}
 		\[
-		\mathcal{L}(\bphi, \btheta) = \left[ \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta) - KL(q(\bz | \bx, \bphi) || p(\bz)) \right].
+		\mathcal{L}(\bphi, \btheta) = \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta) - KL(q(\bz | \bx, \bphi) || p(\bz)).
 		\]
 	\end{block}
 	More powerful $p(\bx | \bz, \btheta)$ leads to more powerful generative model $p(\bx | \btheta)$.
