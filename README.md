@@ -36,7 +36,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 9 | November, 1 | <b>Lecture 5:</b> Normalizing Flow (NF) intuition and definition. Forward and reverse KL divergence for NF. Linear flows. | [slides](lectures/lecture5/Lecture5.pdf) | [video](https://youtu.be/l2o0T_A8Zvc) |
 | 10 | November, 8 | <b>Seminar 5:</b> Flows. Planar flows. Forward KL vs Reverse KL. Planar flows via Forward KL and Reverse KL. | [notebook](seminars/seminar5/seminar5.ipynb)<br>[planar_flow_practice](seminars/seminar5/planar_flow.ipynb)<br>[autograd_jacobian](seminars/seminar5/jacobian_note.ipynb) | [video](https://youtu.be/Sa6SvShVrwM) |
 | 11 | November, 15 | <b>Lecture 6:</b> Autoregressive flows (gausian AR NF/inverse gaussian AR NF). Coupling layer (RealNVP). NF as VAE model. | [slides](lectures/lecture6/Lecture6.pdf) | [video](https://youtu.be/5zQgNGd2Ss8) |
-| 12 |  | <b>Seminar 6:</b> RealNVP implementation hints. Integer Discrete Flows | [notebook_part1](seminars/seminar6/seminar6_part1.ipynb)<br>[notebook_part2](seminars/seminar6/seminar6_part2.ipynb) | TBA |
+| 12 | November, 22 | <b>Seminar 6:</b> RealNVP implementation hints. Integer Discrete Flows | [notebook_part1](seminars/seminar6/seminar6_part1.ipynb)<br>[notebook_part2](seminars/seminar6/seminar6_part2.ipynb) | TBA |
 | 13 |  | <b>Lecture 7:</b> Uniform and variational dequantization. ELBO surgery and optimal VAE prior. Flows-based VAE posterior vs flow-based VAE prior. | TBA | TBA |
 | 14 |  | <b>Seminar 7:</b> VAE prior (VampPrior). SurVAE. RealNVP hints. | TBA | TBA |
 | 15 |  | <b>Lecture 8:</b> Disentanglement learning (beta-VAE, DIP-VAE + summary). Likelihood-free learning. GAN theorem. | TBA | TBA |
