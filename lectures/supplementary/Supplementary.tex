@@ -1,5 +1,18 @@
 \input{../utils/preamble}
 \createdgmtitle{supplementary}
+
+
+\AtBeginSection[ ]
+{
+	\begin{frame}[shrink]{Outline}
+		\tableofcontents[currentsection,hideothersubsections]
+	\end{frame}
+}
+\AtBeginSubsection[]{
+	\begin{frame}[shrink]{Outline}
+		\tableofcontents[currentsection,currentsubsection,subsectionstyle=show/shaded/hide]
+	\end{frame}
+}
 %--------------------------------------------------------------------------------
 \begin{document}
 %--------------------------------------------------------------------------------
@@ -11,13 +24,25 @@
 \begin{frame}[allowframebreaks]{Outline}
 	\tableofcontents
 \end{frame}
-\AtBeginSection[ ]
-{
-	\begin{frame}[shrink]{Outline}
-		\tableofcontents[currentsection,hideothersubsections]
-	\end{frame}
-}c
+%=======
 \section{Autoregressive models}
+%=======
+\begin{frame}{Autoregressive models}
+	\begin{itemize}
+		\item Previous model has \textbf{limited} memory $d$. It is insufficient for many modalities (e.g. for images and text). 
+		\item Recurrent NN fixes this problem and potentially could learn long-range dependencies:
+		\[
+			p(x_j | \bx_{1:j - 1}, \btheta) = p(x_j | \bh_j, \btheta), \quad \bh_j = \text{RNN}(\bx_{j-d:j - 1}, \bh_{j - 1})
+		\]
+		 \begin{figure}
+	    \centering
+	    \includegraphics[width=0.7\linewidth]{figs/sequential_RNN}
+		 \end{figure}
+		\item Sequential computation of all conditionals $p(x_j | \bx_{1:j-1}, \btheta)$, hence, the training is slow.
+		\item RNN suffers from vanishing and exploding gradients.
+	\end{itemize}
+	 \myfootnotewithlink{https://jmtomczak.github.io/blog/2/2\_ARM.html}{image credit: https://jmtomczak.github.io/blog/2/2\_ARM.html}
+\end{frame}
 %=======
 \subsection{Masked Autoencoder (MADE)}
 %=======
@@ -120,7 +145,9 @@
 \end{itemize}
 \end{frame}
 %=======
-\section{ELBO gradient, Log derivative trick}
+\section{Variational inference}
+%=======
+\subsection{ELBO gradient, Log derivative trick}
 %=======
 \begin{frame}{ELBO gradient (E-step, $\nabla_{\bphi} \mathcal{L}(\bphi, \btheta)$)}
 \vspace{-0.3cm}
@@ -173,7 +200,41 @@
 	\myfootnotewithlink{https://habr.com/ru/post/331664}{image credit: https://habr.com/ru/post/331664}
 \end{frame}
 %=======
-\section{Mean field approximation}
+\subsection{Mean field approximation}
+%=======
+\begin{frame}{VAE as Bayesian model}
+	\begin{block}{Posterior distribution}
+		\vspace{-0.2cm}
+		\[
+		p(\btheta | \bX) = \frac{p(\bX | \btheta) p(\btheta)}{p(\bX)}
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{ELBO}
+		\vspace{-0.5cm}
+		\begin{align*}
+			\log p(\btheta | \bX) &= {\color{violet}\log p(\bX | \btheta)} + \log p(\btheta) - \log p(\bX) \\
+			&= {\color{violet}\cL(q, \btheta) + KL(q || p)} + \log p(\btheta) - \log p(\bX) \\
+			&\geq \left[ \cL(q, \btheta) + \log p(\btheta) \right] - \log p(\bX) .
+		\end{align*}
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{block}{EM-algorithm}
+		\begin{itemize}
+			\item E-step
+			\vspace{-0.2cm}
+			\[
+			q(\bz) = \argmax_q \mathcal{L} (q, \btheta^*) = \argmin_q KL(q || p) =
+			p(\bz| \bx, \btheta^*);
+			\]
+			\vspace{-0.5cm}
+			\item M-step
+			\[
+			\btheta^* = \argmax_{\btheta} \left[ \mathcal{L} (q, \btheta) + \log p(\btheta) \right].
+			\]
+		\end{itemize}
+	\end{block}
+\end{frame}
 %=======
 \begin{frame}{Bayesian framework}
 	\begin{block}{Bayes theorem}
@@ -408,7 +469,9 @@
 	\end{block}
 \end{frame}
 %=======
-\section{IWAE}
+\section{VAE-related topics}
+%=======
+\subsection{IWAE}
 %=======
 \begin{frame}{IWAE}
 	\begin{block}{Theorem}
@@ -508,20 +571,78 @@
 \end{frame}
 %=======
 \begin{frame}{IWAE, 2015}
-How to determine whether all VAE latent variables are informative?
-\[
-A_{i} = \text{cov}_\bx \left( \mathbb{E}_{q(z_i | \bx)} [z_i] \right) > 0.01 \quad \Leftrightarrow \quad z_i \text{ is active}
-\]
-\begin{figure}
-	\centering
-	\includegraphics[width=\linewidth]{figs/IWAE_3.png}
-\end{figure}
-\vfill
-\hrule\medskip
-{\scriptsize \href{https://arxiv.org/pdf/1509.00519.pdf}{https://arxiv.org/pdf/1509.00519.pdf}}
+	How to determine whether all VAE latent variables are informative?
+	\[
+	A_{i} = \text{cov}_\bx \left( \mathbb{E}_{q(z_i | \bx)} [z_i] \right) > 0.01 \quad \Leftrightarrow \quad z_i \text{ is active}
+	\]
+	\begin{figure}
+		\centering
+		\includegraphics[width=\linewidth]{figs/IWAE_3.png}
+	\end{figure}
+	\vfill
+	\hrule\medskip
+	{\scriptsize \href{https://arxiv.org/pdf/1509.00519.pdf}{https://arxiv.org/pdf/1509.00519.pdf}}
 \end{frame}
 %=======
-\section{PixelVAE, Hierarchical VAE}
+\begin{frame}{Importance Weighted Autoencoders (IWAE)}
+	\begin{block}{Objective}
+		\vspace{-0.5cm}
+		\[
+		\mathcal{L}_K (q, \btheta)  = \mathbb{E}_{\bz_1, \dots, \bz_K \sim q(\bz | \bx, \bphi)} \log \left( \frac{1}{K}\sum_{k=1}^K\frac{p(\bx, \bz_k | \btheta)}{q(\bz_k| \bx, \bphi)} \right) \rightarrow \max_{\bphi, \btheta}.
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	\begin{block}{Gradient}
+		\vspace{-0.3cm}
+		\[
+		\Delta_K = \nabla_{\btheta, \bphi} \log \left( \frac{1}{K}\sum_{k=1}^K\frac{p(\bx, \bz_k | \btheta)}{q(\bz_k| \bx, \bphi)} \right), \quad \bz_k \sim q(\bz | \bx, \bphi).
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	\begin{block}{Theorem}
+		\vspace{-0.4cm}
+		\[
+		\text{SNR}_K = \frac{\bbE [\Delta_K]}{\sigma(\Delta_K)}; \quad
+		\text{SNR}_K(\btheta) = O(\sqrt{K}); \quad 
+		\text{SNR}_K(\bphi) = O\left(\sqrt{\frac{1}{K}}\right).
+		\]
+		Hence, increasing $K$ vanishes gradient signal of inference network $q(\bz | \bx, \bphi)$.
+	\end{block}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1802.04537}{Rainforth T. et al. Tighter variational bounds are not necessarily better, 2018}
+\end{frame}
+%=======
+\begin{frame}{Importance Weighted Autoencoders (IWAE)}
+	\begin{block}{Theorem}
+		\vspace{-0.5cm}
+		\[
+		\text{SNR}_K = \frac{\bbE [\Delta_K]}{\sigma(\Delta_K)}; \quad
+		\text{SNR}_K(\btheta) = O(\sqrt{K}); \quad 
+		\text{SNR}_K(\bphi) = O\left(\sqrt{\frac{1}{K}}\right).
+		\]
+		\vspace{-0.8cm}
+	\end{block}
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=1.\linewidth]{figs/IWAE_SNR_1.png}
+		\end{figure}
+	\end{minipage}%
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=1.\linewidth]{figs/IWAE_SNR_2.png}
+		\end{figure}
+	\end{minipage}
+	\begin{itemize}
+		\item IWAE makes the variational bound tighter and extends the class of variational distributions.
+		\item Gradient signal becomes really small, training is complicated.
+		\item IWAE is a standard quality measure for VAE models.
+	\end{itemize}
+	\myfootnotewithlink{https://arxiv.org/abs/1802.04537}{Rainforth T. et al. Tighter variational bounds are not necessarily better, 2018}
+\end{frame}
+%=======
+\subsection{PixelVAE, Hierarchical VAE}
 %=======
 \begin{frame}{PixelVAE, 2016}
 	\begin{block}{Hierarchical VAE}
@@ -561,7 +682,7 @@ A_{i} = \text{cov}_\bx \left( \mathbb{E}_{q(z_i | \bx)} [z_i] \right) > 0.01 \qu
 	{\scriptsize \href{https://arxiv.org/pdf/1611.05013.pdf}{https://arxiv.org/pdf/1611.05013.pdf}}
 \end{frame}
 %=======
-\section{Posterior collapse}
+\subsection{Posterior collapse}
 %=======
 \begin{frame}{Posterior collapse: toy example}
 	Let define latent variable model in the following way:
@@ -630,6 +751,30 @@ A_{i} = \text{cov}_\bx \left( \mathbb{E}_{q(z_i | \bx)} [z_i] \right) > 0.01 \qu
 	\end{block}
 \end{frame}
 %=======
+\begin{frame}{PixelVAE}
+	\begin{block}{Autoregressive decoder}
+		\vspace{-0.3cm}
+		\[
+		p(\bx | \bz , \btheta) = \prod_{j=1}^m p(x_j | \bx_{1:j - 1}, \bz , \btheta)
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	\begin{itemize}
+		\item Global structure is captured by latent variables.
+		\item Local statistics are captured by limited receptive field autoregressive model.
+	\end{itemize}
+	\vspace{-0.1cm}
+	\begin{block}{MNIST results}
+		\vspace{-0.3cm}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.75\linewidth]{figs/PixelVAE_2.png}
+		\end{figure}
+	\end{block}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1611.05013}{Gulrajani I. et al. PixelVAE: A Latent Variable Model for Natural Images, 2016}
+\end{frame}
+%=======
 \begin{frame}{Variational Lossy AutoEncoder}
 	\begin{block}{Lossy code via explicit information placement}
 		\[
@@ -669,7 +814,9 @@ A_{i} = \text{cov}_\bx \left( \mathbb{E}_{q(z_i | \bx)} [z_i] \right) > 0.01 \qu
 	\myfootnotewithlink{https://arxiv.org/abs/1611.02731}{Chen X. et al. Variational Lossy Autoencoder, 2016}
 \end{frame}
 %=======
-\section{Flows intuition}
+\section{Normalizing Flows}
+%=======
+\subsection{Flows intuition}
 %=======
 \begin{frame}{Flows intuition}
 	Let $\xi$ be a random variable with density $p(\xi)$. Then
@@ -705,7 +852,128 @@ A_{i} = \text{cov}_\bx \left( \mathbb{E}_{q(z_i | \bx)} [z_i] \right) > 0.01 \qu
 	\end{itemize}
 \end{frame}
 %=======
-\section{Parallel WaveNet}
+\subsection{Residual Flows (planar flows)}
+%=======
+\begin{frame}{Residual Flows}
+	\begin{block}{Matrix determinant lemma}
+		\vspace{-0.5cm}
+		\[
+		\det \left( \bI_m + \bV \bW^T \right) = \det ( \bI_d + \bW^T \bV ), \quad \text{where } \bV, \bW \in \bbR^{m \times d}.
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Planar flow}
+		\vspace{-0.2cm}
+		\[
+		\bx = g(\bz, \btheta) = \bz + \bv \, \sigma(\bw^T\bz + b).
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	Here $\btheta = \{\bv, \bw, b\}$, $\sigma(\cdot)$ is a smooth element-wise non-linearity.
+	{\small
+		\[
+		\left| \det \left( \frac{\partial g(\bz, \btheta)}{\partial \bz} \right)\right| = \left| \det \left( \bI + \sigma'(\bw^T \bz + b) \bv \bw^T\right) \right| = \left| 1 + \sigma'(\bw^T \bz + b) \bw^T \bv \right|
+		\]}
+	The transformation is invertible, for example, if
+	\[
+	\sigma = \tanh; \quad \sigma'(\bw^T \bz + b) \bw^T \bv \geq -1.
+	\]
+	\myfootnotewithlink{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015} 
+\end{frame}
+%=======
+\begin{frame}{Residual Flows}
+	\begin{block}{Expressiveness of planar flows}
+		\vspace{-0.5cm}
+		\[
+		\bz_K = g_1 \circ \dots \circ g_K (\bz); \quad g_k = g(\bz_k, \btheta_k) = \bz_k + \bv_k\, \sigma(\bw_k^T\bz_k + b_k).
+		\]
+		\vspace{-0.8cm}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.7\linewidth]{figs/planar_flows.png}
+		\end{figure}
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Sylvester flow: planar flow extension}
+		\vspace{-0.3cm}
+		\[
+		g(\bz, \btheta) = \bz + \bV \, \sigma(\bW^T\bz + \mathbf{b}).
+		\]
+	\end{block}
+	\myfootnote{\href{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015}\\
+		\href{https://arxiv.org/abs/1803.05649}{Berg R. et al. Sylvester normalizing flows for variational inference, 2018}}
+\end{frame}
+%=======
+\begin{frame}{Masked autoregressive flow (MAF)}
+	\begin{block}{Gaussian autoregressive model}
+		\vspace{-0.7cm}
+		\[
+		p(\bx | \btheta) = \prod_{j=1}^m p(x_j | \bx_{1:j - 1}, \btheta) = \prod_{j=1}^m \mathcal{N} \left(x_j | \mu_j(\bx_{1:j-1}), \sigma^2_j (\bx_{1:j-1})\right).
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	We could use MADE for the conditionals. 
+	Samples from the base distribution could be an indicator of how good the flow was fitted. 
+	\vspace{-0.3cm}
+	\begin{figure}
+		\includegraphics[width=0.95\linewidth]{figs/maf1.png}
+	\end{figure}
+	MAF is just a stacked MADE model with different ordering.
+	\begin{itemize}
+		\item Parallel density estimation.
+		\item Sequential sampling.
+	\end{itemize}
+	\myfootnotewithlink{https://arxiv.org/abs/1705.07057}{Papamakarios G., Pavlakou T., Murray I. Masked Autoregressive Flow for Density Estimation, 2017} 
+\end{frame}
+%=======
+\subsection{Autoregressive flows}
+%=======
+\begin{frame}{Autoregressive flows}
+	\vspace{-0.3cm}
+	\[
+	x_j = \tau (z_j, c(\bz_{1:j-1})) \quad \Leftrightarrow \quad z_j = \tau^{-1} (x_j, c(\bz_{1:j-1}))
+	\]
+	\vspace{-0.3cm}
+	\begin{itemize}
+		\item $\tau (\cdot, \cdot)$ -- coupling law (invertible by first argument, differentiable).
+		\item $c(\cdot)$ -- coupling function (do not need to be invertible, could be neural network).
+	\end{itemize}
+	\begin{block}{Coupling law $\tau(\cdot, \cdot)$}
+		\begin{itemize}
+			\item $\tau(x, c) = x + c$ -- additive;
+			\item $\tau(x, c) = x \odot c_1 + c_2$ -- affine.
+		\end{itemize}
+	\end{block}
+	What is the Jacobian for the additive/affine coupling law? 
+	\begin{block}{Jacobian}
+		\vspace{-0.3cm}
+		\[
+		\det \left( \frac{\partial \bx}{\partial \bz} \right) = \prod_{j=1}^m \frac{\partial x_j}{\partial z_j} = \prod_{j=1}^m \frac{\partial \tau (z_j, c(\bz_{1:j-1})) }{\partial z_j}
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1912.02762}{Papamakarios G. et al. Normalizing flows for probabilistic modeling and inference, 2019} 
+\end{frame}
+%=======
+\begin{frame}{Autoregressive flows}
+	\begin{block}{Forward and inverse transforms}
+		\[
+		x_j = \tau (z_j, c(\bz_{1:j-1})) \quad \Leftrightarrow \quad z_j = \tau^{-1} (x_j, c(\bz_{1:j-1}))
+		\]
+		\begin{figure}
+			\includegraphics[width=\linewidth]{figs/autoregressive_flow}
+		\end{figure}
+	\end{block}
+	\begin{itemize}
+		\item Forward transform is \textbf{not sequential}.
+		\item Inverse transform is \textbf{sequential}.
+	\end{itemize}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1912.02762}{Papamakarios G. et al. Normalizing flows for probabilistic modeling and inference, 2019} 
+\end{frame}
+%=======
+\subsection{Parallel WaveNet}
 %=======
 \begin{frame}{MAF/IAF pros and cons}
 	\begin{minipage}{0.50\columnwidth}
@@ -738,6 +1006,100 @@ A_{i} = \text{cov}_\bx \left( \mathbb{E}_{q(z_i | \bx)} [z_i] \right) > 0.01 \qu
 		\end{figure}
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1609.03499}{Oord A. et al. Wavenet: A generative model for raw audio, 2016}
+\end{frame}
+%=======
+\begin{frame}{AF vs IAF vs RealNVP}
+	\begin{block}{MADE/AF}
+		\vspace{-0.5cm}
+		\[
+		\bx = \bsigma (\bx) \odot \bz + \bmu(\bx).
+		\]
+		Estimating the density $p(\bx | \btheta)$ - 1 pass, sampling - $m$ passes.
+	\end{block}
+	\begin{block}{IAF}
+		\vspace{-0.5cm}
+		\[
+		\bx = \tilde{\bsigma} (\bz) \odot \bz + \tilde{\bmu}(\bz).
+		\]
+		Estimating the density $p(\bx | \btheta)$ - $m$ passes, sampling - 1 pass.
+	\end{block}
+	\begin{block}{RealNVP}
+		\vspace{-0.2cm}
+		\[
+		\begin{cases}
+			\bx_{1:d} &= \bz_{1:d}; \\ 
+			\bx_{d:m} &= \bz_{d:m} \odot c_1(\bz_{1:d}, \btheta) + c_2(\bz_{1:d}, \btheta).
+		\end{cases}
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1705.07057}{Papamakarios G., Pavlakou T., Murray I. Masked Autoregressive Flow for Density Estimation, 2017} 
+\end{frame}
+%=======
+\begin{frame}{AF vs IAF vs RealNVP}
+	\begin{block}{RealNVP}
+		\vspace{-0.3cm}
+		\[
+		\begin{cases}
+			\bx_{1:d} &= \bz_{1:d}; \\ 
+			\bx_{d:m} &= \bz_{d:m} \odot c_1(\bz_{1:d}, \btheta) + c_2(\bz_{1:d}, \btheta).
+		\end{cases}
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	\begin{itemize}
+		\item Calculating the density $p(\bx | \btheta)$ - 1 pass.
+		\item Sampling - 1 pass.
+	\end{itemize}
+	
+	RealNVP is a special case of AF and IAF:
+	\begin{block}{AF}
+		\vspace{-0.5cm}
+		\begin{equation*}
+			\begin{cases}
+				\mu_j  = 0, \sigma_j = 1, \, j = 1, \dots, d; \\
+				\mu_j, \sigma_j \text{ -- functions of } \bx_{1:d}, \, j = d+1, \dots, m.
+			\end{cases}
+		\end{equation*}
+		\vspace{-0.3cm}
+	\end{block}
+	\begin{block}{IAF}
+		\vspace{-0.3cm}
+		\begin{equation*}
+			\begin{cases}
+				\tilde{\mu}_j = 0, \tilde{\sigma}_j = 1, \, j = 1, \dots, d; \\
+				\tilde{\mu}_j, \tilde{\sigma}_j \text{ -- functions of } \bz_{1:d}, \, j = d+1, \dots, m.
+			\end{cases}
+		\end{equation*}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1705.07057}{Papamakarios G., Pavlakou T., Murray I. Masked Autoregressive Flow for Density Estimation, 2017} 
+\end{frame}
+%=======
+\begin{frame}{Linear flows}
+	\begin{block}{RealNVP}
+		\vspace{-0.5cm}
+		\begin{equation*}
+			\begin{cases} \bz_{1:d} = \bx_{1:d}; \\ \bz_{d:m} = \tau (\bx_{d:m}, c(\bx_{1:d}));\end{cases} 
+			\quad \Leftrightarrow \quad 
+			\begin{cases} \bx_{1:d} = \bz_{1:d}; \\ \bx_{d:m} = \tau^{-1} (\bz_{d:m}, c(\bz_{1:d})).\end{cases}
+		\end{equation*}
+		\vspace{-0.2cm}
+	\end{block}
+	\begin{itemize}
+		\item First step is a \textbf{split} operator which decouples a variable into 2 subparts: $\bx_1$ and $\bx_2$ (usualy channel-wise).
+		\item We should \textbf{permute} components between different layers.
+	\end{itemize}
+	\[
+	\bz = \bW \bx, \quad \bW \in \bbR^{m \times m}
+	\]
+	In general, we need $O(m^3)$ to invert matrix.
+	\begin{block}{Invertibility}
+		\begin{itemize}
+			\item Diagonal matrix $O(m)$.
+			\item Triangular matrix $O(m^2)$.
+			\item It is impossible to parametrize all invertible matrices.
+		\end{itemize}
+	\end{block}
 \end{frame}
 %=======
 \begin{frame}{Parallel WaveNet}
@@ -864,6 +1226,21 @@ A_{i} = \text{cov}_\bx \left( \mathbb{E}_{q(z_i | \bx)} [z_i] \right) > 0.01 \qu
 	\end{figure}
 
 	\myfootnotewithlink{https://arxiv.org/abs/1802.07088}{Jacobsen J. H., Smeulders A., Oyallon E. i-RevNet: Deep Invertible Networks, 2018}
+\end{frame}
+%=======
+\begin{frame}{Flow++}
+	\begin{block}{Flow-based variational dequantization}
+		\vspace{-0.3cm}
+		\[
+		\log P(\bx | \btheta) \geq \int p(\bepsilon)\log \left( \frac{p(\bx + g(\bepsilon, \bx, \blambda))}{p(\bepsilon) \cdot \left| \det \bJ_g\right|^{-1}} \right) d\bepsilon.
+		\]
+	\end{block}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\linewidth]{figs/flow++1.png}
+	\end{figure}
+	\vspace{-0.1cm}
+	\myfootnotewithlink{https://arxiv.org/abs/1902.00275}{Ho J. et al. Flow++: Improving Flow-Based Generative Models with Variational Dequantization and Architecture Design, 2019}
 \end{frame}
 %=======
 \section{ELBO surgery}
@@ -1127,7 +1504,75 @@ where $i$ is treated as random variable:
 	\myfootnotewithlink{https://arxiv.org/abs/1606.03657}{Chen X. et al. InfoGAN: Interpretable Representation Learning by Information Maximizing Generative Adversarial Nets, 2016}
 \end{frame}
 %=======
-\subsection{$\beta$-VAE, Disentanglement metric}
+\subsection{$\beta$-VAE}
+%=======
+\begin{frame}{Disentangled representations}
+	\vspace{-0.2cm}
+	\textbf{Representation learning} is looking for an interpretable representation of the independent data generative factors. 
+	\begin{block}{Disentanglement informal definition}
+		Every single latent unit are sensitive to changes in a single generative factor, while being invariant to changes in other factors. 
+	\end{block}
+	\vspace{-0.2cm}
+	\begin{block}{ELBO objective}
+		\vspace{-0.2cm}
+		\[
+		\mathcal{L}(q, \btheta, \beta) = \mathbb{E}_{q(\bz | \bx)} \log p(\bx | \bz, \btheta) - \beta \cdot KL (q(\bz | \bx) || p(\bz)).
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	What do we get at $\beta = 1$? \\
+	\begin{block}{Constrained optimization}
+		\vspace{-0.7cm}
+		\[
+		\max_{q, \btheta} \mathbb{E}_{q(\bz | \bx)} \log p(\bx | \bz, \btheta), \quad \text{subject to } KL (q(\bz | \bx) || p(\bz)) < \epsilon.
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\textbf{Note:} It leads to poorer reconstructions and a loss of high frequency details. 
+	\myfootnotewithlink{https://openreview.net/references/pdf?id=Sy2fzU9gl}{Higgins I. et al. beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework, 2017}
+\end{frame}
+%=======
+\begin{frame}{$\beta$-VAE samples}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.9\linewidth]{figs/betaVAE_1.png}
+	\end{figure}
+	
+	\myfootnotewithlink{https://openreview.net/references/pdf?id=Sy2fzU9gl}{Higgins I. et al. beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework, 2017}
+\end{frame}
+%=======
+\begin{frame}{$\beta$-VAE analysis}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=.95\linewidth]{figs/betaVAE_5.png}
+	\end{figure}
+	
+	\myfootnotewithlink{https://openreview.net/references/pdf?id=Sy2fzU9gl}{Higgins I. et al. beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework, 2017}
+\end{frame}
+%=======
+\begin{frame}{$\beta$-VAE}
+	\begin{block}{ELBO}
+		\vspace{-0.2cm}
+		\[
+		\mathcal{L}(q, \btheta, \beta) = \mathbb{E}_{q(\bz | \bx)} \log p(\bx | \bz, \btheta) - \beta \cdot KL(q(\bz | \bx) || p(\bz)).
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	\begin{block}{ELBO surgery}
+		\vspace{-0.3cm}
+		{\small
+			\[
+			\frac{1}{n} \sum_{i=1}^n \cL_i(q, \btheta, \beta) = \underbrace{\frac{1}{n} \sum_{i=1}^n \mathbb{E}_{q(\bz | \bx_i)} \log p(\bx_i | \bz, \btheta)}_{\text{Reconstruction loss}} - \beta \cdot \underbrace{\bbI_{q} [\bx, \bz]\vphantom{\sum_{i=1}}}_{\text{MI}} - \beta \cdot \underbrace{KL(q_{\text{agg}}(\bz) || p(\bz))\vphantom{\sum_{i=1}}}_{\text{Marginal KL}}
+			\]}
+	\end{block}
+	\begin{block}{Minimization of MI}
+		\begin{itemize}
+			\item It is not necessary and not desirable for disentanglement. 
+			\item It hurts reconstruction.
+		\end{itemize}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1804.03599}{Burgess C. P. et al. Understanding disentangling in $\beta$-VAE, 2018}
+\end{frame}
 %=======
 \begin{frame}{$\beta$-VAE}
 	\begin{block}{Disentangling metric}
@@ -1149,7 +1594,7 @@ where $i$ is treated as random variable:
 			\]
 		\end{enumerate}
 	\end{block}
-
+	
 	\myfootnotewithlink{https://openreview.net/references/pdf?id=Sy2fzU9gl}{Higgins I. et al. beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework, 2017}
 \end{frame}
 %=======
@@ -1164,7 +1609,7 @@ where $i$ is treated as random variable:
 		\centering
 		\includegraphics[width=\linewidth]{figs/betaVAE_6.png}
 	\end{figure}
-
+	
 	\myfootnotewithlink{https://arxiv.org/abs/1804.03599}{Burgess C. P. et al. Understanding disentangling in $\beta$-VAE, 2018}
 \end{frame}
 %=======
@@ -1207,6 +1652,45 @@ where $i$ is treated as random variable:
 	\end{figure}
 	
 	\myfootnotewithlink{https://arxiv.org/abs/1804.03599}{Burgess C. P. et al. Understanding disentangling in $\beta$-VAE, 2018}
+\end{frame}
+%=======
+\subsection{DIP-VAE}
+%=======
+\begin{frame}{DIP-VAE: disentangled posterior}
+	\begin{block}{Disentangled aggregated variational posterior}
+		\vspace{-0.3cm}
+		\[
+		q_{\text{agg}}(\bz) = \frac{1}{n} \sum_{i=1}^n q(\bz | \bx) = \prod_{j=1}^d q_{\text{agg}}(z_j)
+		\]
+		\vspace{-0.6cm}
+	\end{block}
+	\begin{block}{DIP-VAE objective}
+		\vspace{-0.7cm}
+		{\small
+			\begin{multline*}
+				\cL_{\text{DIP}}(q, \btheta) = \frac{1}{n} \sum_{i=1}^n \cL_i(q, \btheta) -\lambda \cdot KL(q_{\text{agg}}(\bz) || p(\bz)) = \\
+				= \underbrace{ \frac{1}{n} \sum_{i=1}^n \left[\bbE_{q(\bz | \bx_i)} \log p(\bx_i | \bz, \btheta)\right]}_{\text{Reconstruction loss}} - \underbrace{\vphantom{\sum_{i=1}^n} \bbI_{q} [\bx, \bz]}_{\text{MI}} - (1 + \lambda) \cdot \underbrace{\vphantom{\sum_{i=1}^n} KL(q_{\text{agg}}(\bz) || p(\bz))}_{\text{Marginal KL}}
+			\end{multline*}
+		}
+		\vspace{-0.3cm}
+	\end{block}
+	Marginal KL term is intractable. $\Rightarrow$
+	Let match the moments of $q_{\text{agg}}(\bz)$ and $p(\bz)$:
+	\vspace{-0.3cm}
+	\[
+	\text{cov}_{q_{\text{agg}}(\bz)}(\bz) = \bbE_{q_{\text{agg}}(\bz)} \left[ (\bz - \bbE_{q_{\text{agg}}(\bz)}(\bz)) (\bz - \bbE_{q_{\text{agg}}(\bz)}(\bz))^T \right].
+	\]
+	\myfootnotewithlink{https://arxiv.org/abs/1711.00848}{Kumar A., Sattigeri P., Balakrishnan A. Variational Inference of Disentangled Latent Concepts from Unlabeled Observations, 2017}
+\end{frame}
+%=======
+\begin{frame}{DIP-VAE: analysis}
+	Reconstructions become better.
+	\begin{figure}
+		\centering
+		\includegraphics[width=\linewidth]{figs/dip-vae_1}
+	\end{figure}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1711.00848}{Kumar A., Sattigeri P., Balakrishnan A. Variational Inference of Disentangled Latent Concepts from Unlabeled Observations, 2017}
 \end{frame}
 %=======
 \subsection{FactorVAE}
@@ -1306,6 +1790,31 @@ where $i$ is treated as random variable:
 \end{frame}
 %=======
 \subsection{Challenging Disentanglement Assumptions}
+%=======
+\begin{frame}{Challenging disentanglement assumptions}
+	
+	\begin{block}{Theorem}
+		Let $\bz$ has density $p(\bz) = \prod^d_{i=1} p(z_i)$. Then, there exists an \textbf{infinite} family of bijective functions $f : \text{supp}(\bz) \rightarrow \text{supp}(\bz)$:
+		\begin{itemize}
+			\item $\frac{\partial f_i(\bz)}{\partial z_j} \neq 0$ for all $i$ and $j$ ($\bz$ and $f(\bz)$ are completely entangled);
+			\item $P(\bz \leq \bu) = P(f(\bz) \leq \bu)$ for all $\bu \in \text{supp}(\bz)$.
+		\end{itemize}  
+	\end{block}
+	Consider a generative model with disentangled representation $\bz$.
+	\begin{itemize}
+		\item $\exists$ $\hat{\bz} = f(\bz)$ where $\hat{\bz}$ is completely entangled
+		with respect to $\bz$.
+		\item The disentanglement method cannot distinguish between the two equivalent generative models:
+		\vspace{-0.3cm}
+		\[
+		p(\bx) = \int p(\bx | \bz) p(\bz) d\bz = \int p(\bx | \hat{\bz})p(\hat{\bz}) d \hat{\bz}.
+		\]
+		\vspace{-0.6cm}
+	\end{itemize}
+	Theorem claims that unsupervised disentanglement learning is impossible for arbitrary generative models with a factorized prior.
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1811.12359}{Locatello F. et al. Challenging Common Assumptions in the Unsupervised Learning of Disentangled Representations, 2018}
+\end{frame}
 %=======
 \begin{frame}{Challenging Disentanglement Assumptions}
 \begin{block}{Proof (1)}
@@ -1495,7 +2004,193 @@ where $i$ is treated as random variable:
 	\myfootnotewithlink{https://arxiv.org/abs/1704.00028}{Gulrajani I. et al. Improved Training of Wasserstein GANs, 2017}
 \end{frame}
 %=======
-\subsection{StyleGAN}
+\begin{frame}{Wasserstein GAN with Gradient Penalty}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\linewidth]{figs/wgan_gp_convergence}
+	\end{figure}
+	\begin{block}{WGAN-GP convergence}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.75\linewidth]{figs/wgan_gp_wgan}
+		\end{figure}
+	\end{block}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1704.00028}{Gulrajani I. et al. Improved Training of Wasserstein GANs, 2017}
+\end{frame}
+%=======
+\begin{frame}{Spectral Normalization GAN}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.85\linewidth]{figs/sngan_pseudocode}
+	\end{figure}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.85\linewidth]{figs/sngan_fids}
+	\end{figure}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1802.05957}{Miyato T. et al. Spectral Normalization for Generative Adversarial Networks, 2018}
+\end{frame}
+%=======
+\section{Evolution of GANs}
+%=======
+\begin{frame}{Evolution of GANs}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\linewidth]{figs/gan_evolution}
+	\end{figure}
+	\begin{itemize}
+		\item \textbf{Standard GAN} \href{https://arxiv.org/abs/1406.2661}{https://arxiv.org/abs/1406.2661}
+		\item \textbf{DCGAN} \href{https://arxiv.org/abs/1511.06434}{https://arxiv.org/abs/1511.06434}
+		\item \textbf{CoGAN} \href{https://arxiv.org/abs/1606.07536}{https://arxiv.org/abs/1606.07536}
+		\item \textbf{ProGAN} \href{https://arxiv.org/abs/1710.10196}{https://arxiv.org/abs/1710.10196} 
+		\item \textbf{StyleGAN} \href{https://arxiv.org/abs/1812.04948}{https://arxiv.org/abs/1812.04948}
+	\end{itemize}
+\end{frame}
+%=======
+\begin{frame}{Self-Attention GAN}
+	Convolutional layers process the information in a local neighborhood $\Rightarrow$ inefficient for modeling long-range dependencies in images.
+	\vspace{-0.3cm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.9\linewidth]{figs/self-attention}
+	\end{figure}
+	\[
+	\mathbf{f}(\bx) = \bW_f \bx, \quad \mathbf{g}(\bx) = \bW_g\bx, \quad \mathbf{h} (\bx) = \bW_h\bx, \quad \mathbf{v}(\bx) = \bW_v\bx
+	\]
+	\[
+	s_{ij} = \mathbf{f}(\bx_i)^T \mathbf{g}(\bx_j), \quad a_{ij} = \frac{\exp{s_{ij}}}{\sum_{i=1}^N \exp{s_{ij}}}, \quad \textbf{o}_j = \textbf{v}\left( \sum_{i=1}^N a_{ij} \mathbf{h}(\bx_i) \right)
+	\]
+	\myfootnotewithlink{https://arxiv.org/abs/1805.08318}{Zhang H. et al. Self-Attention Generative Adversarial Networks, 2018}
+\end{frame}
+%=======
+\begin{frame}{Self-Attention GAN}	
+	\begin{block}{Convolution vs Attention}
+		\vspace{-0.3cm}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.7\linewidth]{figs/conv-vs-sa}
+		\end{figure}
+	\end{block}
+	\vspace{-0.5cm}
+	\begin{block}{Visualization of attention maps}
+		\vspace{-0.3cm}
+		\begin{figure}
+			\centering
+			\includegraphics[width=\linewidth]{figs/sa_maps}
+		\end{figure}
+	\end{block}
+	
+	\myfootnote{\href{https://lilianweng.github.io/lil-log/2018/06/24/attention-attention.html}{image credit: https://lilianweng.github.io/lil-log/2018/06/24/attention-attention.html}	\\ 
+		\href{https://arxiv.org/abs/1805.08318}{Zhang H. et al. Self-Attention Generative Adversarial Networks, 2018}}
+\end{frame}
+%=======
+\begin{frame}{BigGAN}
+	\begin{block}{Batch-size is matter}
+		\begin{figure}
+			\centering
+			\includegraphics[width=\linewidth]{figs/biggan_results}
+		\end{figure}
+	\end{block}
+	\begin{block}{Samples (512x512)}
+		\begin{figure}
+			\centering
+			\includegraphics[width=\linewidth]{figs/biggan_samples}
+		\end{figure}
+	\end{block}
+	\vspace{-0.4cm}
+	\myfootnotewithlink{https://arxiv.org/abs/1809.11096}{Brock A., Donahue J., Simonyan K. Large Scale GAN Training for High Fidelity Natural Image Synthesis, 2018}
+\end{frame}
+%=======
+\begin{frame}{Progressive Growing GAN}
+	\begin{block}{Problems with HR image generation}
+		\begin{itemize}
+			\item Disjoint manifolds $\Rightarrow$ gradient problem.
+			\item Small minibatch $\Rightarrow$ training instability.
+		\end{itemize}
+	\end{block}
+	\vspace{-0.2cm}
+	\begin{block}{Samples (1024x1024)}
+		\vspace{-0.2cm}
+		\begin{figure}
+			\includegraphics[width=0.9\linewidth]{figs/pggan_samples}
+		\end{figure}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1710.10196}{Karras T. et al. Progressive Growing of GANs for Improved Quality, Stability, and Variation, 2017}
+\end{frame}
+\begin{frame}{Progressive Growing GAN}
+	Grow both the generator and discriminator progressively, new layers will introduce higher-resolution details as the training progresses. 
+	\begin{itemize}
+		\item Train GAN which generate 4x4 images (2 convs for G and D).
+		\item Add upsampling layers to G, downsampling layers to D.
+		\item Train GAN which generate 8x8 images.
+		\item etc.
+	\end{itemize}
+	\vspace{-0.2cm}
+	\begin{figure}
+		\includegraphics[width=0.75\linewidth]{figs/pggan_arch}
+	\end{figure}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1710.10196}{Karras T. et al. Progressive Growing of GANs for Improved Quality, Stability, and Variation, 2017}
+\end{frame}
+%=======
+\begin{frame}{StyleGAN}
+	\begin{itemize}
+		\item Generating of HR images is hard.
+		\item Progressive growing greatly simplifies the task.
+		\item The ability to control specific features of the generated image is very limited.
+	\end{itemize}
+	\begin{block}{Face image features}
+		\begin{itemize}
+			\item Coarse (pose, general hair style, face shape). Resolution $4^2 - 8^2$.
+			\item Middle (finer facial features, hair style, eyes open/closed). Resolution $16^2 - 32^2$.
+			\item Fine (color scheme (eye, hair and skin) and micro features). Resolution $64^2 - 1024^2$.
+		\end{itemize}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1812.04948}{Karras T., Laine S., Aila T. A Style-Based Generator Architecture for Generative Adversarial Networks, 2018}
+\end{frame}
+%=======
+\begin{frame}{StyleGAN}
+	\begin{block}{Mapping Network}
+		\begin{itemize}
+			\item Generator input is likely to be \textbf{disentangled}.  Each component of input vector $\bz$ should be responsible for one generative factor.
+			\item Mapping network $f: \cZ \rightarrow \cW$ is used to reduce correlations between components of~$\bz$.
+		\end{itemize}
+		\begin{minipage}[t]{0.6\columnwidth}
+			\begin{figure}
+				\centering
+				\includegraphics[width=0.98\linewidth]{figs/stylegan_mapping}
+			\end{figure}
+		\end{minipage}%
+		\begin{minipage}[t]{0.38\columnwidth}
+			\begin{figure}
+				\centering
+				\includegraphics[width=1.0\linewidth]{figs/stylegan_curved}
+			\end{figure}
+		\end{minipage}
+		\vspace{0.3cm}
+	\end{block}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1812.04948}{Karras T., Laine S., Aila T. A Style-Based Generator Architecture for Generative Adversarial Networks, 2018}
+\end{frame}
+%=======
+\begin{frame}{StyleGAN}
+	\begin{block}{Truncation trick}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.85\linewidth]{figs/stylegan_truncation}
+		\end{figure}
+		\vspace{-0.4cm}
+	\end{block}
+	\begin{block}{Samples (1024x1024)}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.8\linewidth]{figs/stylegan_samples}
+		\end{figure}
+	\end{block}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1812.04948}{Karras T., Laine S., Aila T. A Style-Based Generator Architecture for Generative Adversarial Networks, 2018}
+\end{frame}
 %=======
 \begin{frame}{StyleGAN}
 	\begin{block}{Step 2: Style modulation}
