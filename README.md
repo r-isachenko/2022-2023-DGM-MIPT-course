@@ -1,12 +1,12 @@
 # Deep Generative Models course, MIPT, 2022-2023
 
 ## Description
-The course is devoted to modern generative models (mostly in the application to computer vision). 
+The course is devoted to modern generative models (mostly in the application to computer vision).
 
-We will study the following types of generative models: 
-- autoregressive models, 
-- latent variable models, 
-- normalization flow models, 
+We will study the following types of generative models:
+- autoregressive models,
+- latent variable models,
+- normalization flow models,
 - adversarial models,
 - diffusion models.
 
@@ -36,8 +36,8 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 9 | November, 1 | <b>Lecture 5:</b> Normalizing Flow (NF) intuition and definition. Forward and reverse KL divergence for NF. Linear flows. | [slides](lectures/lecture5/Lecture5.pdf) | [video](https://youtu.be/l2o0T_A8Zvc) |
 | 10 | November, 8 | <b>Seminar 5:</b> Flows. Planar flows. Forward KL vs Reverse KL. Planar flows via Forward KL and Reverse KL. | [notebook](seminars/seminar5/seminar5.ipynb)<br>[planar_flow_practice](seminars/seminar5/planar_flow.ipynb)<br>[autograd_jacobian](seminars/seminar5/jacobian_note.ipynb) | [video](https://youtu.be/Sa6SvShVrwM) |
 | 11 | November, 15 | <b>Lecture 6:</b> Autoregressive flows (gausian AR NF/inverse gaussian AR NF). Coupling layer (RealNVP). NF as VAE model. | [slides](lectures/lecture6/Lecture6.pdf) | [video](https://youtu.be/5zQgNGd2Ss8) |
-| 12 | November, 22 | <b>Seminar 6:</b> RealNVP implementation hints. Integer Discrete Flows | [notebook_part1](seminars/seminar6/seminar6_part1.ipynb)<br>[notebook_part2](seminars/seminar6/seminar6_part2.ipynb) | TBA |
-| 13 |  | <b>Lecture 7:</b> Uniform and variational dequantization. ELBO surgery and optimal VAE prior. Flows-based VAE posterior vs flow-based VAE prior. | TBA | TBA |
+| 12 | November, 22 | <b>Seminar 6:</b> RealNVP implementation hints. Integer Discrete Flows | [notebook_part1](seminars/seminar6/seminar6_part1.ipynb)<br>[notebook_part2](seminars/seminar6/seminar6_part2.ipynb) | [video](https://youtu.be/12athcbZYSU) |
+| 13 | November, 29 | <b>Lecture 7:</b> Uniform and variational dequantization. ELBO surgery and optimal VAE prior. Flows-based VAE posterior vs flow-based VAE prior. | TBA | TBA |
 | 14 |  | <b>Seminar 7:</b> VAE prior (VampPrior). SurVAE. RealNVP hints. | TBA | TBA |
 | 15 |  | <b>Lecture 8:</b> Disentanglement learning (beta-VAE, DIP-VAE + summary). Likelihood-free learning. GAN theorem. | TBA | TBA |
 | 16 |  | <b>Seminar 8:</b> GAN vs VAE vs NF. GAN in 1d coding. | TBA | TBA |
@@ -55,14 +55,14 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 28 |  | <b>Seminar 14:</b> TBA | TBA | TBA |
 |  |  | <b>Oral exam</b> | TBA | TBA |
 
-## Homeworks 
+## Homeworks
 | Homework | Date | Deadline | Description | Link |
 |---------|------|-------------|--------|-------|
 | 1 | September, 28 | October, 12 | <ol><li>Theory (KDE, MADE, alpha-divergences).</li><li>PixelCNN on MNIST.</li><li>PixelCNN autocomplete and receptive field.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw1.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw1.ipynb) |
-| 2 | October, 12 | October, 26 | ImageGPT | Available at the course chat |
+| 2 | October, 12 | October, 26 | ImageGPT. | Available at the course chat |
 | 3 | October, 26 | November, 9 | <ol><li>Theory (log-derivative trick, IWAE theorem, EM-algorithm for GMM).</li><li>VAE on 2D data.</li><li>VAE on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw3.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw3.ipynb) |
-| 4 | November, 9 | November, 23 | TBA | Available at the course chat |
-| 5 | November, 23 | December, 7 | <ol><li>Theory (Sylvester flows).</li><li>RealNVP on 2D data.</li><li>RealNVP on CIFAR10.</li></ol> | TBA |
+| 4 | November, 9 | November, 23 | ResNetVAE on CIFAR10. | Available at the course chat |
+| 5 | November, 23 | December, 7 | <ol><li>Theory (Sylvester flows).</li><li>RealNVP on 2D data.</li><li>RealNVP on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw5.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw5.ipynb) |
 | 6 | December, 7 | December, 21 | TBA | Available at the course chat |
 | 7 |  |  | <ol><li>Theory (MI in ELBO surgery).</li><li>VAE with AR decoder on MNIST.</li><li>VAE with AR prior on CIFAR10.</li></ol> | TBA |
 | 8 |  |  | TBA | Available at the course chat |
