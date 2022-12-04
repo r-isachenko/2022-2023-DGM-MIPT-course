@@ -37,8 +37,8 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 10 | November, 8 | <b>Seminar 5:</b> Flows. Planar flows. Forward KL vs Reverse KL. Planar flows via Forward KL and Reverse KL. | [notebook](seminars/seminar5/seminar5.ipynb)<br>[planar_flow_practice](seminars/seminar5/planar_flow.ipynb)<br>[autograd_jacobian](seminars/seminar5/jacobian_note.ipynb) | [video](https://youtu.be/Sa6SvShVrwM) |
 | 11 | November, 15 | <b>Lecture 6:</b> Autoregressive flows (gausian AR NF/inverse gaussian AR NF). Coupling layer (RealNVP). NF as VAE model. | [slides](lectures/lecture6/Lecture6.pdf) | [video](https://youtu.be/5zQgNGd2Ss8) |
 | 12 | November, 22 | <b>Seminar 6:</b> RealNVP implementation hints. Integer Discrete Flows | [notebook_part1](seminars/seminar6/seminar6_part1.ipynb)<br>[notebook_part2](seminars/seminar6/seminar6_part2.ipynb) | [video](https://youtu.be/12athcbZYSU) |
-| 13 | November, 29 | <b>Lecture 7:</b> Uniform and variational dequantization. ELBO surgery and optimal VAE prior. Flows-based VAE posterior vs flow-based VAE prior. | TBA | TBA |
-| 14 |  | <b>Seminar 7:</b> VAE prior (VampPrior). SurVAE. RealNVP hints. | TBA | TBA |
+| 13 | November, 29 | <b>Lecture 7:</b> Discrete data vs continuous model. Model discretization (PixelCNN++). Data dequantization: uniform and variational (Flow++). ELBO surgery and optimal VAE prior. Flow-based VAE prior. | [slides](lectures/lecture7/Lecture7.pdf) | [video](https://youtu.be/b0f-w6F0NOU) |
+| 14 | December, 6 | <b>Seminar 7:</b> VAE prior (VampPrior). SurVAE. RealNVP hints. | TBA | TBA |
 | 15 |  | <b>Lecture 8:</b> Disentanglement learning (beta-VAE, DIP-VAE + summary). Likelihood-free learning. GAN theorem. | TBA | TBA |
 | 16 |  | <b>Seminar 8:</b> GAN vs VAE vs NF. GAN in 1d coding. | TBA | TBA |
 | 17 |  | <b>Lecture 9:</b> Vanishing gradients and mode collapse, KL vs JSD. Adversarial Variational Bayes. Wasserstein distance. | TBA | TBA |
@@ -63,13 +63,13 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 3 | October, 26 | November, 9 | <ol><li>Theory (log-derivative trick, IWAE theorem, EM-algorithm for GMM).</li><li>VAE on 2D data.</li><li>VAE on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw3.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw3.ipynb) |
 | 4 | November, 9 | November, 23 | ResNetVAE on CIFAR10. | Available at the course chat |
 | 5 | November, 23 | December, 7 | <ol><li>Theory (Sylvester flows).</li><li>RealNVP on 2D data.</li><li>RealNVP on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw5.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw5.ipynb) |
-| 6 | December, 7 | December, 21 | TBA | Available at the course chat |
-| 7 |  |  | <ol><li>Theory (MI in ELBO surgery).</li><li>VAE with AR decoder on MNIST.</li><li>VAE with AR prior on CIFAR10.</li></ol> | TBA |
-| 8 |  |  | TBA | Available at the course chat |
-| 9 |  |  | <ol><li>Theory (IW dequantization, LSGAN).</li><li>WGAN/WGAN-GP on 2D data.</li><li>WGAN-GP on CIFAR10.</li></ol> | TBA |
-| 10 |  |  | TBA | Available at the course chat |
-| 11 |  |  | <ol><li>Theory (Neural ODE backprop).</li><li>SN-GAN on CIFAR10.</li><li>FID and Inception Score.</li></ol> | TBA |
-| 12 |  |  | TBA | Available at the course chat |
+| 6 | December, 7 | December, 21 | <ol><li>Theory (MI in ELBO surgery).</li><li>VAE with AR decoder on MNIST.</li><li>VAE with AR prior on CIFAR10.</li></ol> | TBA |
+| 7 |  |  | TBA | TBA |
+| 8 |  |  | TBA | TBA |
+| 9 |  |  | TBA | TBA |
+| 10 |  |  | TBA | TBA |
+| 11 |  |  | TBA | TBA |
+| 12 |  |  | TBA | TBA |
 
 ## Game rules
 - 6 homeworks each of 13 points = **78 points**
