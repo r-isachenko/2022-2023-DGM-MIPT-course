@@ -38,7 +38,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 11 | November, 15 | <b>Lecture 6:</b> Autoregressive flows (gausian AR NF/inverse gaussian AR NF). Coupling layer (RealNVP). NF as VAE model. | [slides](lectures/lecture6/Lecture6.pdf) | [video](https://youtu.be/5zQgNGd2Ss8) |
 | 12 | November, 22 | <b>Seminar 6:</b> RealNVP implementation hints. Integer Discrete Flows | [notebook_part1](seminars/seminar6/seminar6_part1.ipynb)<br>[notebook_part2](seminars/seminar6/seminar6_part2.ipynb) | [video](https://youtu.be/12athcbZYSU) |
 | 13 | November, 29 | <b>Lecture 7:</b> Discrete data vs continuous model. Model discretization (PixelCNN++). Data dequantization: uniform and variational (Flow++). ELBO surgery and optimal VAE prior. Flow-based VAE prior. | [slides](lectures/lecture7/Lecture7.pdf) | [video](https://youtu.be/b0f-w6F0NOU) |
-| 14 | December, 6 | <b>Seminar 7:</b> VAE prior (VampPrior). SurVAE. RealNVP hints. | TBA | TBA |
+| 14 | December, 6 | <b>Seminar 7:</b>  Discretization of continuous distribution (MADE++). Aggregated posterior distribution in VAE. VAE with learnable prior. | [notebook_part1](seminars/seminar7/seminar7_part1.ipynb)<br>[notebook_part2](seminars/seminar7/seminar7_part2.ipynb) | TBA |
 | 15 |  | <b>Lecture 8:</b> Disentanglement learning (beta-VAE, DIP-VAE + summary). Likelihood-free learning. GAN theorem. | TBA | TBA |
 | 16 |  | <b>Seminar 8:</b> GAN vs VAE vs NF. GAN in 1d coding. | TBA | TBA |
 | 17 |  | <b>Lecture 9:</b> Vanishing gradients and mode collapse, KL vs JSD. Adversarial Variational Bayes. Wasserstein distance. | TBA | TBA |
