@@ -120,7 +120,7 @@
 				\item \textbf{discretize} model (make the model outputs discrete): transform $p(\bx | \btheta)$ to $P(\by | \btheta)$;
 				\item \textbf{dequantize} data (make the data continuous): transform $\Pi(\by)$ to $\pi(\bx)$.
 			\end{itemize}
-			\item Continuous distribution know numerical relationships.
+			\item Continuous distribution knows numerical relationships.
 		\end{itemize}
 	\end{block}
 	\begin{block}{CIFAR-10 pixel values distribution}
@@ -159,12 +159,12 @@
 		Here, $\pi_k = \pi_{k, \btheta}(\bx_{1:j-1})$, $\mu_k = \mu_{k, \btheta}(\bx_{1:j-1})$, $s_k = s_{k, \btheta}(\bx_{1:j-1})$.
 	\end{block}
 
-	For the pixel edge cases of 0, replace $x - 0.5$ by $-\infty$, and for 255 replace $x + 0.5$ by $+\infty$.
+	For the pixel edge cases of 0, replace $y - 0.5$ by $-\infty$, and for 255 replace $y + 0.5$ by $+\infty$.
 	\myfootnotewithlink{https://arxiv.org/abs/1701.05517}{Salimans T. et al. PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications, 2017}\end{frame}
 %=======
 \subsection{Dequantization of discrete data}
 %=======
-\begin{frame}{Uniform discretization}
+\begin{frame}{Uniform dequantization}
 	Let dequantize discrete distribution $\Pi(\by)$ to continuous distribution $\pi(\bx)$ in the following way: $\bx = \by + \bu$, where  $\bu \sim U[0, 1]$.
 	\begin{minipage}{0.7\linewidth}	
 		\begin{block}{Theorem}
