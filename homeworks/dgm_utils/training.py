@@ -1,5 +1,6 @@
 from collections import defaultdict
 from tqdm.notebook import tqdm
+from typing import Tuple
 
 import torch
 from torch import optim
