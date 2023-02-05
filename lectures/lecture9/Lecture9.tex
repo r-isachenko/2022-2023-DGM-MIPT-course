@@ -10,25 +10,27 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
-	\begin{block}{Disentanglement learning}
-	A disentangled representation is a one where single latent units are sensitive to changes in single generative factors, while being invariant to changes in other factors. 
-	\end{block}
-	\begin{block}{$\beta$-VAE}
-	\vspace{-0.2cm}
-	\[
-	    \mathcal{L}(q, \btheta, \beta) = \mathbb{E}_{q(\bz | \bx)} \log p(\bx | \bz, \btheta) - \beta \cdot KL (q(\bz | \bx) || p(\bz)).
-	\]
-	Representations becomes disentangled by setting a stronger constraint with $\beta > 1$. However, it leads to poorer reconstructions and a loss of high frequency details. 
-	\end{block}
-	
-	\begin{block}{ELBO surgery}
+	\begin{block}{ELBO with flow-based VAE posterior}
+		\vspace{-0.5cm}
+		\[
+			\log q(\bz^* | \bx, \bphi, \blambda) = \log q(\bz | \bx, \bphi) + \log \left | \det \left( \frac{d \bz}{d \bz^*}\right) \right|
+		\]
 		\vspace{-0.3cm}
-		{\footnotesize
-			\[
-			\frac{1}{n} \sum_{i=1}^n \cL_i(q, \btheta, \beta) = \underbrace{\frac{1}{n} \sum_{i=1}^n \mathbb{E}_{q(\bz | \bx_i)} \log p(\bx_i | \bz, \btheta)}_{\text{Reconstruction loss}} - \beta \cdot \underbrace{\bbI_{q} [\bx, \bz]\vphantom{\sum_{i=1}}}_{\text{MI}} - \beta \cdot \underbrace{KL(q_{\text{agg}}(\bz) || p(\bz))\vphantom{\sum_{i=1}}}_{\text{Marginal KL}}
-			\]}
+		\[
+		\mathcal{L} (\bphi, \btheta, \blambda) =  \bbE_{q(\bz^* | \bx, \bphi, \blambda)} \log p(\bx | \bz^*, \btheta) - {\color{violet}KL (q(\bz^* | \bx, \bphi, \blambda) || p(\bz^*))}.
+		\]
+		\vspace{-0.6cm}
 	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/1804.03599}{Burgess C. P. et al. Understanding disentangling in $\beta$-VAE, 2018}
+	{\color{violet}The second term} in ELBO is \textbf{reverse} KL divergence with respect to $q(\bz^* | \bx, \bphi, \blambda)$.
+		\begin{block}{Theorem}
+		VAE with the flow-based prior $p(\bz | \blambda)$ for latent code $\bz^*$ is equivalent to VAE with flow-based posterior $q(\bz^* | \bx, \bphi, \blambda)$ for latent code $\bz$.
+	\end{block}
+	\vspace{-0.7cm}
+	\begin{align*}
+		\mathcal{L}(\bphi, \btheta, \blambda) &= \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta) - \underbrace{KL( q(\bz | \bx, \bphi) || p(\bz | {\color{violet}\blambda}))}_{\text{flow-based prior}} \\
+		& = \mathbb{E}_{q(\bz^* | \bx, \bphi, \blambda)} \log p(\bx | f(\bz^*, \blambda), \btheta) - \underbrace{KL( q(\bz^* | \bx, \bphi, {\color{violet}\blambda}) || p(\bz^*))}_{\text{flow-based posterior}}
+	\end{align*}
+	\myfootnotewithlink{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015} 
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
@@ -61,22 +63,35 @@
 		\item \textbf{Generator:} generative model $\bx = G(\bz)$, which makes generated sample more realistic.
 		\item \textbf{Discriminator:} a classifier $D(\bx) \in [0, 1]$, which distinguishes real samples from generated samples.
 	\end{itemize}
-	
+	\vspace{-0.1cm}
 	\begin{block}{GAN optimality theorem}
 		The minimax game 
-		\vspace{-0.2cm}
+		\vspace{-0.3cm}
 		\[
-			\min_{G} \max_D V(G, D) = \min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz))) \right]
+		\min_{G} \max_D \Bigl[ \underbrace{\bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz)))}_{V(G, D)} \Bigr]
 		\]
-		 has the global optimum $\pi(\bx) = p(\bx | \btheta)$, in this case $D^*(\bx) = 0.5$.
+		\vspace{-0.5cm} \\
+		has the global optimum $\pi(\bx) = p(\bx | \btheta)$, in this case $D^*(\bx) = 0.5$.
 	\end{block}
-	\vspace{-0.5cm}
 	\[
 		\min_{G} V(G, D^*) = \min_{G} \left[ 2 JSD(\pi || p) - \log 4 \right] = -\log 4, \quad \pi(\bx) = p(\bx | \btheta).
 	\]
-	\vspace{-0.4cm} \\
-	If the generator could be any function and the discriminator is optimal at every step, then the generator is guaranteed to converge to the data distribution.
+	\vspace{-0.5cm} \\
+	If the generator could be \textbf{any} function and the discriminator is \textbf{optimal} at every step, then the generator is \textbf{guaranteed to converge} to the data distribution.
 	 \myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{itemize}
+		\item Generator updates are made in parameter space, discriminator is not optimal at every step.
+		\item Generator and discriminator loss keeps oscillating during GAN training.
+	\end{itemize}
+	\vspace{-0.3cm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=1.0\linewidth]{figs/gan_1}
+	\end{figure}
+	\myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
 \end{frame}
 %=======
 \begin{frame}{Outline}
@@ -86,12 +101,13 @@
 \section{Vanishing gradients and mode collapse}
 %=======
 \begin{frame}{Vanishing gradients}
+	\vspace{-0.2cm}
 	\begin{block}{Objective}
-		\vspace{-0.4cm}
+		\vspace{-0.8cm}
 		\[
-			\min_{\btheta} \max_{\bphi} \left[ \bbE_{\pi(\bx)} \log D(\bx, \bphi) + \bbE_{p(\bz)} \log (1 - D(G(\bz, \btheta), \bphi)) \right]
+		\min_{\btheta} \max_{\bphi} \left[ \bbE_{\pi(\bx)} \log D(\bx, \bphi) + \bbE_{p(\bz)} \log (1 - D(G(\bz, \btheta), \bphi)) \right]
 		\]
-		\vspace{-0.4cm}
+		\vspace{-0.6cm}
 	\end{block}
 	Early in learning, $G$ is poor, $D$ can reject samples with high confidence. In this case, $\log (1 - D(G(\bz, \btheta), \bphi))$ saturates.
 	\begin{minipage}[t]{0.5\columnwidth}
@@ -112,17 +128,17 @@
 \begin{frame}{Vanishing gradients}
 	\begin{block}{Objective}
 		\vspace{-0.4cm}
-				\[
-					\min_{\btheta} \max_{\bphi} \left[ \bbE_{\pi(\bx)} \log D(\bx, \bphi) + \bbE_{p(\bz)} \log (1 - D(G(\bz, \btheta), \bphi)) \right]
-				\]
+		\[
+		\min_{\btheta} \max_{\bphi} \left[ \bbE_{\pi(\bx)} \log D(\bx, \bphi) + \bbE_{p(\bz)} \log (1 - D(G(\bz, \btheta), \bphi)) \right]
+		\]
 		\vspace{-0.4cm}
 	\end{block}
 	\begin{minipage}[t]{0.45\columnwidth}
 		\begin{block}{Non-saturating GAN}
-		\begin{itemize}
-			\item Maximize $\log D(G(z))$ instead of minimizing $\log (1 - D(G(\bz)))$. \\
-			\item Gradients are getting much stronger, but the training is unstable (with increasing mean and variance).
-		\end{itemize}
+			\begin{itemize}
+				\item Maximize $\log D(G(z))$ instead of minimizing $\log (1 - D(G(\bz)))$. \\
+				\item Gradients are getting much stronger, but the training is unstable (with increasing mean and variance).
+			\end{itemize}
 		\end{block}
 	\end{minipage}%
 	\begin{minipage}[t]{0.55\columnwidth}
@@ -150,36 +166,40 @@
 	perturbations and other millions bags and tricks are used to avoid the mode collapse.
 	
 	\myfootnote{\href{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014} \\
-	\href{https://arxiv.org/abs/1611.02163}{Metz L. et al. Unrolled Generative Adversarial Networks, 2016}}
+		\href{https://arxiv.org/abs/1611.02163}{Metz L. et al. Unrolled Generative Adversarial Networks, 2016}}
 \end{frame}
 %=======
 \begin{frame}{Jensen-Shannon vs Kullback-Leibler }
+	\begin{itemize}
+		\item $\pi(\bx)$ is a fixed mixture of 2 gaussians.
+		\item $p(\bx | \mu, \sigma) - \cN(\mu, \sigma^2)$.
+	\end{itemize}
 	\begin{block}{Mode covering vs mode seeking}
-		\vspace{-0.2cm}
+		\vspace{-0.7cm}
 		\[
-			KL(\pi || p) = \int \pi(\bx) \log \frac{\pi(\bx)}{p(\bx)}d\bx, \quad KL(p || \pi) = \int p(\bx) \log \frac{p(\bx)}{\pi(\bx)}d\bx
+		KL(\pi || p) = \int \pi(\bx) \log \frac{\pi(\bx)}{p(\bx)}d\bx, \quad KL(p || \pi) = \int p(\bx) \log \frac{p(\bx)}{\pi(\bx)}d\bx
 		\]
 		\[
 		JSD(\pi || p) = \frac{1}{2} \left[KL \left(\pi(\bx) || \frac{\pi(\bx) + p(\bx)}{2}\right) + KL \left(p(\bx) || \frac{\pi(\bx) + p(\bx)}{2}\right) \right]
 		\]
-		\vspace{-0.4cm}
+		\vspace{-0.7cm}
 		
-	\begin{minipage}[t]{0.33\columnwidth}
-		\begin{figure}
-			\includegraphics[width=\linewidth]{figs/forward_KL}
-		\end{figure}
-	\end{minipage}%
-	\begin{minipage}[t]{0.33\columnwidth}
+		\begin{minipage}[t]{0.33\columnwidth}
+			\begin{figure}
+				\includegraphics[width=\linewidth]{figs/forward_KL}
+			\end{figure}
+		\end{minipage}%
+		\begin{minipage}[t]{0.33\columnwidth}
 			\begin{figure}
 				\includegraphics[width=\linewidth]{figs/reverse_KL}
 			\end{figure}
-	\end{minipage}%
-	\begin{minipage}[t]{0.33\columnwidth}
+		\end{minipage}%
+		\begin{minipage}[t]{0.33\columnwidth}
 			\begin{figure}
 				\includegraphics[width=\linewidth]{figs/JSD}
 			\end{figure}
-	\end{minipage}
-	\vspace{-0.3cm}
+		\end{minipage}
+		\vspace{-0.3cm}
 	\end{block}
 \end{frame}
 %=======
@@ -202,16 +222,16 @@
 %=======
 \begin{frame}{Adversarial Variational Bayes}
 	\begin{block}{ELBO objective}
-		\vspace{-0.5cm}
+		\vspace{-0.6cm}
 		\[
-			 \mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[\log p(\bx | \bz, \btheta) - KL(q(\bz| \bx, \bphi) || p(\bz)) \right] \rightarrow \max_{\bphi, \btheta}.
+			 \mathcal{L} (\bphi, \btheta)  = {\color{violet}\mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta)} - {\color{teal}KL(q(\bz| \bx, \bphi) || p(\bz))} \rightarrow \max_{\bphi, \btheta}.
 		\]	
-		\vspace{-0.5cm}
+		\vspace{-0.6cm}
 	\end{block}
 	What is the problem to make the variational posterior model an implicit model?
 	\begin{itemize}
-	\item The first term is reconstruction loss that needs only samples from $q(\bz | \bx, \bphi)$ to evaluate.
-	\item Reparametrization trick allows to get gradients of reconstruction loss
+	\item {\color{violet}The first term} is the reconstruction loss that needs only samples from $q(\bz | \bx, \bphi)$ to evaluate.
+	\item Reparametrization trick allows to get gradients of the reconstruction loss
 		\vspace{-0.4cm}
 		\begin{multline*}
 			\nabla_{\bphi}\int q(\bz|\bx, \bphi) f(\bz) d\bz = \nabla_{\bphi}\int r(\bepsilon)  f(\bz) d\bepsilon \\ = \int r(\bepsilon) \nabla_{\bphi} f(g(\bx, \bepsilon, \bphi)) d\bepsilon \approx \nabla_{\bphi} f(g(\bx, \bepsilon^*, \bphi)),
@@ -226,18 +246,18 @@
 	\begin{block}{ELBO objective}
 		\vspace{-0.5cm}
 		\[
-			 \mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(\bz | \bx, \bphi)} \bigl[\log p(\bx | \bz, \btheta) - KL(q(\bz| \bx, \bphi) || p(\bz))  \bigr] \rightarrow \max_{\bphi, \btheta}.
+			\mathcal{L} (\bphi, \btheta)  = {\color{violet}\mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta)} - {\color{teal}KL(q(\bz| \bx, \bphi) || p(\bz))} \rightarrow \max_{\bphi, \btheta}.
 		\]	
 		\vspace{-0.5cm}
 	\end{block}
 	What is the problem to make the variational posterior model an implicit model?
 	\begin{itemize}
-	\item The third term requires the explicit the value of $q(\bz | \bx, \bphi)$.
+	\item {\color{teal}The second term} requires the explicit value of $q(\bz | \bx, \bphi)$.
 	\item We could join second and third terms:
 		\vspace{-0.2cm}
 		{\small
 		\[
-			KL(q(\bz| \bx, \bphi) || p(\bz)) = \mathbb{E}_{q(\bz | \bx, \bphi)} \log \frac{q(\bz| \bx, \bphi)}{p(\bz)} = \mathbb{E}_{q(\bz | \bx, \bphi)} \log \frac{q(\bz| \bx, \bphi) \pi (\bx)}{p(\bz) \pi(\bx)}.
+			{\color{teal}KL} = \mathbb{E}_{q(\bz | \bx, \bphi)} \log \frac{q(\bz| \bx, \bphi)}{p(\bz)} = \mathbb{E}_{q(\bz | \bx, \bphi)} \log \frac{q(\bz| \bx, \bphi) \pi (\bx)}{p(\bz) \pi(\bx)}.
 		\]
 		}
 		\vspace{-0.5cm}
@@ -265,17 +285,38 @@
 		\vspace{-0.7cm}
 		{\small
 		\begin{multline*}
-			\frac{q_1(\bx)}{q_2(\bx)} = \frac{p(\bx | y = 1)}{p(\bx | y = 0)} = \frac{p(y = 1 | \bx) p(\bx)}{p(y=1)} \bigg/ \frac{p(y = 0 | \bx) p(\bx)}{p(y=0)} = \\
+			\frac{q_1(\bx)}{q_2(\bx)} = \frac{{\color{violet}p(\bx | y = 1)}}{{\color{teal}p(\bx | y = 0)}} = {\color{violet}\frac{p(y = 1 | \bx) p(\bx)}{p(y=1)}} \bigg/ {\color{teal}\frac{p(y = 0 | \bx) p(\bx)}{p(y=0)}} = \\
 			= \frac{p(y = 1 | \bx)}{p(y = 0 | \bx)} = \frac{p(y = 1 | \bx)}{1 - p(y = 1 | \bx)} = \frac{D(\bx)}{1 - D(\bx)}
 		\end{multline*}
 		}
-		Here $D(\bx)$ is a discriminator model the output of which is a probability that $\bx$ is a sample
-		from $q_1(\bx)$ rather than from $q_2(\bx)$.
+	Here $D(\bx)$ is a discriminator model the output of which is a probability that $\bx$ is a sample from $q_1(\bx)$ rather than from $q_2(\bx)$.
+	\end{block}
+		\vspace{-0.3cm}
+		\[
+			\max_D \left[ \bbE_{q_1(\bx)} \log D(\bx) + \bbE_{q_2(\bx)} \log (1 - D(\bx)) \right]
+		\]
+	\myfootnotewithlink{https://arxiv.org/abs/1701.04722}{Mescheder L., Nowozin S., Geiger A. Adversarial variational bayes: Unifying variational autoencoders and generative adversarial networks, 2017}
+\end{frame}
+%=======
+\begin{frame}{Density ratio trick}
+	\[
+		r(\bx, \bz) = \frac{q_1(\bx, \bz)}{q_2(\bx, \bz)} = \frac{q(\bz| \bx, \bphi) \pi (\bx)}{p(\bz) \pi(\bx)}.
+	\] 
+	\begin{block}{Density ratio}
+		\vspace{-0.2cm}
+		\[
+			\frac{q_1(\bx, \bz)}{q_2(\bx, \bz)} = \frac{p(y = 1 | \bx, \bz)}{1 - p(y = 1 | \bx, \bz)} = \frac{D(\bx, \bz)}{1 - D(\bx, \bz)}
+		\]
 	\end{block}
 	\begin{block}{Adversarial Variational Bayes}
 		\vspace{-0.6cm}
 		\[
-			\max_D \left[ \bbE_{\pi(\bx)} \bbE_{q(\bz | \bx, \bphi)} \log D(\bx, \bz) + \bbE_{\pi(\bx)} \bbE_{p(\bz)} \log (1 - D(\bx, \bz)) \right]
+		\max_D \left[ \bbE_{\pi(\bx)} \bbE_{q(\bz | \bx, \bphi)} \log D(\bx, \bz) + \bbE_{\pi(\bx)} \bbE_{p(\bz)} \log (1 - D(\bx, \bz)) \right]
+		\]
+		Monte-Carlo estimation for KL divergence:
+		\vspace{-0.2cm}
+		\[
+			KL(q(\bz| \bx, \bphi) || p(\bz)) \approx \frac{D(\bx, \bz)}{1 - D(\bx, \bz)}.
 		\]
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1701.04722}{Mescheder L., Nowozin S., Geiger A. Adversarial variational bayes: Unifying variational autoencoders and generative adversarial networks, 2017}
@@ -298,6 +339,7 @@
 \section{Wasserstein distance}
 %=======
 \begin{frame}{Informal theoretical results}
+	\vspace{-0.3cm}
 	\begin{itemize}
 		\footnotesize
 		\item Since $\bz$ usually has lower dimensionality compared to $\bx$, manifold $G(\bz, \btheta)$ has a measure 0 in $\bx$ space. Hence, support of $p(\bx | \btheta)$ lies on low-dimensional manifold.
@@ -308,7 +350,7 @@
 		\end{figure}
 		\item If $\pi(\bx)$ and $p(\bx | \btheta)$ have disjoint supports, then there is a smooth optimal discriminator. We are not able to learn anything by backproping through it.
 		\item For such low-dimensional disjoint manifolds
-		\vspace{-0.1cm}
+		\vspace{-0.2cm}
 		\[
 			KL(\pi || p) = KL(p || \pi) = \infty, \quad JSD(\pi || p) = \log 2
 		\]
@@ -320,7 +362,7 @@
 \end{frame}
 %=======
 \begin{frame}{Wasserstein distance (discrete)}
-	Also called Earth Mover's distance.
+	A.k.a. \textbf{Earth Mover's distance}.
 	The minimum cost of moving and transforming a pile of dirt in the shape of one probability distribution to the shape of the other distribution.
 	\begin{figure}
 		\centering
@@ -342,10 +384,10 @@
 		\[
 			 \int \gamma(\bx, \by) d \bx = p(\by); \quad \int \gamma(\bx, \by) d \by = \pi(\bx).
 		\]
+		\item $\Gamma(\pi, p)$ -- the set of all joint distributions $\gamma (\bx, \by)$ with marginals $\pi$ and $p$.
 		\item $\gamma(\bx, \by)$ -- the amount, $\|\bx - \by \|$-- the distance.
-		\item $\Gamma(\pi, p)$ -- the set of all joint distributions $\Gamma (\bx, \by)$ with marginals $\pi$ and $p$.
 	\end{itemize}
-	For better understanding of transportation plan function $\gamma$, try to write down the plan for previous discrete case.
+	{\color{gray}For better understanding of transportation plan function $\gamma$, try to write down the plan for previous discrete case.}
 	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
 \end{frame}
 %=======
@@ -407,24 +449,103 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
 \end{frame}
 %=======
+\section{Wasserstein GAN}
+%=======
 \begin{frame}{Wasserstein GAN}
 	\begin{block}{Wasserstein distance}
-		\vspace{-0.4cm}
+		\vspace{-0.5cm}
 		\[
 			W(\pi || p) = \inf_{\gamma \in \Gamma(\pi, p)} \bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \| =  \inf_{\gamma \in \Gamma(\pi, p)} \int \| \bx - \by \| \gamma (\bx, \by) d \bx d \by
 		\]
+		\vspace{-0.3cm}
 	\end{block}
 	The infimum across all possible joint distributions in $\Gamma(\pi, p)$ is intractable.
 	\begin{block}{Theorem (Kantorovich-Rubinstein duality)}
+		\vspace{-0.3cm}
 		\[
 			W(\pi || p) = \frac{1}{K} \max_{\| f \|_L \leq K} \left[ \bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)\right],
 		\]
 		where $\| f \|_L \leq K$ are $K-$Lipschitz continuous functions ($f: \cX \rightarrow \bbR$)
+		\vspace{-0.2cm}
 		\[
 			|f(\bx_1) - f(\bx_2)| \leq K \| \bx_1 - \bx_2 \|, \quad \text{for all } \bx_1, \bx_2 \in \cX.
 		\]
+		\vspace{-0.5cm}
 	\end{block}
+	Now we need only samples to get Monte Carlo estimate for $W(\pi || p)$.
 
+	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
+\end{frame}
+%=======
+\begin{frame}{Wasserstein GAN}
+	\begin{block}{Theorem (Kantorovich-Rubinstein duality)}
+		\[
+		W(\pi || p) = \frac{1}{K} \max_{\| f \|_L \leq K} \left[ \bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)\right],
+		\]
+	\end{block}
+	\begin{itemize}
+		\item Now we have to ensure that $f$ is $K$-Lipschitz continuous.
+		\item Let $f(\bx, \bphi)$ be a feedforward neural network parametrized by~$\bphi$.
+		\item If parameters $\bphi$ lie in a compact set $\boldsymbol{\Phi}$ then $f(\bx, \bphi)$ will be $K$-Lipschitz continuous function. 
+		\item Let the parameters be clamped to a fixed box $\boldsymbol{\Phi} \in [-c, c]^d$ (e.x. $c = 0.01$) after each gradient update.
+	\end{itemize}
+	\begin{multline*}
+		K \cdot W(\pi || p) = \max_{\| f \|_L \leq K} \left[ \bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)\right] \geq \\  \geq \max_{\bphi \in \boldsymbol{\Phi}} \left[ \bbE_{\pi(\bx)} f(\bx, \bphi)  - \bbE_{p(\bx)} f(\bx, \bphi )\right]
+	\end{multline*}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
+\end{frame}
+%=======
+\begin{frame}{Wasserstein GAN}
+	\begin{block}{Standard GAN objective}
+		\vspace{-0.2cm}
+		\[
+		\min_{\btheta} \max_{\bphi} \bbE_{\pi(\bx)} \log D(\bx, \bphi) + \bbE_{p(\bz)} \log (1 - D(G(\bz, \btheta), \bphi))
+		\]
+		\vspace{-0.2cm}
+	\end{block}
+	\begin{block}{WGAN objective}
+		\vspace{-0.6cm}
+		\[
+		\min_{\btheta} W(\pi || p) \approx \min_{\btheta} \max_{\bphi \in \boldsymbol{\Phi}} \left[ \bbE_{\pi(\bx)} f(\bx, \bphi)  - \bbE_{p(\bz)} f(G(\bz, \btheta), \bphi )\right].
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	\begin{itemize}
+		\item Discriminator $D$ is similar to the function $f$, but not the same (it is not a classifier anymore). In the WGAN model, function~$f$ is usually called $\textbf{critic}$.
+		\item \textit{"Weight clipping is a clearly terrible way to enforce a Lipschitz constraint"}. If the clipping parameter $c$ is too large, it is hard to train the critic till optimality. If the clipping parameter $c$ is too small, it could lead to vanishing gradients.
+	\end{itemize}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
+\end{frame}
+%=======
+\begin{frame}{Wasserstein GAN}
+	\begin{minipage}[t]{0.6\columnwidth}
+		\begin{itemize}
+			\item WGAN has non-zero gradients for disjoint supports.
+			\item $JSD(\pi || p)$ correlates poorly with the sample quality. Stays constast nearly maximum value $\log 2 \approx 0.69$.
+			\item $W(\pi || p)$ is highly correlated with the sample quality. 
+		\end{itemize}
+	\end{minipage}%
+	\begin{minipage}[t]{0.4\columnwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=\linewidth]{figs/wgan_toy}
+		\end{figure}
+	\end{minipage}
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=1.0\linewidth]{figs/dcgan_quality}
+		\end{figure}
+	\end{minipage}%
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=1.0\linewidth]{figs/wgan_quality}
+		\end{figure}
+	\end{minipage}
+	
 	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
 \end{frame}
 %=======
@@ -439,6 +560,8 @@
 		\item Earth-Mover distance is a more appropriate objective function for distribution matching problem.	
 		\vfill
 		\item Kantorovich-Rubinstein duality gives the way to calculate the EM distance using only samples.
+		\vfill
+		\item Wasserstein GAN uses Kantorovich-Rubinstein duality for getting Earth Mover distance as model objective.
 	\end{itemize}
 \end{frame}
 %=======

@@ -9,6 +9,7 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
+\vspace{-0.3cm}
 	\begin{block}{ELBO objective}
 		\vspace{-0.5cm}
 		\[
@@ -17,7 +18,7 @@
 		\vspace{-0.5cm}
 	\end{block}
 	What is the problem to make the variational posterior model an \textbf{implicit} model? \\
-	 We have to estimate density ratio 
+	 We have to estimate density ratio (in KL term)
 	\[
 		r(\bx, \bz) = \frac{q_1(\bx, \bz)}{q_2(\bx, \bz)} = \frac{q(\bz| \bx, \bphi) \pi (\bx)}{p(\bz) \pi(\bx)}.
 	\] 
@@ -31,18 +32,18 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
+	\begin{block}{Main problems of standard GAN}
+		\begin{itemize}
+			\item Vanishing gradients (solution: non-saturating GAN);
+			\item Mode collapse (caused by Jensen-Shannon divergence).
+		\end{itemize}
+	\end{block}
 	\begin{block}{Standard GAN}
 		\vspace{-0.7cm}
 		\[
 			\min_{\btheta} \max_{\bphi} \left[ \bbE_{\pi(\bx)} \log D(\bx, \bphi) + \bbE_{p(\bz)} \log (1 - D(G(\bz, \btheta), \bphi)) \right]
 		\]
 		\vspace{-0.7cm}
-	\end{block}
-	\begin{block}{Main problems}
-		\begin{itemize}
-			\item Vanishing gradients (non-saturating GAN does not suffer of it);
-			\item Mode collapse (caused by behaviour of Jensen-Shannon divergence).
-		\end{itemize}
 	\end{block}
 	\vspace{-0.1cm}
 	\begin{block}{Informal theoretical results}
@@ -64,8 +65,8 @@
 			\]
 			\vspace{-0.5cm}
 			\begin{itemize}
-				\item $\Gamma(\pi, p)$ -- the set of all joint distributions $\Gamma (\bx, \by)$ with marginals $\pi$ and $p$ ($\int \gamma(\bx, \by) d \bx = p(\by)$, $\int \gamma(\bx, \by) d \by = \pi(\bx)$)
 				\item $\gamma(\bx, \by)$ -- transportation plan (the amount of "dirt" that should be transported from point $\bx$ to point $\by$).
+				\item $\Gamma(\pi, p)$ -- the set of all joint distributions $\Gamma (\bx, \by)$ with marginals $\pi$ and $p$ ($\int \gamma(\bx, \by) d \bx = p(\by)$, $\int \gamma(\bx, \by) d \by = \pi(\bx)$).
 				\item $\gamma(\bx, \by)$ -- the amount, $\|\bx - \by \|$-- the distance.
 			\end{itemize}
 		\end{block}
@@ -79,89 +80,32 @@
 		\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
 \end{frame}
 %=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{WGAN objective}
+		\vspace{-0.5cm}
+		\[
+		\min_{\btheta} W(\pi || p) = \min_{\btheta} \max_{\bphi \in \boldsymbol{\Phi}} \left[ \bbE_{\pi(\bx)} f(\bx, \bphi)  - \bbE_{p(\bz)} f(G(\bz, \btheta), \bphi )\right].
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{itemize}
+		\item Function~$f$ in WGAN is usually called $\textit{critic}$.
+		\item If parameters $\bphi$ lie in a compact set $\boldsymbol{\Phi} \in [-c, c]^d$ then $f(\bx, \bphi)$ will be $K$-Lipschitz continuous function. 
+	\end{itemize}
+	\begin{multline*}
+		K \cdot W(\pi || p) = \max_{\| f \|_L \leq K} \left[ \bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)\right] \geq \\  \geq \max_{\bphi \in \boldsymbol{\Phi}} \left[ \bbE_{\pi(\bx)} f(\bx, \bphi)  - \bbE_{p(\bx)} f(\bx, \bphi )\right]
+	\end{multline*}
+	\textit{"Weight clipping is a clearly terrible way to enforce a Lipschitz constraint"}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
+\end{frame}
+%=======
 \begin{frame}{Outline}
 	\tableofcontents
 \end{frame}
 %=======
-\section{Wasserstein GAN}
+\section{Lipschitzness of Wassestein GAN critic}
 %=======
-\begin{frame}{Wasserstein GAN}
-		\begin{block}{Theorem (Kantorovich-Rubinstein duality)}
-		\[
-			W(\pi || p) = \frac{1}{K} \max_{\| f \|_L \leq K} \left[ \bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)\right],
-		\]
-	\end{block}
-	\begin{itemize}
-		\item Now we have to ensure that $f$ is $K$-Lipschitz continuous.
-		\item Let $f(\bx, \bphi)$ be a feedforward neural network parametrized by~$\bphi$.
-		\item If parameters $\bphi$ lie in a compact set $\boldsymbol{\Phi}$ then $f(\bx, \bphi)$ will be $K$-Lipschitz continuous function. 
-		\item Let the parameters be clamped to a fixed box $\boldsymbol{\Phi} \in [-0.01, 0.01]^d$ after each gradient update.
-	\end{itemize}
-	\begin{multline*}
-		 K \cdot W(\pi || p) = \max_{\| f \|_L \leq K} \left[ \bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)\right] \geq \\  \geq \max_{\bphi \in \boldsymbol{\Phi}} \left[ \bbE_{\pi(\bx)} f(\bx, \bphi)  - \bbE_{p(\bx)} f(\bx, \bphi )\right]
-	\end{multline*}
-
-	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
-\end{frame}
-%=======
-\begin{frame}{Wasserstein GAN}
-	\begin{block}{Standard GAN objective}
-		\vspace{-0.2cm}
-		\[
-			\min_{\btheta} \max_{\bphi} \bbE_{\pi(\bx)} \log D(\bx, \bphi) + \bbE_{p(\bz)} \log (1 - D(G(\bz, \btheta), \bphi))
-		\]
-		\vspace{-0.2cm}
-	\end{block}
-	\begin{block}{WGAN objective}
-		\vspace{-0.6cm}
-		\[
-		\min_{\btheta} W(\pi || p) \approx \min_{\btheta} \max_{\bphi \in \boldsymbol{\Phi}} \left[ \bbE_{\pi(\bx)} f(\bx, \bphi)  - \bbE_{p(\bz)} f(G(\bz, \btheta), \bphi )\right].
-		\]
-	\end{block}
-	\begin{itemize}
-		\item Discriminator $D$ is similar to the function $f$, but not the same (it is not a classifier anymore). In the WGAN model, function~$f$ is usually called $\textit{critic}$.
-		\item "Weight clipping is a clearly terrible way to enforce a Lipschitz constraint". If the clipping parameter is large, it is hard to train the critic till optimality. If the clipping parameter is too small, it could lead to vanishing gradients.
-	\end{itemize}
-
-	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
-\end{frame}
-%=======
-\begin{frame}{Wasserstein GAN}
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.8\linewidth]{figs/wgan_toy}
-	\end{figure}
-
-	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
-\end{frame}
-%=======
-\begin{frame}{Wasserstein GAN}
-	\begin{minipage}[t]{0.49\columnwidth}
-		\begin{figure}
-			\centering
-			\includegraphics[width=1.0\linewidth]{figs/dcgan_quality}
-		\end{figure}
-	\end{minipage}%
-	\begin{minipage}[t]{0.49\columnwidth}
-		\begin{figure}
-			\centering
-			\includegraphics[width=1.0\linewidth]{figs/wgan_quality}
-		\end{figure}
-	\end{minipage}
-	\begin{itemize}
-		\item $JSD$ correlates poorly with the sample quality. Stays constast nearly maximum value $\log 2 \approx 0.69$.
-		\item $W$ is highly correlated with the sample quality. 
-	\end{itemize}
-	\begin{figure}
-		\centering
-		\includegraphics[width=1.0\linewidth]{figs/wgan_mode_collapse}
-	\end{figure}
-	"In no experiment did we see evidence of mode collapse for the WGAN algorithm."
-
-	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
-\end{frame}
-%=======
-\section{WGAN with Gradient Penalty}
+\subsection{WGAN with Gradient Penalty}
 %=======
 \begin{frame}{Wasserstein GAN with Gradient Penalty}
 	\vspace{-0.2cm}
@@ -205,9 +149,11 @@
 \begin{frame}{Wasserstein GAN with Gradient Penalty}
 	A differentiable function is 1-Lipschtiz if and only if it has gradients with norm at most 1 everywhere.
 	\begin{block}{Gradient penalty}
+		\vspace{-0.3cm}
 		\[
 			W(\pi || p) = \underbrace{\bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)}_{\text{original critic loss}} + \lambda \underbrace{\bbE_{U[0, 1]} \left[ \left( \| \nabla_{\hat{\bx}} f(\hat{\bx}) \|_2 - 1 \right) ^ 2\right]}_{\text{gradient penalty}},
 		\]
+		\vspace{-0.3cm}
 	\end{block}
 	\begin{itemize}
 		\item Samples $\hat{\bx}_t = t \by + (1 - t) \bz$ with $t \in [0, 1]$ are uniformly sampled along straight lines between pairs of points: $\by$ from the data distribution $\pi(\bx)$ and $\bz$ from the generator distribution $p(\bx | \btheta)$.
@@ -217,22 +163,7 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1704.00028}{Gulrajani I. et al. Improved Training of Wasserstein GANs, 2017}
 \end{frame}
 %=======
-\begin{frame}{Wasserstein GAN with Gradient Penalty}
-	\begin{figure}
-		\centering
-		\includegraphics[width=\linewidth]{figs/wgan_gp_convergence}
-	\end{figure}
-	\begin{block}{WGAN-GP convergence}
-		\begin{figure}
-			\centering
-			\includegraphics[width=0.75\linewidth]{figs/wgan_gp_wgan}
-		\end{figure}
-	\end{block}
-
-	\myfootnotewithlink{https://arxiv.org/abs/1704.00028}{Gulrajani I. et al. Improved Training of Wasserstein GANs, 2017}
-\end{frame}
-%=======
-\section{Spectral Normalization GAN}
+\subsection{Spectral Normalization GAN}
 %=======
 \begin{frame}{Spectral Normalization GAN}
 	\begin{block}{Definition}
@@ -243,7 +174,7 @@
 		where $\lambda_{\text{max}}(\bA^T \bA)$ is the largest eigenvalue value of $\bA^T \bA$.
 	\end{block}
 	\begin{block}{Statement 1}
-		if $g$ is a K-Lipschitz function then 
+		if $\mathbf{g}$ is a K-Lipschitz vector function then 
 		\[
 			\| \mathbf{g} \|_L \leq K = \sup_\bx \| \nabla \mathbf{g}(\bx)) \|_2.
 		\]
@@ -267,7 +198,7 @@
 	This feedforward network is a superposition of simple functions.
 	\begin{itemize}
 		\item $\sigma_k$ is a pointwise nonlinearities. We assume that $\| \sigma_k \|_L = 1$ (it holds for ReLU).
-		\item $\mathbf{g}(\bx) = \bW \bx$ is a linear transformation ($\nabla \mathbf{g}(\bx) = \bW$).
+		\item $\mathbf{g}(\bx) = \bW^T \bx$ is a linear transformation ($\nabla \mathbf{g}(\bx) = \bW$).
 		\[
 			\| \mathbf{g} \|_L \leq \sup_\bx \| \nabla \mathbf{g}(\bx)\|_2 = \| \bW \|_2.
 		\]
@@ -287,34 +218,31 @@
 %=======
 \begin{frame}{Spectral Normalization GAN}
 	How to compute $ \| \bW \|_2 = \sqrt{\lambda_{\text{max}}(\bW^T \bW)}$? \\
-	 If we apply SVD to compute the $\| \bW \|_2$ at each iteration, the algorithm becomes intractable.
-	 
-	 \begin{block}{Power iteration method}
+	We are not able to apply SVD at each iteration.
+	 \begin{block}{Power iteration (PI) method}
+	 	\vspace{-0.2cm}
 	 	\begin{itemize}
 	 		\item $\bu_0$ -- random vector.
-	 		\item for $k = 0, \dots, K - 1$: ($K$ is a fixed number of steps)
+	 		\item for $m = 0, \dots, M - 1$: ($M$ is a fixed number of steps)
+	 		\vspace{-0.3cm}
 	 		\[
-	 			\bv_{k+1} = \frac{\bW^T \bu_{k}}{\| \bW^T \bu_{k} \|}, \quad \bu_{k+1} = \frac{\bW \bv_{k+1}}{\| \bW \bv_{k+1} \|}.
+	 			\bv_{m+1} = \frac{\bW^T \bu_{m}}{\| \bW^T \bu_{m} \|}, \quad \bu_{m+1} = \frac{\bW \bv_{m+1}}{\| \bW \bv_{m+1} \|}.
 	 		\]
 	 		\item approximate the spectral norm
+	 		\vspace{-0.3cm}
 	 		\[
-	 			\| \bW \|_2 = \sqrt{\lambda_{\text{max}}(\bW^T \bW)} \approx \bu_{K}^T \bW \bv_{K}.
+	 			\| \bW \|_2 = \sqrt{\lambda_{\text{max}}(\bW^T \bW)} \approx \bu_{M}^T \bW \bv_{M}.
 	 		\]
 	 	\end{itemize}
 	 \end{block}
-
-	\myfootnotewithlink{https://arxiv.org/abs/1802.05957}{Miyato T. et al. Spectral Normalization for Generative Adversarial Networks, 2018}
-\end{frame}
-%=======
-\begin{frame}{Spectral Normalization GAN}
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.85\linewidth]{figs/sngan_pseudocode}
-	\end{figure}
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.85\linewidth]{figs/sngan_fids}
-	\end{figure}
+	 \vspace{-0.5cm}
+ 	\begin{block}{SNGAN gradient update}
+ 		\begin{itemize}
+ 			\item Apply PI method to get approximation of spectral norm.
+ 			\item Normalize weights $\bW^{SN}_k = \bW_k / \|\bW_k\|_2$.
+ 			\item Apply gradient rule to $\bW$.
+ 		\end{itemize}
+ 	\end{block}
 
 	\myfootnotewithlink{https://arxiv.org/abs/1802.05957}{Miyato T. et al. Spectral Normalization for Generative Adversarial Networks, 2018}
 \end{frame}
@@ -376,7 +304,7 @@
 	\begin{block}{f-divergence}
 		\vspace{-0.8cm}
 		\begin{multline*}
-			D_f(\pi || p) = \bbE_{p(\bx)}  f\left( \frac{\pi(\bx)}{p(\bx)} \right)  = \int p(\bx) f\left( \frac{\pi(\bx)}{p(\bx)} \right) d \bx = \\ = \int p(\bx) \sup_{t \in \text{dom}_{f^*}} \left( \frac{\pi(\bx)}{p(\bx)} t - f^*(t) \right) d \bx = \\ 
+			D_f(\pi || p) = \bbE_{p(\bx)}  f\left( \frac{\pi(\bx)}{p(\bx)} \right)  = \int p(\bx) {\color{violet}f\left( \frac{\pi(\bx)}{p(\bx)} \right) } d \bx = \\ = \int p(\bx) {\color{violet} \sup_{t \in \text{dom}_{f^*}} \left( \frac{\pi(\bx)}{p(\bx)} t - f^*(t) \right)} d \bx = \\ 
 			= \int \sup_{t \in \text{dom}_{f^*}} \left( \pi(\bx)t - p(\bx) f^*(t) \right) d \bx .
 		\end{multline*}
 		\vspace{-0.6cm}
@@ -397,13 +325,13 @@
 	\begin{block}{Variational f-divergence estimation}
 		\vspace{-0.8cm}
 		\begin{multline*}
-			D_f(\pi || p)  = \int \sup_{t \in \text{dom}_{f^*}} \left( \pi(\bx)t - p(\bx) f^*(t) \right) d \bx \geq \\
-			 \geq \sup_{T \in \cT} \int \left( \pi(\bx)T(\bx) - p(\bx) f^*(T(\bx)) \right) d \bx = \\
+			D_f(\pi || p)  = {\color{violet}\int} {\color{teal} \sup_{t \in \text{dom}_{f^*}}} \left( \pi(\bx)t - p(\bx) f^*(t) \right) d \bx \geq \\
+			 \geq {\color{teal}\sup_{T \in \cT}} {\color{violet}\int} \left( \pi(\bx)T(\bx) - p(\bx) f^*(T(\bx)) \right) d \bx = \\
 			 = \sup_{T \in \cT} \left[\bbE_{\pi}T(\bx) -  \bbE_p f^*(T(\bx)) \right]
 		\end{multline*}
 	\vspace{-0.6cm}
 	\end{block}
-	This is a lower bound because of Jensen inequality and restricted class of functions $\cT: \cX \rightarrow \bbR$.
+	This is a lower bound because of Jensen inequality and restricted class of functions $\cT: \cX \rightarrow \bbR$. 
 	
 	\myfootnotewithlink{https://arxiv.org/abs/1606.00709}{Nowozin S., Cseke B., Tomioka R. f-GAN: Training Generative Neural Samplers using Variational Divergence Minimization, 2016}
 \end{frame}
@@ -423,10 +351,10 @@
 			\]
 			\item Let reparametrize $T(\bx) = \log D(\bx)$.
 		\end{itemize}
-		\vspace{-0.7cm}
+		\vspace{-0.4cm}
 	\end{block}
 	\[
-		\min_{G} \max_D V(G, D) = \min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz))) \right]
+		\min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz))) \right]
 	\]
 
 	\myfootnotewithlink{https://arxiv.org/abs/1606.00709}{Nowozin S., Cseke B., Tomioka R. f-GAN: Training Generative Neural Samplers using Variational Divergence Minimization, 2016}
@@ -447,15 +375,72 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1606.00709}{Nowozin S., Cseke B., Tomioka R. f-GAN: Training Generative Neural Samplers using Variational Divergence Minimization, 2016}
 \end{frame}
 %=======
+\section{Evaluation of likelihood-free models}
+%=======
+\begin{frame}{Evaluation of likelihood-free models}
+	How to evaluate generative models?
+	\begin{block}{Likelihood-based models}
+		\begin{itemize}
+			\item Split data to train/val/test.
+			\item Fit model on the train part.
+			\item Tune hyperparameters on the validation part.
+			\item Evaluate generalization by reporting likelihoods on the test set.
+		\end{itemize}
+	\end{block}
+	\begin{block}{Not all models have tractable likelihoods}
+		\begin{itemize}
+			\item VAE: compare ELBO values.
+			\item GAN: ???
+		\end{itemize}
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Evaluation of likelihood-free models}
+	Let take some pretrained image classification model to get the conditional label distribution $p(y | \bx)$ (e.g. ImageNet classifier).
+	\begin{block}{What do we want from samples?}
+		\begin{itemize}
+			\item \textbf{Sharpness}
+			\begin{figure}
+				\centering
+				\includegraphics[width=0.9\linewidth]{figs/sharpness}
+			\end{figure}
+			The conditional distribution $p(y | \bx)$ should have low entropy (each image $\bx$ should have distinctly recognizable object).
+			\item \textbf{Diversity}
+			\begin{figure}
+				\centering
+				\includegraphics[width=0.9\linewidth]{figs/diversity}
+			\end{figure}
+			The marginal distribution $p(y) = \int p(y | \bx) p(\bx) d \bx$ should have high entropy (there should be as many classes generated as possible).
+		\end{itemize}
+	\end{block}
+	\myfootnotewithlink{https://deepgenerativemodels.github.io}{image credit: https://deepgenerativemodels.github.io}
+\end{frame}
+%=======
+\begin{frame}{Evaluation of likelihood-free models}
+	\begin{block}{What do we want from samples?}
+		\begin{itemize}
+			\item \textbf{Sharpness.}
+			The conditional distribution $p(y | \bx)$ should have low entropy (each image $\bx$ should have distinctly recognizable object).
+			\item \textbf{Diversity.}
+			The marginal distribution $p(y) = \int p(y | \bx) p(\bx) d \bx$ should have high entropy (there should be as many classes generated as possible).
+		\end{itemize}
+	\end{block}
+	\begin{figure}
+		\centering
+		\includegraphics[width=1.0\linewidth]{figs/is_toy}
+	\end{figure}
+	\myfootnotewithlink{https://medium.com/octavian-ai/a-simple-explanation-of-the-inception-score-372dff6a8c7a}{image credit: https://medium.com/octavian-ai/a-simple-explanation-of-the-inception-score-372dff6a8c7a}
+\end{frame}
+%=======
 \begin{frame}{Summary}
 	\begin{itemize} 
-		\item Wasserstein GAN uses Kantorovich-Rubinstein duality for getting Earth Mover distance as model objective.
-		\vfill
-		\item Weight clipping is a terrible way to enforce Lipschitzness. Gradient Penalty works better.
+		\item Weight clipping is a terrible way to enforce Lipschitzness. Gradient Penalty adds regularizer to loss that uses neccessary conditions for optimal critic.
 		\vfill
 		\item Spectral normalization is a weight normalization technique to enforce Lipshitzness, which is helpful for generator and critic.
 		\vfill
 		\item f-divergence family is a unified framework for divergence minimization, which uses variational approximation. Standard GAN is a special case of it.
+		\vfill
+		\item We need measure of quality for implicit models like GANs. One way is to analyze sharpness and diversity of samples.
 	\end{itemize}
 \end{frame}
 %=======

@@ -13,30 +13,6 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
-	\begin{block}{Discrete VAE latents}
-		\begin{itemize}
-			\item Define dictionary (word book) space $\{\be_k\}_{k=1}^K$, where $\be_k \in \bbR^C$, $K$ is the size of the dictionary.
-			\item Our variational posterior $q(c | \bx, \bphi) = \text{Categorical}(\bpi(\bx, \bphi))$ (encoder) outputs discrete probabilities vector.
-			\item We sample $c^*$ from $q(c | \bx, \bphi)$ (reparametrization trick analogue).
-			\item Our generative distribution $p(\bx | \be_{c^*}, \btheta)$ (decoder).
-		\end{itemize}
-	\end{block}
-	\begin{block}{ELBO}
-		\vspace{-0.5cm}
-		\[
-			\mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(c | \bx, \bphi)} \log p(\bx | c, \btheta) - KL(q(c| \bx, \bphi) || p(c)) \rightarrow \max_{\bphi, \btheta}.
-		\]
-		\vspace{-0.5cm}
-	\end{block}
-	\begin{block}{KL term}
-		\vspace{-0.4cm}
-		\[
-			KL(q(c| \bx, \bphi) || p(c)) = - H(q(c | \bx, \bphi)) + \log K. 
-		\]
-	\end{block}
-\end{frame}
-%=======
-\begin{frame}{Recap of previous lecture}
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.85\linewidth]{figs/vqvae}
@@ -81,7 +57,7 @@
 	\end{block}
 	\vspace{-0.2cm}
 	\begin{block}{Gumbel-softmax relaxation}
-		Concrete distribution = continuous + discrete
+		{\color{violet}Con}{\color{teal}crete} distribution = {\color{violet}\textbf{con}tinuous} + {\color{teal}dis\textbf{crete}}
 		\vspace{-0.2cm}
 		\[
 			\hat{c}_k = \frac{\exp \left(\frac{\log q(k | \bx, \bphi) + g_k}{\tau}\right)}{\sum_{j=1}^K \exp \left(\frac{\log q(j | \bx, \bphi) + g_j}{\tau}\right)}, \quad k = 1, \dots, K.
@@ -105,14 +81,14 @@
 \begin{frame}{Recap of previous lecture}
 	Consider Ordinary Differential Equation    
 	\begin{align*}
-	    \frac{d \bz(t)}{dt} &= f(\bz(t), \btheta); \quad \text{with initial condition }\bz(t_0) = \bz_0. \\
-	    \bz(t_1) &= \int^{t_1}_{t_0} f(\bz(t), \btheta) d t  + \bz_0 = \text{ODESolve}(\bz(t_0), f, t_0,t_1, \btheta).
+	    \frac{d \bz(t)}{dt} &= f(\bz(t), t, \btheta); \quad \text{with initial condition }\bz(t_0) = \bz_0. \\
+	    \bz(t_1) &= \int^{t_1}_{t_0} f(\bz(t), t, \btheta) d t  + \bz_0 = \text{ODESolve}(\bz(t_0), f, t_0,t_1, \btheta).
 	\end{align*}
 	\vspace{-0.4cm}
 	\begin{block}{Euler update step}
 		\vspace{-0.6cm}
 		\[
-		    \frac{\bz(t + \Delta t) - \bz(t)}{\Delta t} = f(\bz(t), \btheta) \quad \Rightarrow \quad \bz(t + \Delta t) = \bz(t) + \Delta t \cdot f(\bz(t), \btheta).
+			\frac{\bz(t + \Delta t) - \bz(t)}{\Delta t} = f(\bz(t), t, \btheta) \,\, \Rightarrow \,\, \bz(t + \Delta t) = \bz(t) + \Delta t \cdot f(\bz(t), t, \btheta)
 		\]
 		\vspace{-0.7cm}
 	\end{block}
@@ -131,98 +107,55 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
 \end{frame}
 %=======
-\begin{frame}{Outline}
-	\tableofcontents
-\end{frame}
-%=======
-\begin{frame}{Neural ODE}
-	\begin{block}{Forward pass (loss function)}
-		\vspace{-0.8cm}
-		\begin{align*}
-			L(\by) = L(\bz(t_1)) &= L\left( \bz(t_0) + \int_{t_0}^{t_1} f(\bz(t), \btheta) dt \right) \\ &= L\bigl(\text{ODESolve}(\bz(t_0), f, t_0,t_1, \btheta) \bigr)
-		\end{align*}
-	\vspace{-0.5cm}
-	\end{block}
-	\textbf{Note:} ODESolve could be any method (Euler step, Runge-Kutta methods).
-	\begin{block}{Backward pass (gradients computation)}
-		For fitting parameters we need gradients:
-		\[
-			\ba_{\bz}(t) = \frac{\partial L(\by)}{\partial \bz(t)}; \quad \ba_{\btheta}(t) = \frac{\partial L(\by)}{\partial \btheta(t)}.
-		\]
-		In theory of optimal control these functions called \textbf{adjoint} functions. 
-		They show how the gradient of the loss depends on the hidden state~$\bz(t)$ and parameters $\btheta$.
-	\end{block}
-
-	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}     
-\end{frame}
-%=======
-\section{Neural ODE: finish}
-%=======
-\begin{frame}{Neural ODE}
-	\begin{block}{Adjoint functions}
+\begin{frame}{Recap of previous lecture}
 		\vspace{-0.3cm}
 		\[
-			\ba_{\bz}(t) = \frac{\partial L(\by)}{\partial \bz(t)}; \quad \ba_{\btheta}(t) = \frac{\partial L(\by)}{\partial \btheta(t)}.
+		\ba_{\bz}(t) = \frac{\partial L(\by)}{\partial \bz(t)}; \quad \ba_{\btheta}(t) = \frac{\partial L(\by)}{\partial \btheta(t)} \text{-- adjoint functions}.
 		\]
-		\vspace{-0.6cm}
-	\end{block}
+		\vspace{-0.3cm}
 	\begin{block}{Theorem (Pontryagin)}
 	\vspace{-0.6cm}
 	\[
-	     \frac{d \ba_{\bz}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f(\bz(t), \btheta)}{\partial \bz}; \quad \frac{d \ba_{\btheta}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f(\bz(t), \btheta)}{\partial \btheta}.
+		\frac{d \ba_{\bz}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f(\bz(t), t, \btheta)}{\partial \bz}; \quad \frac{d \ba_{\btheta}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f(\bz(t), t, \btheta)}{\partial \btheta}.
 	\]
-	Do we know any initilal condition?
+	\vspace{-0.6cm}
 	\end{block}
-	\begin{block}{Solution for adjoint function}
-		\vspace{-0.8cm}
-		\begin{align*}
-			 \frac{\partial L}{\partial \btheta(t_0)} &= \ba_{\btheta}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), \btheta)}{\partial \btheta(t)} dt + 0\\
-			 \frac{\partial L}{\partial \bz(t_0)} &= \ba_{\bz}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), \btheta)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_1)}\\
-		\end{align*}
-		\vspace{-1.5cm}
-	\end{block}
-	\textbf{Note:} These equations are solved back in time.
-	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
-\end{frame}
-%=======
-\begin{frame}{Neural ODE}
-	\vspace{-0.2cm}
 	\begin{block}{Forward pass}
 		\vspace{-0.5cm}
 		\[
-			\bz(t_1) = \int^{t_1}_{t_0} f(\bz(t), \btheta) d t  + \bz_0 \quad \Rightarrow \quad \text{ODE Solver}
+		\bz(t_1) = \int^{t_1}_{t_0} f(\bz(t), t, \btheta) d t  + \bz_0 \quad \Rightarrow \quad \text{ODE Solver}
 		\]
 		\vspace{-0.6cm}
 	\end{block}
 	\begin{block}{Backward pass}
-		\vspace{-0.8cm}
+		\vspace{-0.6cm}
 		\begin{equation*}
 			\left.
-				{\footnotesize 
+			{\footnotesize 
 				\begin{aligned}
-					\frac{\partial L}{\partial \btheta(t_0)} &= \ba_{\btheta}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), \btheta)}{\partial \btheta(t)} dt + 0 \\
-					\frac{\partial L}{\partial \bz(t_0)} &= \ba_{\bz}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), \btheta)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_1)} \\
-					\bz(t_0) &= - \int^{t_0}_{t_1} f(\bz(t), \btheta) d t  + \bz_1.
+					\frac{\partial L}{\partial \btheta(t_0)} &= \ba_{\btheta}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), t, \btheta)}{\partial \btheta(t)} dt + 0 \\
+					\frac{\partial L}{\partial \bz(t_0)} &= \ba_{\bz}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), t, \btheta)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_1)} \\
+					\bz(t_0) &= - \int^{t_0}_{t_1} f(\bz(t), t, \btheta) d t  + \bz_1.
 				\end{aligned}
-				}
+			}
 			\right\rbrace
-			 \Rightarrow
+			\Rightarrow
 			\text{ODE Solver}
 		\end{equation*}
 		\vspace{-0.4cm} 
 	\end{block}
-	\textbf{Note:} These scary formulas are the standard backprop in the discrete case.
-	\begin{figure}
-		\centering
-		\includegraphics[width=\linewidth]{figs/neural_ode}
-	\end{figure}
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
+\end{frame}
+%=======
+\begin{frame}{Outline}
+	\tableofcontents
 \end{frame}
 %=======
 \section{Continuous-in-time normalizing flows}
 %=======
-\begin{frame}{Continuous Normalizing Flows}
-	\begin{block}{Discrete Normalizing Flows}
+\begin{frame}{Continuous-in-time Normalizing Flows}
+	\vspace{-0.3cm}
+	\begin{block}{Discrete-in-time NF}
 		\vspace{-0.8cm}
 		  \[
 		  \bz_{t+1} = f(\bz_t, \btheta); \quad \log p(\bz_{t+1}) = \log p(\bz_{t}) - \log \left| \det \frac{\partial f(\bz_t, \btheta)}{\partial \bz_{t}} \right| .
@@ -232,46 +165,58 @@
 	\begin{block}{Continuous-in-time dynamics}
 		\vspace{-0.2cm}
 		\[
-			\frac{d\bz(t)}{dt} = f(\bz(t), \btheta).
+			\frac{d\bz(t)}{dt} = f(\bz(t), t, \btheta).
 		\]
-		\vspace{-0.4cm}
 	\end{block}
-	Assume that function $f$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$. From Picard’s existence theorem, it follows that the above ODE has a \textbf{unique solution}.
+	\vspace{-0.6cm}
+	\begin{minipage}[t]{0.4\columnwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.75\linewidth]{figs/cnf_flow.png}
+		\end{figure}
+	\end{minipage}%
+	\begin{minipage}[t]{0.6\columnwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.8\linewidth]{figs/ffjord.png}
+		\end{figure}
+	\end{minipage}
+	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018}  
+\end{frame}
+%=======
+\begin{frame}{Continuous-in-time Normalizing Flows}
+	\begin{block}{Theorem (Picard)}
+		If $f$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then the ODE has a \textbf{unique} solution.
+	\end{block}
+	\textbf{Note:} Unlike discrete-in-time flows, $f$ does not need to be bijective (uniqueness guarantees bijectivity).
 	\begin{block}{Forward and inverse transforms}
 		\vspace{-0.7cm}
 		\begin{align*}
-			\bx &= \bz(t_1) = \bz(t_0) + \int_{t_0}^{t_1} f(\bz(t), \btheta) dt \\
-			\bz &= \bz(t_0) = \bz(t_1) + \int_{t_1}^{t_0} f(\bz(t), \btheta) dt \\
+			\bx &= \bz(t_1) = \bz(t_0) + \int_{t_0}^{t_1} f(\bz(t), t, \btheta) dt \\
+			\bz &= \bz(t_0) = \bz(t_1) + \int_{t_1}^{t_0} f(\bz(t), t, \btheta) dt
 		\end{align*}
+		\vspace{-0.7cm}
 	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/1912.02762}{Papamakarios G. et al. Normalizing flows for probabilistic modeling and inference, 2019}   
-\end{frame}
-%=======
-\begin{frame}{Continuous Normalizing Flows}
-	To train this flow we have to get the way to calculate the density~$p(\bz(t), t)$.
-	\begin{block}{Theorem (special case of Kolmogorov-Fokker-Planck)}
-		If function $f$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then
+	\begin{block}{Theorem (Kolmogorov-Fokker-Planck: special case)}
+		If $f$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then
 		\[
-			\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial f (\bz(t), \btheta)}{\partial \bz(t)} \right).
+			\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial f (\bz(t), t, \btheta)}{\partial \bz(t)} \right).
 		\]
-		\vspace{-0.5cm}
-	\end{block}
-	\textbf{Note:} Unlike discrete-in-time flows, the function $f$ does not need to be bijective, because uniqueness guarantees that the entire transformation is automatically bijective.
-	\begin{block}{Density evaluation}
-		\vspace{-0.4cm}
-		\[
-			\log p(\bx | \btheta) = \log p(\bz) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial f (\bz(t), \btheta)}{\partial \bz(t)} \right) dt.
-		\]
-		Here $p(\bx | \btheta) = p(\bz(t_1), t_1)$, $p(\bz) = p(\bz(t_0), t_0)$. \\
-		\textbf{Adjoint} method is used for getting the derivatives.
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
 \end{frame}
 %=======
-\begin{frame}{Continuous Normalizing Flows}
-	\vspace{-0.5cm}
+\begin{frame}{Continuous-in-time Normalizing Flows}
+	\begin{block}{Density evaluation}
+		\vspace{-0.4cm}
+		\[
+		\log p(\bx | \btheta) = \log p(\bz) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial f (\bz(t), t, \btheta)}{\partial \bz(t)} \right) dt.
+		\]
+		Here $p(\bx | \btheta) = p(\bz(t_1), t_1)$, $p(\bz) = p(\bz(t_0), t_0)$. \\
+		\textbf{Adjoint} method is used for getting the derivatives.
+	\end{block}
 	\begin{block}{Forward transform + log-density}
-		\vspace{-0.5cm}
+		\vspace{-0.3cm}
 		\[
 			\begin{bmatrix}
 				\bx \\
@@ -284,8 +229,8 @@
 			\end{bmatrix} + 
 			\int_{t_0}^{t_1} 
 			\begin{bmatrix}
-				f(\bz(t), \btheta) \\
-				- \text{tr} \left( \frac{\partial f(\bz(t), \btheta)}{\partial \bz(t)} \right) 
+				f(\bz(t), t, \btheta) \\
+				- \text{tr} \left( \frac{\partial f(\bz(t), t, \btheta)}{\partial \bz(t)} \right) 
 			\end{bmatrix} dt.
 		\]
 		\vspace{-0.4cm}
@@ -294,23 +239,10 @@
 		\item Discrete-in-time normalizing flows need invertible $f$. It costs $O(m^3)$ to get determinant of the Jacobian.
 		\item Continuous-in-time flows require only smoothness of $f$. It costs $O(m^2)$ to get the trace of the Jacobian.
 	\end{itemize}
-	\vspace{-0.5cm}
-	\begin{minipage}[t]{0.4\columnwidth}
-		\begin{figure}
-			\centering
-			\includegraphics[width=0.75\linewidth]{figs/cnf_flow.png}
-		\end{figure}
-	\end{minipage}%
-	\begin{minipage}[t]{0.6\columnwidth}
-		\begin{figure}
-			  \centering
-			  \includegraphics[width=0.8\linewidth]{figs/ffjord.png}
-		\end{figure}
-	\end{minipage}
-	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018} 
+	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
 \end{frame}
 %=======
-\begin{frame}{Continuous Normalizing Flows}
+\begin{frame}{Continuous-in-time Normalizing Flows}
 	\vspace{0.2cm}
 	\begin{itemize}
 		\item $\text{tr} \left( \frac{\partial f(\bz(t), \btheta)}{\partial \bz(t)} \right)$ costs $O(m^2)$ ($m$
@@ -319,69 +251,23 @@
 	\end{itemize}
 	It is possible to reduce cost from $O(m^2)$ to $O(m)$!
 	\begin{block}{Hutchinson's trace estimator}
+		If $\bepsilon \in \bbR^m$ is a random variable with $\mathbb{E} [\bepsilon] = 0$ and $\text{Cov} (\bepsilon) = I$, then
 		\vspace{-0.3cm}
 		\[
-		    \text{tr}(A) = \text{tr}\left(A\mathbb{E}_{p(\bepsilon)} \left[ \bepsilon \bepsilon^T \right]\right) = \mathbb{E}_{p(\bepsilon)} \left[ {\color{violet} \bepsilon^T A} \bepsilon  \right]; \quad \mathbb{E} [\bepsilon] = 0; \quad \text{Cov} (\bepsilon) = I.
+		    \text{tr}(\mathbf{A}) = \text{tr}\left(\mathbf{A}\mathbb{E}_{p(\bepsilon)} \left[ \bepsilon \bepsilon^T \right]\right) =  \mathbb{E}_{p(\bepsilon)} \left[  \text{tr}\left(  \mathbf{A}  \bepsilon \bepsilon^T \right) \right] =  \mathbb{E}_{p(\bepsilon)} \left[ {\color{violet} \bepsilon^T \mathbf{A}} \bepsilon  \right]
 		\]
-		\vspace{-0.5cm}
+		\vspace{-0.6 cm}
 	\end{block}
 	\begin{block}{FFJORD density estimation}
 		\vspace{-0.8cm}
 		\begin{multline*}
-		    \log p(\bz(t_1)) = \log p(\bz(t_0)) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial f (\bz(t), \btheta)}{\partial \bz(t)} \right) dt = \\ = \log p(\bz(t_0)) - \mathbb{E}_{p(\bepsilon)} \int_{t_0}^{t_1} \left[ {\color{violet}\bepsilon^T \frac{\partial f}{\partial \bz}} \bepsilon \right] dt.
+		    \log p(\bz(t_1)) = \log p(\bz(t_0)) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial f (\bz(t), t, \btheta)}{\partial \bz(t)} \right) dt = \\ = \log p(\bz(t_0)) - \mathbb{E}_{p(\bepsilon)} \int_{t_0}^{t_1} \left[ {\color{violet}\bepsilon^T \frac{\partial f}{\partial \bz}} \bepsilon \right] dt.
 		\end{multline*}
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018} 
 \end{frame}
 %=======
-\section{Langevin dynamic}
-%=======
-\begin{frame}{Generative models zoo}
-	\begin{tikzpicture}[
-	 	basic/.style  = {draw, text width=2cm, drop shadow, rectangle},
-	 	root/.style   = {basic, rounded corners=2pt, thin, text height=1.1em, text width=7em, align=center, fill=blue!40},
-	 	level 1/.style={sibling distance=55mm},
-	 	level 2/.style = {basic, rounded corners=6pt, thin, align=center, fill=blue!20, text height=1.1em, text width=9em, sibling distance=38mm},
-	 	level 3/.style = {basic, rounded corners=6pt, thin,align=center, fill=blue!20, text width=8.5em},
-	 	level 4/.style = {basic, thin, align=left, fill=pink!30, text width=7em},
-	 	level 5/.style = {basic, thin, align=left, fill=pink!90, text width=7em},
-		edge from parent/.style={->,draw},
-		>=latex]
-		
-		% root of the the initial tree, level 1
-		\node[root] {\Large Generative models}
-		% The first level, as children of the initial tree
-		child {node[level 2] (c1) {Likelihood-based}
-			child {node[level 3] (c11) {Tractable density}}
-			child {node[level 3] (c12) {Approximate density}}
-		}
-		child {node[level 2] (c2) {Implicit density}};
-	
-		% The second level, relatively positioned nodes
-		\begin{scope}[every node/.style={level 4}]
-			\node [below of = c11, yshift=-5pt, xshift=10pt] (c111) {Autoregressive models};
-			\node [below of = c111, yshift=-5pt] (c112) {Normalizing Flows};
-			\node [below of = c12, xshift=10pt] (c121) {VAEs};
-			
-			\node [below of = c2, xshift=10pt] (c21) {GANs};
-		\end{scope}
-				
-		% The second level, relatively positioned nodes
-		\begin{scope}[every node/.style={level 5}]
-			\node [below of = c121] (c122) {\textbf{Diffusion \\ models}};
-		\end{scope}
-	
-		% lines from each level 1 node to every one of its "children"
-		\foreach \value in {1,2}
-		\draw[->] (c11.194) |- (c11\value.west);
-		
-		\foreach \value in {1,2}
-		\draw[->] (c12.194) |- (c12\value.west);
-		
-		\draw[->] (c2.194) |- (c21.west);
-		
-	\end{tikzpicture}
-\end{frame}
+\section{Langevin dynamic and SDE basics}
 %=======
 \begin{frame}{Langevin dynamic}
 	Imagine that we have some generative model $p(\bx | \btheta)$.
@@ -394,12 +280,14 @@
 	\end{block}
 	What do we get if $\bepsilon = \boldsymbol{0}$?
 	\begin{block}{Energy-based model}
+		\vspace{-0.4cm}
 		\[
 			p(\bx | \btheta) = \frac{\hat{p}(\bx | \btheta)}{Z_{\btheta}}, \quad \text{where } Z_{\btheta} = \int \hat{p}(\bx | \btheta) d \bx
 		\]
 		\[
 			\nabla_{\bx} \log p(\bx | \btheta) = \nabla_{\bx} \log \hat{p}(\bx | \btheta) - \nabla_{\bx} \log Z_{\btheta} = \nabla_{\bx} \log \hat{p}(\bx | \btheta)
 		\]
+		Gradient of normalized density equals to gradient of unnormalized density.
 	\end{block}
 	\myfootnotewithlink{https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf}{Welling M. Bayesian Learning via Stochastic Gradient Langevin Dynamics, 2011}
 \end{frame}
@@ -411,17 +299,17 @@
 	\]
 	\vspace{-0.6cm}
 	\begin{itemize}
-		\item $\bw(t)$ is the standard Wiener process (Brownian motion)
-		\[		
-			\bw(t) - \bw(s) \sim \cN(0, t - s), \quad d \bw = \bepsilon \cdot \sqrt{dt}, \, \text{where } \bepsilon \sim \cN(0, 1).
-		\]
 		 \item $\mathbf{f}(\bx, t)$ is the \textbf{drift} function of $\bx(t)$.
 		 \item $g(t)$ is the \textbf{diffusion} coefficient of $\bx(t)$.
 		 \item If $g(t) = 0$ we get standard ODE.
+		 \item $\bw(t)$ is the standard Wiener process (Brownian motion)
+		 \[		
+		 \bw(t) - \bw(s) \sim \cN(0, t - s), \quad d \bw = \bepsilon \cdot \sqrt{dt}, \, \text{where } \bepsilon \sim \cN(0, 1).
+		 \]
 	\end{itemize}
 	 How to get distribution $p(\bx, t)$ for $\bx(t)$?
  	\begin{block}{Theorem (Kolmogorov-Fokker-Planck)}
- 		Evolution of the distribution $p(\bx | t)$ is given by the folliwing ODE:
+ 		Evolution of the distribution $p(\bx, t)$ is given by the following ODE:
  		\vspace{-0.2cm}
  		\[
  			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right)
@@ -432,27 +320,27 @@
 %=======
 \begin{frame}{Stochastic differential equation (SDE)}
 	\[
-		d\bx = {\color{violet}\mathbf{f}(\bx, t)} dt + {\color{cyan}g(t)} d \bw
+		d\bx = {\color{violet}\mathbf{f}(\bx, t)} dt + {\color{teal}g(t)} d \bw, \quad d \bw = \bepsilon \cdot \sqrt{dt}, \quad \bepsilon \sim \cN(0, 1).
 	\]
 	\vspace{-0.4cm}
 	\begin{block}{Langevin SDE (special case)}
 		\vspace{-0.3cm}
 		\[
-			d \bx = {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{cyan} 1 }d \bw
+			d \bx = {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{teal} 1 }d \bw
 		\]
 		\vspace{-0.6cm}
 	\end{block}
 	\begin{block}{Langevin discrete dynamic}
 		\vspace{-0.3cm}
 		\[
-			\bx_{t + 1} = \bx_t + \eta \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, 1).
+			\bx_{t + 1} = \bx_t + \eta \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
 		\]
 		\vspace{-0.3cm}
 	\end{block}
 	Let apply KFP theorem.
 	\begin{multline*}
-		\frac{\partial p(\bx, t)}{\partial t} =  \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ p(\bx, t) \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t) \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
-		= \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ \frac{1}{2} \frac{\partial}{\partial \bx} p(\bx, t) \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = 0
+		\frac{\partial p(\bx, t)}{\partial t} =  \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}p(\bx, t) \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
+		= \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}\frac{1}{2} \frac{\partial}{\partial \bx} p(\bx, t) } \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = 0
 	\end{multline*}
 	The density $p(\bx, t) = \text{const}$.
 \end{frame}
@@ -475,18 +363,171 @@
 			\includegraphics[width=0.9\linewidth]{figs/langevin_dynamic}
 		\end{figure}
 	\end{minipage}
-	\myfootnotewithlink{https://yang-song.github.io/blog/2019/ssm/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021} 
+	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021} 
 	\end{frame}
+%=======
+\section{Score matching}
+%=======
+\begin{frame}{Generative models zoo}
+	\begin{tikzpicture}[
+		basic/.style  = {draw, text width=2cm, drop shadow, rectangle},
+		root/.style   = {basic, rounded corners=2pt, thin, text height=1.1em, text width=7em, align=center, fill=blue!40},
+		level 1/.style={sibling distance=55mm},
+		level 2/.style = {basic, rounded corners=6pt, thin, align=center, fill=blue!20, text height=1.1em, text width=9em, sibling distance=38mm},
+		level 3/.style = {basic, rounded corners=6pt, thin,align=center, fill=blue!20, text width=8.5em},
+		level 4/.style = {basic, thin, align=left, fill=pink!30, text width=7em},
+		level 5/.style = {basic, thin, align=left, fill=pink!90, text width=7em},
+		edge from parent/.style={->,draw},
+		>=latex]
+		
+		% root of the the initial tree, level 1
+		\node[root] {\Large Generative models}
+		% The first level, as children of the initial tree
+		child {node[level 2] (c1) {Likelihood-based}
+			child {node[level 3] (c11) {Tractable density}}
+			child {node[level 3] (c12) {Approximate density}}
+		}
+		child {node[level 2] (c2) {Implicit density}};
+		
+		% The second level, relatively positioned nodes
+		\begin{scope}[every node/.style={level 4}]
+			\node [below of = c11, yshift=-5pt, xshift=10pt] (c111) {Autoregressive models};
+			\node [below of = c111, yshift=-5pt] (c112) {Normalizing Flows};
+			\node [below of = c12, xshift=10pt] (c121) {VAEs};
+			
+			\node [below of = c2, xshift=10pt] (c21) {GANs};
+		\end{scope}
+		
+		% The second level, relatively positioned nodes
+		\begin{scope}[every node/.style={level 5}]
+			\node [below of = c121] (c122) {\textbf{Diffusion \\ models}};
+		\end{scope}
+		
+		% lines from each level 1 node to every one of its "children"
+		\foreach \value in {1,2}
+		\draw[->] (c11.194) |- (c11\value.west);
+		
+		\foreach \value in {1,2}
+		\draw[->] (c12.194) |- (c12\value.west);
+		
+		\draw[->] (c2.194) |- (c21.west);
+		
+	\end{tikzpicture}
+\end{frame}
+%=======
+\begin{frame}{Score matching}
+	We could sample from the model using Langevin dynamics if we have $\nabla_{\bx}\log p(\bx| \btheta)$.
+	\begin{block}{Fisher divergence}
+		\vspace{-0.3cm}
+		\[
+		D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \nabla_{\bx}\log p(\bx| \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	Let introduce \textbf{score function} $\bs(\bx, \btheta) = \nabla_{\bx}\log p(\bx| \btheta)$. 
+	\vspace{-0.2cm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.75\linewidth]{figs/smld}
+	\end{figure}
+	\vspace{-0.3cm} 
+	\textbf{Problem:} we do not know $\nabla_\bx \log \pi(\bx)$.
+	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Score matching}
+	\begin{block}{Theorem (implicit score matching)}
+		Under some regularity conditions, it holds
+		\vspace{-0.2cm}
+		\[
+		\frac{1}{2} \bbE_{\pi}\bigl\| \bs(\bx, \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 = \bbE_{\pi}\Bigr[ \frac{1}{2}\| \bs(\bx, \btheta) \|_2^2 + \text{tr}\bigl(\nabla_{\bx} \bs(\bx, \btheta)\bigr) \Bigr] + \text{const}
+		\]
+		\vspace{-0.6cm}
+	\end{block}
+	\begin{block}{Proof (only for 1D)}
+		\vspace{-0.6cm}
+		{\small
+			\begin{multline*}
+				\bbE_{\pi}\bigl\| s(x) - \nabla_x \log \pi(x) \bigr\|^2_2 = \bbE_{\pi} \bigl[ s(x)^2 + (\nabla_x \log \pi(x))^2 - 2{\color{teal}[s(x) \nabla_x \log \pi(x) ] \bigr] }
+			\end{multline*}
+			\vspace{-0.8cm}
+			\begin{align*}
+				{\color{teal}\bbE_{\pi} [{\color{violet}s(x) } \nabla_x \log \pi(x) ] } &= \int {\color{olive}\pi(x) {\color{violet}\nabla_x \log p(x)} \nabla_x \log \pi(x)} d x \\ 
+				&= \int {\color{violet}\nabla_x \log p(x) } {\color{olive}\nabla_x \pi(x) } dx = \Bigl.\pi(x) \nabla_x \log p(x) \Bigr|_{-\infty}^{+\infty} \\
+				&- \int \nabla^2_x \log p(x)  \pi(x) dx =- \bbE_{\pi} \nabla^2_x \log p(x) =- \bbE_{\pi} \nabla_x s(x)
+			\end{align*}
+			\[
+			\frac{1}{2} \bbE_{\pi}\bigl\| s(x) - \nabla_x \log \pi(x) \bigr\|^2_2 = \bbE_{\pi} \Bigr[\frac{1}{2} s(x)^2 + \nabla_x s(x) \Bigl]+ \text{const}.
+			\]
+		}
+	\end{block}
+	\myfootnotewithlink{https://jmlr.org/papers/volume6/hyvarinen05a/old.pdf}{Hyvarinen A. Estimation of non-normalized statistical models by score matching, 2005} 
+\end{frame}
+%=======
+\begin{frame}{Score matching}
+	\vspace{-0.3cm}
+	\begin{block}{Theorem (implicit score matching)}
+		\vspace{-0.6cm}
+		\[
+		{\color{violet}\frac{1}{2} \bbE_{\pi}\bigl\| \bs(\bx, \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2} = {\color{teal}\bbE_{\pi}\Bigr[ \frac{1}{2}\| \bs(\bx, \btheta) \|_2^2 + \text{tr}\bigl(\nabla_{\bx} \bs(\bx, \btheta)\bigr) \Bigr]} + \text{const}
+		\]
+		Here $\nabla_{\bx} \bs(\bx, \btheta) = \nabla_{\bx}^2 \log p(\bx | \btheta)$ is a Hessian matrix.
+	\end{block}
+	\begin{enumerate}
+		\item {\color{violet}The left hand side} is intractable due to unknown $\pi(\bx)$ -- \textbf{denoising score matching}. 
+		\item {\color{teal}The right hand side} is complex due to Hessian matrix -- \textbf{sliced score matching}.
+	\end{enumerate}
+	\begin{block}{Sliced score matching (Hutchinson's trace estimation)}
+	\vspace{-0.3cm}
+	\[
+		\text{tr}\bigl(\nabla_{\bx} \bs(\bx, \btheta)\bigr) = \mathbb{E}_{p(\bepsilon)} \left[ {\color{olive}\bepsilon^T \nabla_{\bx} \bs(\bx, \btheta)} \bepsilon \right]
+	\]
+	\end{block}
+	\myfootnote{\href{https://yang-song.net/blog/2021/ssm/}{Song Y. Sliced Score Matching: A Scalable Approach to Density and Score Estimation, 2019} \\
+	\href{https://yang-song.net/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}}
+\end{frame}
+%=======
+\begin{frame}{Denoising score matching}
+	Let perturb original data by normal noise $p(\bx | \bx', \sigma) = \cN(\bx | \bx', \sigma^2 \bI)$
+	\vspace{-0.3cm}
+	\[
+		\pi(\bx | \sigma) = \int \pi(\bx') p(\bx | \bx', \sigma) d\bx'.
+	\]
+	\vspace{-0.6cm} \\
+	Then the solution of 
+	\vspace{-0.2cm}
+	\[
+		\frac{1}{2} \bbE_{\pi(\bx | \sigma)}\bigl\| \bs(\bx, \btheta, \sigma) - \nabla_\bx \log \pi(\bx | \sigma) \bigr\|^2_2 \rightarrow \min_{\btheta}
+	\]
+	\vspace{-0.5cm} \\
+	satisfies $\bs(\bx, \btheta, \sigma) \approx \bs(\bx, \btheta, 0) = \bs(\bx, \btheta)$ if $\sigma$ is small enough.
+	\begin{block}{Theorem}
+	\vspace{-0.8cm}
+	\begin{multline*}
+		\bbE_{\pi(\bx | \sigma)}\bigl\| \bs(\bx, \btheta, \sigma) - \nabla_\bx \log \pi(\bx | \sigma) \bigr\|^2_2 = \\ = \bbE_{\pi(\bx')} \bbE_{p(\bx | \bx', \sigma)}\bigl\| \bs(\bx, \btheta, \sigma) - \nabla_\bx \log p(\bx | \bx', \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+	\end{multline*}
+	\vspace{-0.8cm}
+	\end{block}
+	Here $\nabla_{\bx} \log p(\bx | \bx', \sigma) = - \frac{\bx - \bx'}{\sigma^2}$.
+	\begin{itemize}
+		\item The RHS does not need to compute $\nabla_{\bx} \log \pi(\bx | \sigma)$ and even more $\nabla_{\bx} \log \pi(\bx)$.
+		\item $\bs(\bx, \btheta, \sigma)$ tries to \textbf{denoise} a corrupted sample.
+		\item Score function $\bs(\bx, \btheta, \sigma)$ parametrized by $\sigma$. How to make it?
+	\end{itemize}
+	\myfootnotewithlink{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A Connection Between Score Matching and Denoising Autoencoders, 2010}
+\end{frame}
 %=======
 \begin{frame}{Summary}
 	\begin{itemize}
-		\item Adjoint method generalizes backpropagation procedure and allows to train Neural ODE solving ODE for adjoint function back in time.
-		\vfill
 		\item Kolmogorov-Fokker-Planck theorem allows to construct continuous-in-time normalizing flow with less functional restrictions.
 		\vfill
 		\item FFJORD model makes such kind of flows scalable.
 		\vfill
 		\item Langevin dynamics allows to sample from the model using the score function (due to the existence of stationary distribution for SDE).
+		\vfill
+		\item Score matching proposes to minimize Fisher divergence to get score function.
+		\vfill
+		\item Sliced score matching and denoising score matching are two techniques to get scalable algorithm for fitting Fisher divergence.
 	\end{itemize}
 \end{frame}
 \end{document} 
