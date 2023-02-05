@@ -38,22 +38,22 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 11 | November, 15 | <b>Lecture 6:</b> Autoregressive flows (gausian AR NF/inverse gaussian AR NF). Coupling layer (RealNVP). NF as VAE model. | [slides](lectures/lecture6/Lecture6.pdf) | [video](https://youtu.be/5zQgNGd2Ss8) |
 | 12 | November, 22 | <b>Seminar 6:</b> RealNVP implementation hints. Integer Discrete Flows | [notebook_part1](seminars/seminar6/seminar6_part1.ipynb)<br>[notebook_part2](seminars/seminar6/seminar6_part2.ipynb) | [video](https://youtu.be/12athcbZYSU) |
 | 13 | November, 29 | <b>Lecture 7:</b> Discrete data vs continuous model. Model discretization (PixelCNN++). Data dequantization: uniform and variational (Flow++). ELBO surgery and optimal VAE prior. Flow-based VAE prior. | [slides](lectures/lecture7/Lecture7.pdf) | [video](https://youtu.be/b0f-w6F0NOU) |
-| 14 | December, 6 | <b>Seminar 7:</b>  Discretization of continuous distribution (MADE++). Aggregated posterior distribution in VAE. VAE with learnable prior. | [notebook_part1](seminars/seminar7/seminar7_part1.ipynb)<br>[notebook_part2](seminars/seminar7/seminar7_part2.ipynb) | TBA |
-| 15 |  | <b>Lecture 8:</b> Disentanglement learning (beta-VAE, DIP-VAE + summary). Likelihood-free learning. GAN theorem. | TBA | TBA |
-| 16 |  | <b>Seminar 8:</b> GAN vs VAE vs NF. GAN in 1d coding. | TBA | TBA |
-| 17 |  | <b>Lecture 9:</b> Vanishing gradients and mode collapse, KL vs JSD. Adversarial Variational Bayes. Wasserstein distance. | TBA | TBA |
-| 18 |  | <b>Seminar 9:</b> GAN vs VAE theory. KL vs JS divergences. | TBA | TBA |
-| 19 |  | <b>Lecture 10:</b> Wasserstein GAN. WGAN-GP. Spectral Normalization GAN. f-divergence minimization. | TBA | TBA |
-| 20 |  | <b>Seminar 10:</b> WGAN: practice. Optimal transport task. SN-GAN: practice. | TBA | TBA |
-| 21 |  | <b>Lecture 11:</b> GAN evaluation (Inception score, FID, Precision-Recall, truncation trick). GAN models (Self-Attention GAN, BigGAN, PGGAN, StyleGAN). | TBA | TBA |
-| 22 |  | <b>Seminar 11:</b> StyleGAN: implementation hints. | TBA | TBA |
-| 23 |  | <b>Lecture 12:</b> Discrete VAE latent representations. Vector quantization, straight-through gradient estimation (VQ-VAE). Gumbel-softmax trick (DALL-E). Neural ODE. | TBA | TBA |
-| 24 |  | <b>Seminar 12:</b> NeuralODE explanation. | TBA | TBA |
-| 25 |  | <b>Lecture 13:</b> Adjoint method. Continuous-in-time NF (FFJORD, Hutchinson's trace estimator). Kolmogorov-Fokker-Planck equation and Langevin dynamic. SDE basics. | TBA | TBA |
-| 26 |  | <b>Seminar 13:</b> TBA | TBA | TBA |
-| 27 |  | <b>Lecture 14:</b> Score matching. Noise conditioned score network (NCSN). Denoising diffusion probabilistic model (DDPM). | TBA | TBA |
-| 28 |  | <b>Seminar 14:</b> TBA | TBA | TBA |
-|  |  | <b>Oral exam</b> | TBA | TBA |
+| 14 | December, 6 | <b>Seminar 7:</b>  Discretization of continuous distribution (MADE++). Aggregated posterior distribution in VAE. VAE with learnable prior. | [notebook_part1](seminars/seminar7/seminar7_part1.ipynb)<br>[notebook_part2](seminars/seminar7/seminar7_part2.ipynb) | [video](https://youtu.be/Y1cMl9aG84A) |
+| 15 | February, 7 | <b>Lecture 8:</b> Flows-based VAE posterior vs flow-based VAE prior. Likelihood-free learning. GAN optimality theorem. | TBA | TBA |
+| 16 |  | <b>Seminar 8:</b> VAE with learnable prior. Aggregated posterior. Integer discrete flows. | TBA | TBA |
+| 17 |  | <b>Lecture 9:</b> Vanishing gradients and mode collapse, KL vs JS divergences. Adversarial Variational Bayes. Wasserstein distance. Wasserstein GAN (WGAN). | TBA | TBA |
+| 18 |  | <b>Seminar 9:</b> KL vs JS divergences. Mode collapse. Vanilla GAN in 1D coding. | TBA | TBA |
+| 19 |  | <b>Lecture 10:</b> WGAN with gradient penalty (WGAN-GP). Spectral Normalization GAN (SNGAN). f-divergence minimization. GAN evaluation. | TBA | TBA |
+| 20 |  | <b>Seminar 10:</b> 1-Wasserstein distance introduction: discrete and continuous case. WGAN theory. Vanilla GAN on 2D data practice. | TBA | TBA |
+| 21 |  | <b>Lecture 11:</b> GAN evaluation (Inception score, FID, Precision-Recall, truncation trick). Discrete VAE latent representations. | TBA | TBA |
+| 22 |  | <b>Seminar 11:</b> WGANs on multimodal 2D data. GANs zoo. Evolution of GANs. StyleGAN implementation: start discussion. | TBA | TBA |
+| 23 |  | <b>Lecture 12:</b> Vector quantization, straight-through gradient estimation (VQ-VAE). Gumbel-softmax trick (DALL-E). Neural ODE. Adjoint method. | TBA | TBA |
+| 24 |  | <b>Seminar 12:</b> VQ-VAE implementation hints. StyleGAN coding and assessing. | TBA | TBA |
+| 25 |  | <b>Lecture 13:</b> Continuous-in-time NF (FFJORD, Hutchinson's trace estimator). Kolmogorov-Fokker-Planck equation and Langevin dynamic. SDE basics. Score matching. | TBA | TBA |
+| 26 |  | <b>Seminar 13:</b> CNF theory. Langevin Dynamics. Score matching practice. | TBA | TBA |
+| 27 |  | <b>Lecture 14:</b> Noise conditioned score network (NCSN). Gaussian diffusion process. Denoising diffusion probabilistic model (DDPM). | TBA | TBA |
+| 28 |  | <b>Seminar 14:</b> NCSN and DDPM : theory and implementation on 2D data. | TBA | TBA |
+|  |  | <b>Oral exam</b> |  |  |
 
 ## Homeworks
 | Homework | Date | Deadline | Description | Link |
