@@ -97,7 +97,7 @@
 	\begin{block}{ELBO revisiting}
 		\vspace{-0.4cm}
 		\[
-		\frac{1}{n}\sum_{i=1}^n \cL_i(q, \btheta) = \text{RL} - \text{MI} -  KL(q_{\text{agg}}(\bz) || {\color{teal}p(\bz | \blambda)})
+		\frac{1}{n}\sum_{i=1}^n \cL_i(q, \btheta) = \text{RL} - \text{MI} -  KL(q_{\text{agg}}(\bz) || {\color{violet}p(\bz | \blambda)})
 		\]
 		It is Forward KL with respect to $p(\bz | \blambda)$.
 	\end{block}
@@ -109,17 +109,24 @@
 				= \mathbb{E}_{q(\bz | \bx, \bphi)} \Bigl[ \log p(\bx | \bz, \btheta) + \underbrace{ \Bigl({\color{violet} \log p(f(\bz, \blambda)) + \log \left| \det (\bJ_f) \right|} \Bigr) }_{\text{flow-based prior}} - \log q(\bz | \bx, \bphi) \Bigr] 
 			\end{multline*}
 		}
+		\vspace{-0.5cm}
+		\[
+			\bz = f^{-1}(\bz^*, \blambda) = g(\bz^*, \blambda), \quad \bz^* \sim p(\bz^*) = \cN(0, 1)
+		\]
 	\end{block}
 	\vspace{-0.5cm}
-	\begin{itemize}
-		\item RealNVP with coupling layers.
-		\item Autoregressive flow (fast $f(\bz, \blambda)$, slow $g(\bz^*, \blambda)$).
-	\end{itemize}
 	\myfootnotewithlink{https://arxiv.org/abs/1611.02731}{Chen X. et al. Variational Lossy Autoencoder, 2016}
 \end{frame}
 %=======
-\begin{frame}{Recall of previous lecture}
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
+\section{VAE limitations: posterior distribution}
+%=======
+\begin{frame}{Variational posterior}
 	\begin{block}{ELBO decomposition}
+		\vspace{-0.2cm}
 		\[
 		\log p(\bx | \btheta) = \mathcal{L}(q, \btheta) + KL(q(\bz | \bx, \bphi) || p(\bz | \bx, \btheta)).
 		\]
@@ -127,29 +134,22 @@
 	\begin{itemize}
 		\item E-step of EM-algorithm: $KL(q(\bz | \bx, \bphi) || p(\bz | \bx, \btheta)) = 0$. \\
 		(In this case the lower bound is tight $\log p(\bx | \btheta) = \mathcal{L}(q, \btheta)$). \\
-		\item $q(\bz | \bx, \bphi) = \mathcal{N}(\bz| \bmu_{\bphi}(\bx), \bsigma^2_{\bphi}(\bx))$ is a unimodal distribution (not expressive enough). \\
-		\item NF convert a simple distribution to a complex one. Let use NF in VAE posterior.
+		\item $q(\bz | \bx, \bphi) = \mathcal{N}(\bz| \bmu_{\bphi}(\bx), \bsigma^2_{\bphi}(\bx))$ is a unimodal distribution (not expressive enough). 
 	\end{itemize}
-	Apply a sequence of transformations to the random variable
-	\[
-	\bz \sim q(\bz | \bx, \bphi) = \mathcal{N}(\bz| \bmu_{\bphi}(\bx), \bsigma^2_{\bphi}(\bx)).
-	\]
-	Let $q(\bz | \bx, \bphi)$ (VAE encoder) be a base distribution for a flow model.
+	
+	\begin{figure}
+		\includegraphics[width=0.65\linewidth]{figs/agg_posterior}
+	\end{figure}
+	\myfootnotewithlink{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015} 
 \end{frame}
 %=======
-\begin{frame}{Outline}
-	\tableofcontents
-\end{frame}
-%=======
-\section{Flow-based VAE posterior vs flow-based VAE prior}
-%=======
-\begin{frame}{Flows in VAE posterior}
-	\begin{itemize}
-		\item Encoder outputs base distribution $q(\bz | \bx, \bphi)$.
-		\item Flow model $\bz^* = f(\bz, \blambda)$ transforms the base distribution $q(\bz | \bx, \bphi)$ to the distribution $q(\bz^* | \bx, \bphi, \blambda)$.
-		\item Distribution $q(\bz^* | \bx, \bphi, \blambda)$ is used as a variational distribution for ELBO maximization. 
-		\item Here $\bphi$~-- encoder parameters, $\blambda$~-- flow parameters.
-	\end{itemize}
+\begin{frame}{Normalizing Flows in VAE posterior}
+		\vspace{-0.3cm}
+		\[
+			\mathcal{L}(\bphi, \btheta) = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[ \log p(\bx | \bz, \btheta) + \log p(\bz | \blambda) - {\color{teal}\log q(\bz | \bx, \bphi)} \right]
+		\]
+	Let apply NF to VAE posterior! \\ 
+	Assume $q(\bz | \bx, \bphi)$ (VAE encoder) is a base distribution for a flow model.
 	\begin{block}{Flow model in latent space}
 		\vspace{-0.5cm}
 		\[
@@ -161,73 +161,73 @@
 		\]
 		\vspace{-0.7cm}
 	\end{block}
-	\begin{block}{ELBO with flow-based VAE posterior}
-		\vspace{-0.6cm}
-		\[
-		\mathcal{L} (\bphi, \btheta, \blambda) =  \bbE_{q(\bz^* | \bx, \bphi, \blambda)} \log p(\bx | \bz^*, \btheta) - {\color{violet}KL (q(\bz^* | \bx, \bphi, \blambda) || p(\bz^*))}.
-		\]
-		\vspace{-0.6cm}
-	\end{block}
-	{\color{violet}The second term} in ELBO is \textbf{reverse} KL divergence with respect to $q(\bz^* | \bx, \bphi, \blambda)$.
-	
+	\begin{itemize}
+		\item Encoder outputs base distribution $q(\bz | \bx, \bphi)$.
+		\item Flow model $\bz^* = f(\bz, \blambda)$ transforms the base distribution $q(\bz | \bx, \bphi)$ to the distribution $q(\bz^* | \bx, \bphi, \blambda)$.
+		\item Distribution $q(\bz^* | \bx, \bphi, \blambda)$ is used as a variational distribution for ELBO maximization. 
+		\item Here $\bphi$~-- encoder parameters, $\blambda$~-- flow parameters.
+	\end{itemize}
 	\myfootnotewithlink{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015} 
 \end{frame}
 %=======
-\begin{frame}{Flow-based VAE posterior}
-	\begin{block}{ELBO objective}
-		\vspace{-0.5cm}
-		{ \small
-			\begin{multline*}
-				\mathcal{L} (\bphi, \btheta, \blambda)  
-				= \mathbb{E}_{q(\bz^* | \bx, \bphi, \blambda)} \bigl[\log p(\bx | \bz^*, \btheta) + \log p(\bz^*) - {\color{teal}\log q(\bz^*| \bx, \bphi, \blambda)} \bigr] = \\
-				= \mathbb{E}_{q(\bz^* | \bx, \bphi, \blambda)} \bigg[\log p(\bx| \bz^*, \btheta)  + \log p(\bz^*) - \\ - \Bigl({\color{teal}\log q(g(\bz^*, \blambda) | \bx, \bphi ) + \log | \det \left( \bJ_g ) \right| }\Bigr)  \bigg].
-			\end{multline*}
-		}
-		\vspace{-0.7cm}
+\begin{frame}{Normalizing Flows in VAE posterior}
+	\vspace{-0.2cm}
+	\begin{block}{ELBO with flow-based VAE posterior}
+		\vspace{-0.8cm}
+		\begin{multline*}
+			\mathcal{L} (\bphi, \btheta, \blambda) =  \bbE_{q(\bz^* | \bx, \bphi, \blambda)} \log p(\bx | \bz^*, \btheta) - {\color{olive}KL (q(\bz^* | \bx, \bphi, \blambda) || p(\bz^*))} = \\ = \bbE_{q(\bz^* | \bx, \bphi, \blambda)} \bigl[\log p(\bx | \bz^*, \btheta) + \log p(\bz^*) - {\color{teal}\log q(\bz^*| \bx, \bphi, \blambda)} \bigr] = \\
+			= \bbE_{q(\bz^* | \bx, \bphi, \blambda)} \bigg[\log p(\bx| \bz^*, \btheta)  + \log p(\bz^*) - \\ - \Bigl({\color{teal}\log q(g(\bz^*, \blambda) | \bx, \bphi ) + \log | \det \left( \bJ_g ) \right| }\Bigr)  \bigg].
+		\end{multline*}
 	\end{block}
+	\vspace{-0.7cm}
+	{\color{olive}KL term} in ELBO is \textbf{reverse} KL divergence with respect to $\blambda$.
 	\begin{itemize}
 		\item RealNVP with coupling layers.
 		\item Inverse autoregressive flow (slow $f(\bz, \blambda)$, fast $g(\bz^*, \blambda)$).
 		\item {\color{gray}Is it OK to use AF for VAE posterior?}
 	\end{itemize}
-	\begin{figure}
-		\includegraphics[width=\linewidth]{figs/iaf2.png}
-	\end{figure}
-	
 	\myfootnotewithlink{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015} 
 \end{frame}
 %=======
-\begin{frame}{Flows-based VAE prior vs posterior}
-	\begin{block}{Theorem}
-		VAE with the flow-based prior $p(\bz | \blambda)$ for latent code $\bz^*$ is equivalent to VAE with flow-based posterior $q(\bz^* | \bx, \bphi, \blambda)$ for latent code $\bz$.
-	\end{block}
-	\begin{block}{Proof}
+\begin{frame}{Flows in VAE posterior}
+
+	\begin{block}{Theorem (flow KL duality, Lecture 5)}
+		\vspace{-0.3cm}
+		\[
+			KL(\pi(\bx) || p(\bx | {\color{violet}\btheta})) = KL(p(\bz | {\color{violet}\btheta}) || p(\bz)).
+		\]
 		\vspace{-0.5cm}
-		\begin{align*}
-			\mathcal{L}(\bphi, \btheta, \blambda) &= \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta) - \underbrace{KL( q(\bz | \bx, \bphi) || p(\bz | {\color{violet}\blambda}))}_{\text{flow-based prior}} \\
-			& = \mathbb{E}_{q(\bz^* | \bx, \bphi, \blambda)} \log p(\bx | f(\bz^*, \blambda), \btheta) - \underbrace{KL( q(\bz^* | \bx, \bphi, {\color{violet}\blambda}) || p(\bz^*))}_{\text{flow-based posterior}}
-		\end{align*}
-		(Here we use Flow KL duality theorem from Lecture 5 and LOTUS)
 	\end{block}
-	\begin{itemize}
-		\item IAF posterior decoder path: $\bz \sim p(\bz)$, $\bx \sim p(\bx|\bz, \btheta)$.
-		\item AF prior decoder path: $\bz^* \sim p(\bz^*)$, $\bz = f(\bz^*, \blambda)$, $\bx \sim p(\bx|\bz, \btheta)$. 
-	\end{itemize}
+	\begin{block}{ELBO with flow-based VAE posterior}
+		\vspace{-0.6cm}
+		\begin{align*}
+		\mathcal{L} (\bphi, \btheta, \blambda) &=  \bbE_{q(\bz^* | \bx, \bphi, \blambda)} \log p(\bx | \bz^*, \btheta) - KL (q(\bz^* | \bx, \bphi, \blambda) || p(\bz^*)) \\ 
+		&=  \bbE_{q(\bz | \bx, \bphi)} \log p(\bx | {\color{violet}f(\bz, \blambda)}, \btheta) - KL (q(\bz | \bx, \bphi) || p(\bz | \blambda)).
+		\end{align*}
+		\vspace{-0.6cm}
+	\end{block}
+	{\color{gray}(Here we use Flow KL duality theorem and LOTUS trick.)}
+	
+	\begin{block}{ELBO with flow-based VAE prior}
+		\vspace{-0.5cm}
+		\[
+			\mathcal{L}(\bphi, \btheta, \blambda) = \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | {\color{violet}\bz}, \btheta) - KL( q(\bz | \bx, \bphi) || p(\bz | {\color{violet}\blambda}))
+		\]
+		\vspace{-0.5cm}
+	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1611.02731}{Chen X. et al. Variational Lossy Autoencoder, 2016}
 \end{frame}
 %=======
 \begin{frame}{Flows-based VAE prior vs posterior}
-	\vspace{-0.2cm}
-	\begin{figure}
-		\includegraphics[width=0.9\linewidth]{figs/iaf1.png}
-	\end{figure}
-	\vspace{-0.3cm}
+	\vspace{-1.5cm}
 	\begin{figure}
 		\includegraphics[width=0.65\linewidth]{figs/prior_vs_posterior}
 	\end{figure}
-	
-	\myfootnote{\href{https://arxiv.org/abs/1606.04934}{Kingma D. P. et al. Improving Variational Inference with Inverse Autoregressive Flow, 2016} \\
-		\href{https://courses.cs.washington.edu/courses/cse599i/20au/slides/L09_flow.pdf}{image credit: https://courses.cs.washington.edu/courses/cse599i/20au}}
+	\begin{itemize}
+		\item Flow-based posterior decoder path: $\bz \sim p(\bz)$, $\bx \sim p(\bx|\bz, \btheta)$.
+		\item Flow-based prior decoder path: $\bz^* \sim p(\bz^*)$, $\bz = f(\bz^*, \blambda)$, $\bx \sim p(\bx|\bz, \btheta)$. 
+	\end{itemize}
+	\myfootnotewithlink{https://courses.cs.washington.edu/courses/cse599i/20au/slides/L09_flow.pdf}{image credit: https://courses.cs.washington.edu/courses/cse599i/20au}
 \end{frame}
 %=======
 \begin{frame}{VAE limitations}
@@ -254,7 +254,6 @@
 \section{Likelihood-free learning}
 %=======
 \begin{frame}{Likelihood based models}
-	Is likelihood a good measure of model quality?
 	\begin{minipage}[t]{0.48\columnwidth}
 		\begin{block}{Poor likelihood \\ Great samples}
 			\vspace{-0.3cm}
@@ -276,14 +275,14 @@
 		Noisy irrelevant samples, but for high dimensions $\log p(\bx)$ becomes proportional to $m$.
 		\end{block}
 	\end{minipage}
-	\myfootnotewithlink{https://arxiv.org/abs/1511.01844}{Theis L., Oord A., Bethge M. A note on the evaluation of generative models, 2015}
-\end{frame}
-%=======
-\begin{frame}{Likelihood-free learning}
 	\begin{itemize}
 		\item Likelihood is not a perfect quality measure for generative model.
 		\item Likelihood could be intractable.
 	\end{itemize}
+	\myfootnotewithlink{https://arxiv.org/abs/1511.01844}{Theis L., Oord A., Bethge M. A note on the evaluation of generative models, 2015}
+\end{frame}
+%=======
+\begin{frame}{Likelihood-free learning}
 	\begin{block}{Where did we start}
 	 We would like to approximate true data distribution $\pi(\bx)$.
 		Instead of searching true $\pi(\bx)$ over all probability distributions, learn function approximation $p(\bx | \btheta) \approx \pi(\bx)$.
@@ -293,44 +292,38 @@
 		\item $\cS_1 = \{\bx_i\}_{i=1}^{n_1} \sim \pi(\bx)$ -- real samples;
 		\item $\cS_2 = \{\bx_i\}_{i=1}^{n_2} \sim p(\bx | \btheta)$ -- generated (or fake) samples.
 	\end{itemize}
-	\begin{block}{Two sample test}
-		\vspace{-0.3cm}
-		\[
-			H_0: \pi(\bx) = p(\bx | \btheta), \quad H_1: \pi(\bx) \neq p(\bx | \btheta)
-		\]
+	Let define discriminative model (classifier):
+	\[
+		p(y = 1 | \bx) = P\bigl(\{\bx \sim \pi(\bx)\}\bigr); \quad p(y = 0 | \bx) = P\bigl(\{\bx \sim p(\bx | \btheta)\}\bigr)
+	\]
+	\vspace{-0.5cm}
+	\begin{block}{Assumption}
+		Generative distribution $p(\bx | \btheta)$ equals to the true distribution $\pi(\bx)$ if we can not distinguish them using discriminative model $p(y | \bx)$. \\
+		It means that $p(y = 1 | \bx) = 0.5$ for each sample $\bx$.
 	\end{block}
-	Define test statistic $T(\cS_1, \cS_2)$. The test statistic is likelihood free.
-	If $T(\cS_1, \cS_2) < \alpha$, then accept $H_0$, else reject it.
-\end{frame}
-%=======
-\begin{frame}{Likelihood-free learning}
-	\begin{block}{Two sample test}
-		\vspace{-0.5cm}
-		\[
-			H_0: \pi(\bx) = p(\bx | \btheta), \quad H_1: \pi(\bx) \neq p(\bx | \btheta)
-		\]
-		\vspace{-0.8cm}
-	\end{block}
-	\begin{block}{Desired behaviour}
-		\begin{itemize}
-			\item $p(\bx | \btheta)$ minimizes the value of test statistic~$T(\cS_1, \cS_2)$.
-			\item It is hard to find an appropriate test statistic in high dimensions. $T(\cS_1, \cS_2)$ could be learnable.
-		\end{itemize}
-	\end{block}
-	\vspace{-0.3cm}
-	\begin{block}{Generative adversarial network (GAN) objective}
-		\begin{itemize}
-			\item \textbf{Generator:} generative model $\bx = G(\bz)$, which makes generated sample more realistic. Here $\bz \sim p(\bz)$, $\bx \sim p(\bx | \btheta)$.
-			\item \textbf{Discriminator:} a classifier $D(\bx) \in [0, 1]$, which distinguishes real samples from generated samples.
-		\end{itemize}
-		\[
-			\min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bx | \btheta)} \log (1 - D(\bx)) \right]
-		\]
-	\end{block}
-	 \myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
+
 \end{frame}
 %=======
 \section{Generative adversarial networks (GAN)}
+%=======
+\begin{frame}{Likelihood-free learning}
+	The more powerful discriminative model we will have, the more likely we got the "best" generative distribution $p(\bx | \btheta)$. \\
+	The most common way to learn a classifier is to minimize cross entropy loss.
+	\begin{itemize}
+		\item \textbf{Generator:} generative model $\bx = G(\bz)$, which makes generated sample more realistic. Here $\bz$ comes from the base (known) distribution $p(\bz)$ and $\bx \sim p(\bx | \btheta)$. Generator tries to \textbf{minimize} cross entropy.
+		\item \textbf{Discriminator:} a classifier $p(y = 1 | \bx) = D(\bx) \in [0, 1]$, which distinguishes real samples from generated samples. Discriminator tries to \textbf{maximize} cross entropy (tries to enhance discriminative model).
+	\end{itemize}
+	\begin{block}{Generative adversarial network (GAN) objective}
+		\vspace{-0.5cm}
+		\[
+			\min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bx | \btheta)} \log (1 - D(\bx)) \right] 
+		\]
+		\[
+			\min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz))) \right]
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
+\end{frame}
 %=======
 \begin{frame}{Generative models zoo}
 	\begin{tikzpicture}[
@@ -453,7 +446,7 @@
 	 \myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
 \end{frame}
 %=======
-\begin{frame}{GAN}
+\begin{frame}{GAN training}
 	Let futher assume that generator and discriminator are parametric models: $D(\bx, \bphi)$ and $G(\bz, \btheta)$.
 	\begin{block}{Objective}
 		\vspace{-0.7cm}
@@ -478,7 +471,9 @@
 %=======
 \begin{frame}{Summary}
 	\begin{itemize}
-		\item It is possible to use flows in VAE prior and posterior. This is almost the same. 
+		\item We could use flows to make variational posterior more expressive. 
+		\vfill
+		\item It is possible to use flows in VAE prior and posterior. It is {\color{gray}(almost)} equivalent. 
 		\vfill
 		\item Likelihood is not a perfect criteria to measure quality of generative model.
 		\vfill		

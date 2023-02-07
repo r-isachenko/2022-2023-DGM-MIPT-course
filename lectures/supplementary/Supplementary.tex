@@ -1884,6 +1884,57 @@ where $i$ is treated as random variable:
 %=======
 \section{GANs}
 %=======
+\begin{frame}{Likelihood-free learning}
+	\begin{itemize}
+		\item Likelihood is not a perfect quality measure for generative model.
+		\item Likelihood could be intractable.
+	\end{itemize}
+	\begin{block}{Where did we start}
+	 We would like to approximate true data distribution $\pi(\bx)$.
+		Instead of searching true $\pi(\bx)$ over all probability distributions, learn function approximation $p(\bx | \btheta) \approx \pi(\bx)$.
+	\end{block}
+	Imagine we have two sets of samples 
+	\begin{itemize}
+		\item $\cS_1 = \{\bx_i\}_{i=1}^{n_1} \sim \pi(\bx)$ -- real samples;
+		\item $\cS_2 = \{\bx_i\}_{i=1}^{n_2} \sim p(\bx | \btheta)$ -- generated (or fake) samples.
+	\end{itemize}
+	\begin{block}{Two sample test}
+		\vspace{-0.3cm}
+		\[
+			H_0: \pi(\bx) = p(\bx | \btheta), \quad H_1: \pi(\bx) \neq p(\bx | \btheta)
+		\]
+	\end{block}
+	Define test statistic $T(\cS_1, \cS_2)$. The test statistic is likelihood free.
+	If $T(\cS_1, \cS_2) < \alpha$, then accept $H_0$, else reject it.
+\end{frame}
+%=======
+\begin{frame}{Likelihood-free learning}
+	\begin{block}{Two sample test}
+		\vspace{-0.5cm}
+		\[
+			H_0: \pi(\bx) = p(\bx | \btheta), \quad H_1: \pi(\bx) \neq p(\bx | \btheta)
+		\]
+		\vspace{-0.8cm}
+	\end{block}
+	\begin{block}{Desired behaviour}
+		\begin{itemize}
+			\item $p(\bx | \btheta)$ minimizes the value of test statistic~$T(\cS_1, \cS_2)$.
+			\item It is hard to find an appropriate test statistic in high dimensions. $T(\cS_1, \cS_2)$ could be learnable.
+		\end{itemize}
+	\end{block}
+	\vspace{-0.3cm}
+	\begin{block}{Generative adversarial network (GAN) objective}
+		\begin{itemize}
+			\item \textbf{Generator:} generative model $\bx = G(\bz)$, which makes generated sample more realistic. Here $\bz \sim p(\bz)$, $\bx \sim p(\bx | \btheta)$.
+			\item \textbf{Discriminator:} a classifier $D(\bx) \in [0, 1]$, which distinguishes real samples from generated samples.
+		\end{itemize}
+		\[
+			\min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bx | \btheta)} \log (1 - D(\bx)) \right]
+		\]
+	\end{block}
+	 \myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
+\end{frame}
+%=======
 \subsection{DCGAN}
 %=======
 \begin{frame}{Vanilla GAN results}

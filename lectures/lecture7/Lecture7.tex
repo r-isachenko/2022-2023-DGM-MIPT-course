@@ -316,9 +316,7 @@
 	\myfootnotewithlink{http://approximateinference.org/accepted/HoffmanJohnson2016.pdf}{Hoffman M. D., Johnson M. J. ELBO surgery: yet another way to carve up the variational evidence lower bound, 2016}
 \end{frame}
 %=======
-\section{VAE limitations}
-%=======
-\subsection{VAE prior}
+\section{VAE limitations: prior distribution}
 %=======
 \begin{frame}{VAE limitations}
 	\begin{itemize}
@@ -399,51 +397,8 @@
 				= \mathbb{E}_{q(\bz | \bx, \bphi)} \Bigl[ \log p(\bx | \bz, \btheta) + \underbrace{ \Bigl({\color{violet} \log p(f(\bz, \blambda)) + \log \left| \det (\bJ_f) \right|} \Bigr) }_{\text{flow-based prior}} - \log q(\bz | \bx, \bphi) \Bigr] 
 		\end{multline*}
 		}
-		{\color{gray}Is it possible to use non-invertible model in VAE prior?}
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1611.02731}{Chen X. et al. Variational Lossy Autoencoder, 2016}
-\end{frame}
-%=======
-\subsection{VAE posterior}
-%=======
-\begin{frame}{VAE limitations}
-	\begin{itemize}
-		\item Poor generative distribution (decoder)
-		\[
-		p(\bx | \bz, \btheta) = \mathcal{N}(\bx| \bmu_{\btheta}(\bz), \bsigma^2_{\btheta}(\bz)) \quad \text{or } = \text{Softmax}(\bpi_{\btheta}(\bz)).
-		\]
-		\item Loose lower bound
-		\[
-		\log p(\bx | \btheta) - \mathcal{L}(q, \btheta) = (?).
-		\]
-		\item Poor prior distribution
-		\[
-		p(\bz) = \mathcal{N}(0, \mathbf{I}).
-		\]
-		\item \textbf{Poor variational posterior distribution (encoder)}
-		\[
-		q(\bz | \bx, \bphi) = \mathcal{N}(\bz| \bmu_{\bphi}(\bx), \bsigma^2_{\bphi}(\bx)).
-		\]
-	\end{itemize}
-\end{frame}
-%=======
-\begin{frame}{Variational posterior}
-	\begin{block}{ELBO decomposition}
-		\[
-		\log p(\bx | \btheta) = \mathcal{L}(q, \btheta) + KL(q(\bz | \bx, \bphi) || p(\bz | \bx, \btheta)).
-		\]
-	\end{block}
-	\begin{itemize}
-		\item E-step of EM-algorithm: $KL(q(\bz | \bx, \bphi) || p(\bz | \bx, \btheta)) = 0$. \\
-		(In this case the lower bound is tight $\log p(\bx | \btheta) = \mathcal{L}(q, \btheta)$). \\
-		\item $q(\bz | \bx, \bphi) = \mathcal{N}(\bz| \bmu_{\bphi}(\bx), \bsigma^2_{\bphi}(\bx))$ is a unimodal distribution (not expressive enough). \\
-		\item NF convert a simple distribution to a complex one. Let use NF in VAE posterior.
-	\end{itemize}
-	Apply a sequence of transformations to the random variable
-	\[
-		\bz \sim q(\bz | \bx, \bphi) = \mathcal{N}(\bz| \bmu_{\bphi}(\bx), \bsigma^2_{\bphi}(\bx)).
-	\]
-	Let $q(\bz | \bx, \bphi)$ (VAE encoder) be a base distribution for a flow model.
 \end{frame}
 %=======
 \begin{frame}{Summary}
@@ -455,8 +410,6 @@
 		\item The ELBO surgery reveals insights about a prior distribution in VAE. The optimal prior is the aggregated posterior.
 		\vfill
 		\item We could use flow-based prior in VAE (even autoregressive).
-		\vfill
-		\item We could use flows to make variational posterior more expressive. 
 	\end{itemize}
 \end{frame}
 
