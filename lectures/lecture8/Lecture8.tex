@@ -146,7 +146,7 @@
 \begin{frame}{Normalizing Flows in VAE posterior}
 		\vspace{-0.3cm}
 		\[
-			\mathcal{L}(\bphi, \btheta) = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[ \log p(\bx | \bz, \btheta) + \log p(\bz | \blambda) - {\color{teal}\log q(\bz | \bx, \bphi)} \right]
+			\mathcal{L}(\bphi, \btheta) = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[ \log p(\bx | \bz, \btheta) + \log p(\bz) - {\color{teal}\log q(\bz | \bx, \bphi)} \right]
 		\]
 	Let apply NF to VAE posterior! \\ 
 	Assume $q(\bz | \bx, \bphi)$ (VAE encoder) is a base distribution for a flow model.
@@ -189,7 +189,7 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015} 
 \end{frame}
 %=======
-\begin{frame}{Flows in VAE posterior}
+\begin{frame}{Normalizing Flows in VAE posterior}
 
 	\begin{block}{Theorem (flow KL duality, Lecture 5)}
 		\vspace{-0.3cm}
@@ -211,7 +211,7 @@
 	\begin{block}{ELBO with flow-based VAE prior}
 		\vspace{-0.5cm}
 		\[
-			\mathcal{L}(\bphi, \btheta, \blambda) = \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | {\color{violet}\bz}, \btheta) - KL( q(\bz | \bx, \bphi) || p(\bz | {\color{violet}\blambda}))
+			\mathcal{L}(\bphi, \btheta, \blambda) = \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | {\color{violet}\bz}, \btheta) - KL( q(\bz | \bx, \bphi) || p(\bz | \blambda))
 		\]
 		\vspace{-0.5cm}
 	\end{block}
@@ -310,8 +310,8 @@
 	The more powerful discriminative model we will have, the more likely we got the "best" generative distribution $p(\bx | \btheta)$. \\
 	The most common way to learn a classifier is to minimize cross entropy loss.
 	\begin{itemize}
-		\item \textbf{Generator:} generative model $\bx = G(\bz)$, which makes generated sample more realistic. Here $\bz$ comes from the base (known) distribution $p(\bz)$ and $\bx \sim p(\bx | \btheta)$. Generator tries to \textbf{minimize} cross entropy.
-		\item \textbf{Discriminator:} a classifier $p(y = 1 | \bx) = D(\bx) \in [0, 1]$, which distinguishes real samples from generated samples. Discriminator tries to \textbf{maximize} cross entropy (tries to enhance discriminative model).
+		\item \textbf{Generator:} generative model $\bx = G(\bz)$, which makes generated sample more realistic. Here $\bz$ comes from the base (known) distribution $p(\bz)$ and $\bx \sim p(\bx | \btheta)$. Generator tries to \textbf{maximize} cross entropy.
+		\item \textbf{Discriminator:} a classifier $p(y = 1 | \bx) = D(\bx) \in [0, 1]$, which distinguishes real samples from generated samples. Discriminator tries to \textbf{minimize} cross entropy (tries to enhance discriminative model).
 	\end{itemize}
 	\begin{block}{Generative adversarial network (GAN) objective}
 		\vspace{-0.5cm}

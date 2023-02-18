@@ -11,26 +11,25 @@
 %=======
 \begin{frame}{Recap of previous lecture}
 	\begin{block}{ELBO with flow-based VAE posterior}
-		\vspace{-0.5cm}
-		\[
-			\log q(\bz^* | \bx, \bphi, \blambda) = \log q(\bz | \bx, \bphi) + \log \left | \det \left( \frac{d \bz}{d \bz^*}\right) \right|
-		\]
-		\vspace{-0.3cm}
-		\[
-		\mathcal{L} (\bphi, \btheta, \blambda) =  \bbE_{q(\bz^* | \bx, \bphi, \blambda)} \log p(\bx | \bz^*, \btheta) - {\color{violet}KL (q(\bz^* | \bx, \bphi, \blambda) || p(\bz^*))}.
-		\]
+		\vspace{-0.7cm}
+		\begin{align*}
+		\mathcal{L} (\bphi, \btheta, \blambda) &=  \bbE_{q(\bz^* | \bx, \bphi, \blambda)} \log p(\bx | \bz^*, \btheta) - KL (q(\bz^* | \bx, \bphi, \blambda) || p(\bz^*)) \\ 
+		&=  \bbE_{q(\bz | \bx, \bphi)} \log p(\bx | {\color{violet}f(\bz, \blambda)}, \btheta) - KL (q(\bz | \bx, \bphi) || p(\bz | \blambda)).
+		\end{align*}
 		\vspace{-0.6cm}
 	\end{block}
-	{\color{violet}The second term} in ELBO is \textbf{reverse} KL divergence with respect to $q(\bz^* | \bx, \bphi, \blambda)$.
-		\begin{block}{Theorem}
-		VAE with the flow-based prior $p(\bz | \blambda)$ for latent code $\bz^*$ is equivalent to VAE with flow-based posterior $q(\bz^* | \bx, \bphi, \blambda)$ for latent code $\bz$.
+	\begin{block}{ELBO with flow-based VAE prior}
+		\vspace{-0.5cm}
+		\[
+			\mathcal{L}(\bphi, \btheta, \blambda) = \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | {\color{violet}\bz}, \btheta) - KL( q(\bz | \bx, \bphi) || p(\bz | \blambda))
+		\]
+		\vspace{-0.5cm}
 	\end{block}
-	\vspace{-0.7cm}
-	\begin{align*}
-		\mathcal{L}(\bphi, \btheta, \blambda) &= \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz, \btheta) - \underbrace{KL( q(\bz | \bx, \bphi) || p(\bz | {\color{violet}\blambda}))}_{\text{flow-based prior}} \\
-		& = \mathbb{E}_{q(\bz^* | \bx, \bphi, \blambda)} \log p(\bx | f(\bz^*, \blambda), \btheta) - \underbrace{KL( q(\bz^* | \bx, \bphi, {\color{violet}\blambda}) || p(\bz^*))}_{\text{flow-based posterior}}
-	\end{align*}
-	\myfootnotewithlink{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015} 
+	\begin{figure}
+		\includegraphics[width=0.65\linewidth]{figs/prior_vs_posterior}
+	\end{figure}
+	\myfootnote{\href{https://arxiv.org/abs/1611.02731}{Chen X. et al. Variational Lossy Autoencoder, 2016} \\
+	\href{https://courses.cs.washington.edu/courses/cse599i/20au/slides/L09_flow.pdf}{image credit: https://courses.cs.washington.edu/courses/cse599i/20au}}
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
@@ -45,17 +44,15 @@
 		\item $\cS_1 = \{\bx_i\}_{i=1}^{n_1} \sim \pi(\bx)$ -- real samples;
 		\item $\cS_2 = \{\bx_i\}_{i=1}^{n_2} \sim p(\bx | \btheta)$ -- generated (or fake) samples.
 	\end{itemize}
-	\begin{block}{Two sample test}
-		\vspace{-0.3cm}
-		\[
-			H_0: \pi(\bx) = p(\bx | \btheta), \quad H_1: \pi(\bx) \neq p(\bx | \btheta)
-		\]
+	Let define discriminative model (classifier):
+	\[
+		p(y = 1 | \bx) = P\bigl(\{\bx \sim \pi(\bx)\}\bigr); \quad p(y = 0 | \bx) = P\bigl(\{\bx \sim p(\bx | \btheta)\}\bigr)
+	\]
+	\vspace{-0.5cm}
+	\begin{block}{Assumption}
+		Generative distribution $p(\bx | \btheta)$ equals to the true distribution $\pi(\bx)$ if we can not distinguish them using discriminative model $p(y | \bx)$. \\
+		It means that $p(y = 1 | \bx) = 0.5$ for each sample $\bx$.
 	\end{block}
-	If test statistic $T(\cS_1, \cS_2) < \alpha$, then accept $H_0$, else reject it.
-		\begin{itemize}
-			\item $p(\bx | \btheta)$ minimizes the value of test statistic~$T(\cS_1, \cS_2)$.
-			\item It is hard to find an appropriate test statistic in high dimensions. $T(\cS_1, \cS_2)$ could be learnable.
-		\end{itemize}
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
@@ -377,15 +374,15 @@
 %=======
 \begin{frame}{Wasserstein distance (continuous)}
 	\[
-		W(\pi, p) = \inf_{\gamma \in \Gamma(\pi, p)} \bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \| =  \inf_{\gamma \in \Gamma(\pi, p)} \int \| \bx - \by \| \gamma (\bx, \by) d \bx d \by
+		W(\pi, p) = \inf_{\gamma \in \Gamma(\pi, p)} \bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \| =  \inf_{{\color{olive}\gamma}\in {\color{teal}\Gamma(\pi, p)}} \int {\color{violet} \| \bx - \by \|} {\color{olive}\gamma (\bx, \by)} d \bx d \by
 	\]
 	\begin{itemize}
-		\item $\gamma(\bx, \by)$ -- transportation plan (the amount of "dirt" that should be transported from point $\bx$ to point $\by$)
+		\item ${\color{olive}\gamma (\bx, \by)}$ -- transportation plan (the amount of "dirt" that should be transported from point $\bx$ to point $\by$)
 		\[
 			 \int \gamma(\bx, \by) d \bx = p(\by); \quad \int \gamma(\bx, \by) d \by = \pi(\bx).
 		\]
-		\item $\Gamma(\pi, p)$ -- the set of all joint distributions $\gamma (\bx, \by)$ with marginals $\pi$ and $p$.
-		\item $\gamma(\bx, \by)$ -- the amount, $\|\bx - \by \|$-- the distance.
+		\item ${\color{teal}\Gamma(\pi, p)}$ -- the set of all joint distributions $\gamma (\bx, \by)$ with marginals $\pi$ and $p$.
+		\item ${\color{olive}\gamma(\bx, \by)}$ -- the amount, ${\color{violet} \| \bx - \by \|}$-- the distance.
 	\end{itemize}
 	{\color{gray}For better understanding of transportation plan function $\gamma$, try to write down the plan for previous discrete case.}
 	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
