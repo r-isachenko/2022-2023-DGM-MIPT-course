@@ -64,12 +64,12 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 4 | November, 9 | November, 23 | ResNetVAE on CIFAR10. | Available at the course chat |
 | 5 | November, 23 | December, 7 | <ol><li>Theory (Sylvester flows).</li><li>RealNVP on 2D data.</li><li>RealNVP on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw5.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw5.ipynb) |
 | 6 | December, 7 | December, 16 | <ol><li>Theory (MI in ELBO surgery).</li><li>VAE with AR decoder on MNIST.</li><li>VAE with AR prior on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw6.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw6.ipynb) |
-| 7 |  |  | TBA | TBA |
-| 8 |  |  | TBA | TBA |
-| 9 |  |  | TBA | TBA |
-| 10 |  |  | TBA | TBA |
-| 11 |  |  | TBA | TBA |
-| 12 |  |  | TBA | TBA |
+| 7 | February, 22 | March, 8 | Vanilla GAN on CIFAR10. | Available at the course chat |
+| 8 | March, 8 | March, 22 | TBA | TBA |
+| 9 | March, 22 | April, 5 | TBA | TBA |
+| 10 | April, 5 | April, 19 | TBA | TBA |
+| 11 | April, 19 | May, 3 | TBA | TBA |
+| 12 | May, 3 | May, 17 | TBA | TBA |
 
 ## Game rules
 - 6 homeworks each of 13 points = **78 points**
