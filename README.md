@@ -42,7 +42,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 15 | February, 7 | <b>Lecture 8:</b> Flows-based VAE posterior vs flow-based VAE prior. Likelihood-free learning. GAN optimality theorem. | [slides](lectures/lecture8/Lecture8.pdf) | [video](https://youtu.be/ISO3udXBf-I) |
 | 16 | February, 14 | <b>Seminar 8:</b> Glow implementation. Vanilla GAN in 1D coding. | [VanillaGAN_todo](seminars/seminar8/GAN_colab.ipynb)<br>[VanillaGAN_done](seminars/seminar8/GAN_colab_with_code.ipynb)<br>[Glow](seminars/seminar8/Glow.ipynb) | [video](https://youtu.be/M8h1b2QOD44) |
 | 17 | February, 21 | <b>Lecture 9:</b> Vanishing gradients and mode collapse, KL vs JS divergences. Adversarial Variational Bayes. Wasserstein distance. Wasserstein GAN (WGAN). | [slides](lectures/lecture9/Lecture9.pdf) | [video](https://youtu.be/mbHiRvvTF3Q) |
-| 18 | February, 28 | <b>Seminar 9:</b> KL vs JS divergences. Mode collapse. Vanilla GAN in 1D coding. | TBA | TBA |
+| 18 | February, 28 | <b>Seminar 9:</b> KL vs JS divergences. Mode collapse. Vanilla GAN in 1D coding. | TBA | [video](https://youtu.be/rTtl7UqCos4) |
 | 19 | March, 7 | <b>Lecture 10:</b> WGAN with gradient penalty (WGAN-GP). Spectral Normalization GAN (SNGAN). f-divergence minimization. GAN evaluation. | TBA | TBA |
 | 20 | March, 14 | <b>Seminar 10:</b> 1-Wasserstein distance introduction: discrete and continuous case. WGAN theory. Vanilla GAN on 2D data practice. | TBA | TBA |
 | 21 | March, 21 | <b>Lecture 11:</b> GAN evaluation (Inception score, FID, Precision-Recall, truncation trick). Discrete VAE latent representations. | TBA | TBA |
