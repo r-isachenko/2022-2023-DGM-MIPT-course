@@ -1,5 +1,6 @@
 from collections import defaultdict
 from tqdm.notebook import tqdm
+from typing import Tuple
 
 import torch
 from torch import optim
@@ -54,7 +55,7 @@ def train_model(
     use_tqdm: bool = False,
     use_cuda: bool = False,
     loss_key: str = "total_loss",
-) -> tuple[dict, dict]:
+) -> Tuple[dict, dict]:
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
     train_losses = defaultdict(list)

@@ -1,9 +1,10 @@
 import numpy as np
+from typing import Tuple
 
 import torchvision
 
 
-def load_MNIST() -> tuple[np.ndarray, np.ndarray]:
+def load_MNIST() -> Tuple[np.ndarray, np.ndarray]:
     train_data = torchvision.datasets.MNIST(root="./", train=True, download=True)
     test_data = torchvision.datasets.MNIST(root="./", train=True, download=True)
     train_data, test_data = train_data.data.numpy(), test_data.data.numpy()
@@ -14,7 +15,7 @@ def load_MNIST() -> tuple[np.ndarray, np.ndarray]:
     return train_data, test_data
 
 
-def load_CIFAR10() -> tuple[np.ndarray, np.ndarray]:
+def load_CIFAR10() -> Tuple[np.ndarray, np.ndarray]:
     train_data = torchvision.datasets.CIFAR10(root="./", train=True, download=True)
     test_data = torchvision.datasets.CIFAR10(root="./", train=False, download=True)
     train_data, test_data = train_data.data, test_data.data
@@ -22,7 +23,7 @@ def load_CIFAR10() -> tuple[np.ndarray, np.ndarray]:
     return train_data, test_data
 
 
-def _load_dataset(name: str) -> tuple[np.ndarray, np.ndarray]:
+def _load_dataset(name: str) -> Tuple[np.ndarray, np.ndarray]:
     if name == "mnist":
         return load_MNIST()
     elif name == "cifar10":
@@ -33,7 +34,7 @@ def _load_dataset(name: str) -> tuple[np.ndarray, np.ndarray]:
 
 def load_dataset(
     name: str, flatten: bool = False, binarize: bool = True
-) -> tuple[np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray]:
 
     train_data, test_data = _load_dataset(name)
 
