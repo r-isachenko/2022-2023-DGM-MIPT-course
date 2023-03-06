@@ -20,7 +20,7 @@
 	What is the problem to make the variational posterior model an \textbf{implicit} model? \\
 	 We have to estimate density ratio (in KL term)
 	\[
-		r(\bx, \bz) = \frac{q_1(\bx, \bz)}{q_2(\bx, \bz)} = \frac{q(\bz| \bx, \bphi) \pi (\bx)}{p(\bz) \pi(\bx)}.
+		r(\bx, \bz) = \frac{q_1(\bx, \bz)}{q_2(\bx, \bz)} = \frac{q(\bz| \bx, \bphi) \pi (\bx)}{p(\bz) \pi(\bx)} = \frac{D(\bx, \bz)}{1 - D(\bx, \bz)}.
 	\] 
 	\begin{block}{Adversarial Variational Bayes}
 		\vspace{-0.6cm}
@@ -103,7 +103,7 @@
 	\tableofcontents
 \end{frame}
 %=======
-\section{Lipschitzness of Wassestein GAN critic}
+\section{Lipschitzness of Wasserstein GAN critic}
 %=======
 \subsection{WGAN with Gradient Penalty}
 %=======
@@ -151,7 +151,7 @@
 	\begin{block}{Gradient penalty}
 		\vspace{-0.3cm}
 		\[
-			W(\pi || p) = \underbrace{\bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)}_{\text{original critic loss}} + \lambda \underbrace{\bbE_{U[0, 1]} \left[ \left( \| \nabla_{\hat{\bx}} f(\hat{\bx}) \|_2 - 1 \right) ^ 2\right]}_{\text{gradient penalty}},
+			W(\pi || p) = \underbrace{\bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)}_{\text{original critic loss}} + \lambda \underbrace{\bbE_{U[0, 1]} \left[ \left( \| \nabla f(\hat{\bx}) \|_2 - 1 \right) ^ 2\right]}_{\text{gradient penalty}},
 		\]
 		\vspace{-0.3cm}
 	\end{block}
