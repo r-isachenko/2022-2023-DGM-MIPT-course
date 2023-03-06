@@ -1,5 +1,5 @@
 from .training import train_model
-from .data import load_pickle, load_dataset
+from .data import load_dataset
 from .visualize import (
     plot_training_curves,
     show_samples,
