@@ -43,7 +43,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 16 | February, 14 | <b>Seminar 8:</b> Glow implementation. Vanilla GAN in 1D coding. | [VanillaGAN_todo](seminars/seminar8/GAN_colab.ipynb)<br>[VanillaGAN_done](seminars/seminar8/GAN_colab_with_code.ipynb)<br>[Glow](seminars/seminar8/Glow.ipynb) | [video](https://youtu.be/M8h1b2QOD44) |
 | 17 | February, 21 | <b>Lecture 9:</b> Vanishing gradients and mode collapse, KL vs JS divergences. Adversarial Variational Bayes. Wasserstein distance. Wasserstein GAN (WGAN). | [slides](lectures/lecture9/Lecture9.pdf) | [video](https://youtu.be/mbHiRvvTF3Q) |
 | 18 | February, 28 | <b>Seminar 9:</b> KL vs JS divergences. Mode collapse. Vanilla GAN on multimodal 1D and 2D data. Wasserstein distance theory | [notebook](seminars/seminar9/seminar9.ipynb)<br>[WGAN_theory](seminars/seminar9/Continuous_1_wasserstein_note.pdf) | [video](https://youtu.be/rTtl7UqCos4) |
-| 19 | March, 7 | <b>Lecture 10:</b> WGAN with gradient penalty (WGAN-GP). Spectral Normalization GAN (SNGAN). f-divergence minimization. GAN evaluation. | TBA | TBA |
+| 19 | March, 7 | <b>Lecture 10:</b> WGAN with gradient penalty (WGAN-GP). Spectral Normalization GAN (SNGAN). f-divergence minimization. GAN evaluation. | [slides](lectures/lecture10/Lecture10.pdf) | [video](https://youtu.be/00pPubghlA4) |
 | 20 | March, 14 | <b>Seminar 10:</b> 1-Wasserstein distance introduction: discrete and continuous case. WGAN theory. Vanilla GAN on 2D data practice. | TBA | TBA |
 | 21 | March, 21 | <b>Lecture 11:</b> GAN evaluation (Inception score, FID, Precision-Recall, truncation trick). Discrete VAE latent representations. | TBA | TBA |
 | 22 | March, 28 | <b>Seminar 11:</b> WGANs on multimodal 2D data. GANs zoo. Evolution of GANs. StyleGAN implementation: start discussion. | TBA | TBA |
@@ -64,12 +64,12 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 4 | November, 9 | November, 23 | ResNetVAE on CIFAR10. | Available at the course chat |
 | 5 | November, 23 | December, 7 | <ol><li>Theory (Sylvester flows).</li><li>RealNVP on 2D data.</li><li>RealNVP on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw5.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw5.ipynb) |
 | 6 | December, 7 | December, 16 | <ol><li>Theory (MI in ELBO surgery).</li><li>VAE with AR decoder on MNIST.</li><li>VAE with AR prior on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw6.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw6.ipynb) |
-| 7 | February, 22 | March, 8 | Vanilla GAN on CIFAR10. | Available at the course chat |
-| 8 | March, 8 | March, 22 | TBA | TBA |
-| 9 | March, 22 | April, 5 | TBA | TBA |
-| 10 | April, 5 | April, 19 | TBA | TBA |
-| 11 | April, 19 | May, 3 | TBA | TBA |
-| 12 | May, 3 | May, 17 | TBA | TBA |
+| 7 | February, 22 | March, 9 | Vanilla GAN on CIFAR10. | Available at the course chat |
+| 8 | March, 9 | March, 23 | TBA | TBA |
+| 9 | March, 23 | April, 6 | TBA | TBA |
+| 10 | April, 6 | April, 20 | TBA | TBA |
+| 11 | April, 20 | May, 4 | TBA | TBA |
+| 12 | May, 4 | May, 18 | TBA | TBA |
 
 ## Game rules
 - 6 homeworks each of 13 points = **78 points**
