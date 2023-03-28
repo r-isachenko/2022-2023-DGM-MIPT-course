@@ -46,7 +46,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 19 | March, 7 | <b>Lecture 10:</b> WGAN with gradient penalty (WGAN-GP). Spectral Normalization GAN (SNGAN). f-divergence minimization. GAN evaluation. | [slides](lectures/lecture10/Lecture10.pdf) | [video](https://youtu.be/00pPubghlA4) |
 | 20 | March, 14 | <b>Seminar 10:</b> WGANs on multimodal 2D data. GANs zoo. Evolution of GANs. StyleGAN implementation. | [notebook_todo](seminars/seminar10/seminar10_colab.ipynb)<br>[notebook_done](seminars/seminar10/seminar10.ipynb)<br>[GANs_evolution](seminars/seminar10/GANs_evolution_and_StyleGAN.pdf)<br>[StyleGAN](seminars/seminar10/StyleGAN) | [video](https://youtu.be/-qT0N0r2TyI) |
 | 21 | March, 21 | <b>Lecture 11:</b> GAN evaluation (Inception score, FID, Precision-Recall, truncation trick). Discrete VAE latent representations. | [slides](lectures/lecture11/Lecture11.pdf) | [video](https://youtu.be/je_8yIm0a1M) |
-| 22 | March, 28 | <b>Seminar 11:</b> WGANs on multimodal 2D data. GANs zoo. Evolution of GANs. StyleGAN implementation: start discussion. | TBA | TBA |
+| 22 | March, 28 | <b>Seminar 11:</b> StyleGAN coding and assessing. Unpaired I2I translation. CycleGAN. Beyond GANs: Neural Optimal Transport | TBA | TBA |
 | 23 | April, 4 | <b>Lecture 12:</b> Vector quantization, straight-through gradient estimation (VQ-VAE). Gumbel-softmax trick (DALL-E). Neural ODE. Adjoint method. | TBA | TBA |
 | 24 | April, 11 | <b>Seminar 12:</b> VQ-VAE implementation hints. StyleGAN coding and assessing. | TBA | TBA |
 | 25 | April, 18 | <b>Lecture 13:</b> Continuous-in-time NF (FFJORD, Hutchinson's trace estimator). Kolmogorov-Fokker-Planck equation and Langevin dynamic. SDE basics. Score matching. | TBA | TBA |
