@@ -47,7 +47,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 20 | March, 14 | <b>Seminar 10:</b> WGANs on multimodal 2D data. GANs zoo. Evolution of GANs. StyleGAN implementation. | [notebook_todo](seminars/seminar10/seminar10_colab.ipynb)<br>[notebook_done](seminars/seminar10/seminar10.ipynb)<br>[GANs_evolution](seminars/seminar10/GANs_evolution_and_StyleGAN.pdf)<br>[StyleGAN](seminars/seminar10/StyleGAN) | [video](https://youtu.be/-qT0N0r2TyI) |
 | 21 | March, 21 | <b>Lecture 11:</b> GAN evaluation (Inception score, FID, Precision-Recall, truncation trick). Discrete VAE latent representations. | [slides](lectures/lecture11/Lecture11.pdf) | [video](https://youtu.be/je_8yIm0a1M) |
 | 22 | March, 28 | <b>Seminar 11:</b> StyleGAN coding and assessing. Unpaired I2I translation. CycleGAN: discussion and coding. | [notebook_todo](seminars/seminar11/seminar11_colab.ipynb)<br>[notebook_done](seminars/seminar11/seminar11_solutions.ipynb) | [video](https://youtu.be/PHyTmxRAtcY) |
-| 23 | April, 4 | <b>Lecture 12:</b> Vector quantization, straight-through gradient estimation (VQ-VAE). Gumbel-softmax trick (DALL-E). Neural ODE. Adjoint method. | TBA | TBA |
+| 23 | April, 4 | <b>Lecture 12:</b> Vector quantization, straight-through gradient estimation (VQ-VAE). Gumbel-softmax trick (DALL-E). Neural ODE. Adjoint method. | [slides](lectures/lecture12/Lecture12.pdf) | TBA |
 | 24 | April, 11 | <b>Seminar 12:</b> VQ-VAE implementation hints. StyleGAN coding and assessing. | TBA | TBA |
 | 25 | April, 18 | <b>Lecture 13:</b> Continuous-in-time NF (FFJORD, Hutchinson's trace estimator). Kolmogorov-Fokker-Planck equation and Langevin dynamic. SDE basics. Score matching. | TBA | TBA |
 | 26 | April, 25 | <b>Seminar 13:</b> CNF theory. Langevin Dynamics. Score matching practice. | TBA | TBA |
@@ -67,7 +67,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 7 | February, 22 | March, 9 | Vanilla GAN on CIFAR10. | Available at the course chat |
 | 8 | March, 9 | March, 23 | <ol><li>Theory (IW dequantization, LSGAN, GP theorem).</li><li>WGAN/WGAN-GP/SN-GAN on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw8.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw8.ipynb) |
 | 9 | March, 23 | April, 6 | f-GAN on CIFAR10. | Available at the course chat |
-| 10 | April, 6 | April, 20 | TBA | TBA |
+| 10 | April, 6 | April, 20 | <ol><li>Theory (Neural ODE Pontryagin theorem, Gumbel-Max trick).</li><li>FID and Inception Score.</li><li>VQ-VAE with PixelCNN prior.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw10.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw10.ipynb) |
 | 11 | April, 20 | May, 4 | TBA | TBA |
 | 12 | May, 4 | May, 18 | TBA | TBA |
 
