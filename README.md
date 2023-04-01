@@ -67,7 +67,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 7 | February, 22 | March, 9 | Vanilla GAN on CIFAR10. | Available at the course chat |
 | 8 | March, 9 | March, 23 | <ol><li>Theory (IW dequantization, LSGAN, GP theorem).</li><li>WGAN/WGAN-GP/SN-GAN on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw8.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw8.ipynb) |
 | 9 | March, 23 | April, 6 | f-GAN on CIFAR10. | Available at the course chat |
-| 10 | April, 6 | April, 20 | TBA | TBA |
+| 10 | April, 6 | April, 20 | <ol><li>Theory (Neural ODE Pontryagin theorem, Gumbel-Max trick).</li><li>FID and Inception Score.</li><li>VQ-VAE with PixelCNN prior.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw10.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw10.ipynb) |
 | 11 | April, 20 | May, 4 | TBA | TBA |
 | 12 | May, 4 | May, 18 | TBA | TBA |
 
