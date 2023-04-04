@@ -13,6 +13,46 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
+		\vspace{-0.3cm}
+		\[
+		\ba_{\bz}(t) = \frac{\partial L(\by)}{\partial \bz(t)}; \quad \ba_{\btheta}(t) = \frac{\partial L(\by)}{\partial \btheta(t)} \text{-- adjoint functions}.
+		\]
+		\vspace{-0.3cm}
+	\begin{block}{Theorem (Pontryagin)}
+	\vspace{-0.6cm}
+	\[
+		\frac{d \ba_{\bz}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f(\bz(t), t, \btheta)}{\partial \bz}; \quad \frac{d \ba_{\btheta}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f(\bz(t), t, \btheta)}{\partial \btheta}.
+	\]
+	\vspace{-0.6cm}
+	\end{block}
+	\begin{block}{Forward pass}
+		\vspace{-0.5cm}
+		\[
+		\bz(t_1) = \int^{t_1}_{t_0} f(\bz(t), t, \btheta) d t  + \bz_0 \quad \Rightarrow \quad \text{ODE Solver}
+		\]
+		\vspace{-0.6cm}
+	\end{block}
+	\begin{block}{Backward pass}
+		\vspace{-0.6cm}
+		\begin{equation*}
+			\left.
+			{\footnotesize 
+				\begin{aligned}
+					\frac{\partial L}{\partial \btheta(t_0)} &= \ba_{\btheta}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), t, \btheta)}{\partial \btheta(t)} dt + 0 \\
+					\frac{\partial L}{\partial \bz(t_0)} &= \ba_{\bz}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), t, \btheta)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_1)} \\
+					\bz(t_0) &= - \int^{t_0}_{t_1} f(\bz(t), t, \btheta) d t  + \bz_1.
+				\end{aligned}
+			}
+			\right\rbrace
+			\Rightarrow
+			\text{ODE Solver}
+		\end{equation*}
+		\vspace{-0.4cm} 
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
 	\begin{block}{Continuous-in-time normalizing flows}
 		\vspace{-0.5cm}
 		\[

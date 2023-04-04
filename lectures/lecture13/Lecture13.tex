@@ -97,7 +97,7 @@
 		\[
 			\bz_{t + 1} = \bz_t + f(\bz_t, \btheta)
 		\]
-		It is equavalent to Euler update step for solving ODE with $\Delta t = 1$!
+		It is equivalent to Euler update step for solving ODE with $\Delta t = 1$!
 	\end{block}
 	In the limit of adding more layers and taking smaller steps we get: 
 	\[
@@ -108,18 +108,62 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
+	\begin{block}{Forward pass (loss function)}
+		\vspace{-0.8cm}
+		\begin{align*}
+			L(\by) = L(\bz(t_1)) &= L\left( \bz(t_0) + \int_{t_0}^{t_1} f(\bz(t), t, \btheta) dt \right) \\ &= L\bigl(\text{ODESolve}(\bz(t_0), f, t_0,t_1, \btheta) \bigr)
+		\end{align*}
+	\vspace{-0.5cm}
+	\end{block}
+	\textbf{Note:} ODESolve could be any method (Euler step, Runge-Kutta methods).
+	\begin{block}{Backward pass (gradients computation)}
+		For fitting parameters we need gradients:
+		\[
+			\ba_{\bz}(t) = \frac{\partial L(\by)}{\partial \bz(t)}; \quad \ba_{\btheta}(t) = \frac{\partial L(\by)}{\partial \btheta(t)}.
+		\]
+		In theory of optimal control these functions called \textbf{adjoint} functions. 
+		They show how the gradient of the loss depends on the hidden state~$\bz(t)$ and parameters $\btheta$.
+	\end{block}
+
+	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}     
+\end{frame}
+%=======
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
+\section{Neural ODE}
+%=======
+\begin{frame}{Neural ODE}
+	\vspace{-0.3cm}
+	\begin{block}{Adjoint functions}
 		\vspace{-0.3cm}
 		\[
-		\ba_{\bz}(t) = \frac{\partial L(\by)}{\partial \bz(t)}; \quad \ba_{\btheta}(t) = \frac{\partial L(\by)}{\partial \btheta(t)} \text{-- adjoint functions}.
+		\ba_{\bz}(t) = \frac{\partial L(\by)}{\partial \bz(t)}; \quad \ba_{\btheta}(t) = \frac{\partial L(\by)}{\partial \btheta(t)}.
 		\]
-		\vspace{-0.3cm}
-	\begin{block}{Theorem (Pontryagin)}
-	\vspace{-0.6cm}
-	\[
-		\frac{d \ba_{\bz}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f(\bz(t), t, \btheta)}{\partial \bz}; \quad \frac{d \ba_{\btheta}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f(\bz(t), t, \btheta)}{\partial \btheta}.
-	\]
-	\vspace{-0.6cm}
+		\vspace{-0.6cm}
 	\end{block}
+	\begin{block}{Theorem (Pontryagin)}
+		\vspace{-0.6cm}
+		\[
+		\frac{d \ba_{\bz}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f(\bz(t), t, \btheta)}{\partial \bz}; \quad \frac{d \ba_{\btheta}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f(\bz(t),  t, \btheta)}{\partial \btheta}.
+		\]
+		Do we know any initilal condition?
+	\end{block}
+	\begin{block}{Solution for adjoint function}
+		\vspace{-0.8cm}
+		\begin{align*}
+			\frac{\partial L}{\partial \btheta(t_0)} &= \ba_{\btheta}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), t, \btheta)}{\partial \btheta(t)} dt + 0\\
+			\frac{\partial L}{\partial \bz(t_0)} &= \ba_{\bz}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), t, \btheta)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_1)}\\
+		\end{align*}
+		\vspace{-1.2cm}
+	\end{block}
+	\textbf{Note:} These equations are solved back in time.
+	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
+\end{frame}
+%=======
+\begin{frame}{Neural ODE}
+	\vspace{-0.2cm}
 	\begin{block}{Forward pass}
 		\vspace{-0.5cm}
 		\[
@@ -128,7 +172,7 @@
 		\vspace{-0.6cm}
 	\end{block}
 	\begin{block}{Backward pass}
-		\vspace{-0.6cm}
+		\vspace{-0.8cm}
 		\begin{equation*}
 			\left.
 			{\footnotesize 
@@ -144,11 +188,12 @@
 		\end{equation*}
 		\vspace{-0.4cm} 
 	\end{block}
+	\textbf{Note:} These scary formulas are the standard backprop in the discrete case.
+	\begin{figure}
+		\centering
+		\includegraphics[width=\linewidth]{figs/neural_ode}
+	\end{figure}
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
-\end{frame}
-%=======
-\begin{frame}{Outline}
-	\tableofcontents
 \end{frame}
 %=======
 \section{Continuous-in-time normalizing flows}
@@ -519,6 +564,8 @@
 %=======
 \begin{frame}{Summary}
 	\begin{itemize}
+		\item Adjoint method generalizes backpropagation procedure and allows to train Neural ODE solving ODE for adjoint function back in time.
+		\vfill
 		\item Kolmogorov-Fokker-Planck theorem allows to construct continuous-in-time normalizing flow with less functional restrictions.
 		\vfill
 		\item FFJORD model makes such kind of flows scalable.

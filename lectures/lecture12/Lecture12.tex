@@ -158,7 +158,7 @@
 		\[
 		\mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(c | \bx, \bphi)} \log p(\bx | \be_{c} , \btheta) - \log K =  \log p(\bx | \bz_q, \btheta) - \log K,
 		\]
-		where $z_q = \be_{k^*}$, $k^* = \argmin_k \| \bz_e - \be_k \|$.
+		where $\bz_q = \be_{k^*}$, $k^* = \argmin_k \| \bz_e - \be_k \|$.
 	\end{block}
 	\begin{figure}
 		\centering
@@ -300,7 +300,7 @@
 	Consider Ordinary Differential Equation (ODE)
 	\begin{align*}
 	    \frac{d \bz(t)}{dt} &= f(\bz(t), t, \btheta); \quad \text{with initial condition }\bz(t_0) = \bz_0. \\
-	    \bz(t_1) &= \int^{t_1}_{t_0} f(\bz(t), \btheta) d t  + \bz_0 = \text{ODESolve}(\bz(t_0), f, t_0,t_1, \btheta).
+	    \bz(t_1) &= \int^{t_1}_{t_0} f(\bz(t), t, \btheta) d t  + \bz_0 = \text{ODESolve}(\bz(t_0), f, t_0,t_1, \btheta).
 	\end{align*}
 	\vspace{-0.4cm}
 	\begin{block}{Euler update step}
@@ -364,7 +364,6 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
 \end{frame}
 %=======
-
 \begin{frame}{Neural ODE}
 	\begin{block}{Forward pass (loss function)}
 		\vspace{-0.8cm}
@@ -386,68 +385,6 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}     
 \end{frame}
 %=======
-\begin{frame}{Neural ODE}
-	\vspace{-0.3cm}
-	\begin{block}{Adjoint functions}
-		\vspace{-0.3cm}
-		\[
-		\ba_{\bz}(t) = \frac{\partial L(\by)}{\partial \bz(t)}; \quad \ba_{\btheta}(t) = \frac{\partial L(\by)}{\partial \btheta(t)}.
-		\]
-		\vspace{-0.6cm}
-	\end{block}
-	\begin{block}{Theorem (Pontryagin)}
-		\vspace{-0.6cm}
-		\[
-		\frac{d \ba_{\bz}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f(\bz(t), t, \btheta)}{\partial \bz}; \quad \frac{d \ba_{\btheta}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f(\bz(t),  t, \btheta)}{\partial \btheta}.
-		\]
-		Do we know any initilal condition?
-	\end{block}
-	\begin{block}{Solution for adjoint function}
-		\vspace{-0.8cm}
-		\begin{align*}
-			\frac{\partial L}{\partial \btheta(t_0)} &= \ba_{\btheta}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), t, \btheta)}{\partial \btheta(t)} dt + 0\\
-			\frac{\partial L}{\partial \bz(t_0)} &= \ba_{\bz}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), t, \btheta)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_1)}\\
-		\end{align*}
-		\vspace{-1.2cm}
-	\end{block}
-	\textbf{Note:} These equations are solved back in time.
-	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
-\end{frame}
-%=======
-\begin{frame}{Neural ODE}
-	\vspace{-0.2cm}
-	\begin{block}{Forward pass}
-		\vspace{-0.5cm}
-		\[
-		\bz(t_1) = \int^{t_1}_{t_0} f(\bz(t), t, \btheta) d t  + \bz_0 \quad \Rightarrow \quad \text{ODE Solver}
-		\]
-		\vspace{-0.6cm}
-	\end{block}
-	\begin{block}{Backward pass}
-		\vspace{-0.8cm}
-		\begin{equation*}
-			\left.
-			{\footnotesize 
-				\begin{aligned}
-					\frac{\partial L}{\partial \btheta(t_0)} &= \ba_{\btheta}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), t, \btheta)}{\partial \btheta(t)} dt + 0 \\
-					\frac{\partial L}{\partial \bz(t_0)} &= \ba_{\bz}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f(\bz(t), t, \btheta)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_1)} \\
-					\bz(t_0) &= - \int^{t_0}_{t_1} f(\bz(t), t, \btheta) d t  + \bz_1.
-				\end{aligned}
-			}
-			\right\rbrace
-			\Rightarrow
-			\text{ODE Solver}
-		\end{equation*}
-		\vspace{-0.4cm} 
-	\end{block}
-	\textbf{Note:} These scary formulas are the standard backprop in the discrete case.
-	\begin{figure}
-		\centering
-		\includegraphics[width=\linewidth]{figs/neural_ode}
-	\end{figure}
-	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
-\end{frame}
-%=======
 \begin{frame}{Summary}
 	\begin{itemize}
 		\item Vector Quantization is the way to create VAE with discrete latent space and deterministic variational posterior. 
@@ -459,8 +396,6 @@
 		\item It becomes more and more popular to use discrete latent spaces in the fields of image/video/music generation.
 		\vfill		
 		\item Residual networks could be interpreted as solution of ODE with Euler method.
-		\vfill
-		\item Adjoint method generalizes backpropagation procedure and allows to train Neural ODE solving ODE for adjoint function back in time.
 	\end{itemize}
 \end{frame}
 %=======
