@@ -234,6 +234,10 @@
 		If $f$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then the ODE has a \textbf{unique} solution.
 	\end{block}
 	\textbf{Note:} Unlike discrete-in-time flows, $f$ does not need to be bijective (uniqueness guarantees bijectivity).
+	\begin{itemize}
+		\item Discrete-in-time normalizing flows need invertible $f$. Here we have sequence of $\log p(\bz_t)$.
+		\item Continuous-in-time flows require only smoothness of $f$. Here we need to get $\log(p(\bz(t), t))$
+	\end{itemize}
 	\begin{block}{Forward and inverse transforms}
 		\vspace{-0.7cm}
 		\begin{align*}
@@ -242,24 +246,23 @@
 		\end{align*}
 		\vspace{-0.7cm}
 	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
+\end{frame}
+%=======
+\begin{frame}{Continuous-in-time Normalizing Flows}
+	\vspace{-0.3cm}
 	\begin{block}{Theorem (Kolmogorov-Fokker-Planck: special case)}
 		If $f$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then
 		\[
 			\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial f (\bz(t), t, \btheta)}{\partial \bz(t)} \right).
 		\]
 	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
-\end{frame}
-%=======
-\begin{frame}{Continuous-in-time Normalizing Flows}
-	\begin{block}{Density evaluation}
-		\vspace{-0.4cm}
-		\[
+	\vspace{-0.6cm}
+	\[
 		\log p(\bx | \btheta) = \log p(\bz) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial f (\bz(t), t, \btheta)}{\partial \bz(t)} \right) dt.
-		\]
-		Here $p(\bx | \btheta) = p(\bz(t_1), t_1)$, $p(\bz) = p(\bz(t_0), t_0)$. \\
-		\textbf{Adjoint} method is used for getting the derivatives.
-	\end{block}
+	\]
+	Here $p(\bx | \btheta) = p(\bz(t_1), t_1)$, $p(\bz) = p(\bz(t_0), t_0)$.
+	\textbf{Adjoint} method is used for getting the derivatives.
 	\begin{block}{Forward transform + log-density}
 		\vspace{-0.3cm}
 		\[
@@ -280,10 +283,7 @@
 		\]
 		\vspace{-0.4cm}
 	\end{block}
-	\begin{itemize}
-		\item Discrete-in-time normalizing flows need invertible $f$. It costs $O(m^3)$ to get determinant of the Jacobian.
-		\item Continuous-in-time flows require only smoothness of $f$. It costs $O(m^2)$ to get the trace of the Jacobian.
-	\end{itemize}
+	It costs $O(m^2)$ to get the trace of the Jacobian (evaluation of determinant of the Jacobian costs $O(m^3)$!).
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
 \end{frame}
 %=======
