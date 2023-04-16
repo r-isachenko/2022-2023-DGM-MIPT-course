@@ -6,7 +6,7 @@ import torchvision
 
 def load_MNIST() -> Tuple[np.ndarray, np.ndarray]:
     train_data = torchvision.datasets.MNIST(root="./", train=True, download=True)
-    test_data = torchvision.datasets.MNIST(root="./", train=True, download=True)
+    test_data = torchvision.datasets.MNIST(root="./", train=False, download=True)
     train_data, test_data = train_data.data.numpy(), test_data.data.numpy()
     axis_index = len(train_data.shape)
     train_data = np.expand_dims(train_data, axis=axis_index)
