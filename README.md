@@ -53,7 +53,8 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 26 | April, 25 | <b>Seminar 13:</b> CNF theory. Langevin Dynamics. Score matching practice. | TBA | TBA |
 | 27 | May, 2 | <b>Lecture 14:</b> Score matching. Noise conditioned score network (NCSN). Gaussian diffusion process. Denoising diffusion probabilistic model (DDPM). | TBA | TBA |
 | 28 | May, 16 | <b>Seminar 14:</b> NCSN and DDPM : theory and implementation on 2D data. | TBA | TBA |
-|  | May, 23 | <b>Oral exam</b> |  |  |
+| 29 | May, 23 | <b>Lecture 15:</b> ??? |  |  |
+|  | June, ??? | <b>Oral exam</b> |  |  |
 
 ## Homeworks
 | Homework | Date | Deadline | Description | Link |
