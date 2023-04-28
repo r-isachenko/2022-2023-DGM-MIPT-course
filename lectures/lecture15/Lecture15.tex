@@ -1,0 +1,222 @@
+\input{../utils/preamble}
+\createdgmtitle{15}
+
+\usepackage{tikz}
+
+\usetikzlibrary{arrows,shapes,positioning,shadows,trees}
+%--------------------------------------------------------------------------------
+\begin{document}
+%--------------------------------------------------------------------------------
+\begin{frame}[noframenumbering,plain]
+%\thispagestyle{empty}
+\titlepage
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.75\linewidth]{figs/smld}
+	\end{figure}
+	\vspace{-0.3cm} 
+	\begin{block}{Theorem (implicit score matching)}
+		\vspace{-0.6cm}
+		\[
+		{\color{violet}\frac{1}{2} \bbE_{\pi}\bigl\| \bs(\bx, \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2} = {\color{teal}\bbE_{\pi}\Bigr[ \frac{1}{2}\| \bs(\bx, \btheta) \|_2^2 + \text{tr}\bigl(\nabla_{\bx} \bs(\bx, \btheta)\bigr) \Bigr]} + \text{const}
+		\]
+	\end{block}
+	\vspace{-0.5cm}
+	\begin{enumerate}
+		\item {\color{violet}The left hand side} is intractable due to unknown $\pi(\bx)$ -- \textbf{denoising score matching}. 
+		\item {\color{teal}The right hand side} is complex due to Hessian matrix -- \textbf{sliced score matching (Hutchinson's trace estimation)}.
+	\end{enumerate}
+	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	Let perturb original data by normal noise $p(\bx | \bx', \sigma) = \cN(\bx | \bx', \sigma^2 \bI)$
+	\vspace{-0.3cm}
+	\[
+	\pi(\bx | \sigma) = \int \pi(\bx') p(\bx | \bx', \sigma) d\bx'.
+	\]
+	\vspace{-0.6cm} \\
+	Then the solution of 
+	\vspace{-0.2cm}
+	\[
+	\frac{1}{2} \bbE_{\pi(\bx | \sigma)}\bigl\| \bs(\bx, \btheta, \sigma) - \nabla_\bx \log \pi(\bx | \sigma) \bigr\|^2_2 \rightarrow \min_{\btheta}
+	\]
+	\vspace{-0.5cm} \\
+	satisfies $\bs(\bx, \btheta, \sigma) \approx \bs(\bx, \btheta, 0) = \bs(\bx, \btheta)$ if $\sigma$ is small enough.
+	\begin{block}{Theorem (denoising score matching)}
+		\vspace{-0.8cm}
+		\begin{multline*}
+			\bbE_{\pi(\bx | \sigma)}\bigl\| \bs(\bx, \btheta, \sigma) - \nabla_\bx \log \pi(\bx | \sigma) \bigr\|^2_2 = \\ = \bbE_{\pi(\bx')} \bbE_{p(\bx | \bx', \sigma)}\bigl\| \bs(\bx, \btheta, \sigma) - \nabla_\bx \log p(\bx | \bx', \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+		\end{multline*}
+		\vspace{-0.8cm}
+	\end{block}
+	Here $\nabla_{\bx} \log p(\bx | \bx', \sigma) = - \frac{\bx - \bx'}{\sigma^2}$.
+	\begin{itemize}
+		\item The RHS does not need to compute $\nabla_{\bx} \log \pi(\bx | \sigma)$ and even more $\nabla_{\bx} \log \pi(\bx)$.
+		\item $\bs(\bx, \btheta, \sigma)$ tries to \textbf{denoise} a corrupted sample.
+		\item Score function $\bs(\bx, \btheta, \sigma)$ parametrized by $\sigma$. How to make it?
+	\end{itemize}
+	\myfootnotewithlink{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A Connection Between Score Matching and Denoising Autoencoders, 2010}
+\end{frame}
+%=======
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
+\section{Denoising diffusion probabilistic model (DDPM)}
+%=======
+\begin{frame}{Gaussian diffusion model as VAE}
+	\vspace{-0.2cm}
+	\begin{figure}
+		\includegraphics[width=0.65\linewidth]{figs/diffusion_pgm}
+	\end{figure}
+	\begin{itemize}
+		\item Let treat $\bz = (\bx_1, \dots, \bx_T)$ as a latent variable (\textbf{note:} each $\bx_t$ has the same size).
+		\item Variational posterior distribution (\textbf{note:} there is no learnable parameters)
+		\vspace{-0.4cm}
+		\[
+			q(\bz | \bx) = q(\bx_1, \dots, \bx_T | \bx_0) = \prod_{t = 1}^T q(\bx_t | \bx_{t - 1}).
+		\]
+		\vspace{-0.5cm}
+		\item Probabilistic model
+		\vspace{-0.2cm}
+		\[
+			p(\bx, \bz | \btheta) = p(\bx | \bz, \btheta) p(\bz | \btheta)
+		\]
+		\item Generative distribution and prior
+		\vspace{-0.3cm}
+		\[
+			p(\bx | \bz, \btheta) = p(\bx_0 | \bx_1, \btheta); \quad 
+			p(\bz | \btheta) = \prod_{t=2}^T p(\bx_{t - 1} | \bx_t, \btheta)
+		\]
+	\end{itemize}
+	\myfootnotewithlink{https://ayandas.me/blog-tut/2021/12/04/diffusion-prob-models.html}{Das A. An introduction to Diffusion Probabilistic Models, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Gaussian diffusion model as VAE}
+	\begin{block}{ELBO}
+		\vspace{-0.4cm}
+		\[
+			\log p(\bx | \btheta) \geq \bbE_{q({\color{teal}\bz} | \bx)} \log \frac{p(\bx, {\color{teal}\bz} | \btheta)}{q({\color{teal}\bz} | \bx)} = \cL(q, \btheta) \rightarrow \max_{q, \btheta}
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Statement}
+		\vspace{-0.8cm}
+		\begin{multline*}
+			\cL(q, \btheta) = \bbE_{q({\color{teal}\bx_1, \dots, \bx_T} | \bx_0)} \log \frac{p(\bx_0, {\color{teal}\bx_1, \dots, \bx_T} | \btheta)}{q({\color{teal}\bx_1, \dots, \bx_T} | \bx_0)} = \\ 
+			= \bbE_{q} \Bigl[ {\color{olive}\log p(\bx_0 | \bx_1, \btheta)}
+			- \sum_{t=2}^T \underbrace{KL \bigl(q(\bx_{t-1} | \bx_t, \bx_0) || p(\bx_{t - 1} | \bx_t, \btheta )\bigr)}_{\cL_t} - \\
+		    - {\color{violet}KL\bigl(q(\bx_T | \bx_0) || p(\bx_T)\bigr)} \Bigr]
+		\end{multline*}
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{itemize}
+		\item {\color{olive}First term} is a decoder distribution (could be AR model or discretized distribution (like mixture of logistics)). 
+		\item {\color{violet}Third term} is constant (KL between two standard normals).
+	\end{itemize}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+\end{frame}
+%=======
+\begin{frame}{Gaussian diffusion model as VAE}
+	\[
+		\cL_t = {\color{teal}KL \bigl(q(\bx_{t-1} | \bx_t, \bx_0) || p(\bx_{t - 1} | \bx_t, \btheta )\bigr)}.
+	\]
+	Here
+	\[
+		q(\bx_{t-1} | \bx_t, \bx_0) = \cN(\bx_{t-1} | \tilde{\bmu}_t(\bx_t, \bx_0), \tilde{\beta}_t \bI),
+	\]
+	$\tilde{\bmu}_t(\bx_t, \bx_0)$ and $\tilde{\beta}_t$ have analytical formulas (we omit it) and both dependent on $\beta_t$.
+	\begin{itemize}
+		\item \textbf{Note:} We do not have an analytical expression for $q(\bx_{t-1} | \bx_t)$.
+		\item Assume $\bsigma^2(\bx_t, \btheta, t) = \tilde{\beta}_t \bI$ {\color{gray}(reminder: $p(\bx_{t - 1} | \bx_t, \btheta) = \cN(\bx_{t - 1} | \bmu(\bx_t, \btheta, t), \bsigma^2(\bx_t, \btheta, t))$)}.
+		\item Use KL formula between two normal distributions:
+		\begin{align*}
+			\cL_t &= KL\Bigl(\cN\bigl(\tilde{\bmu}_t(\bx_t, \bx_0), \tilde{\beta}_t \bI \bigr) || \cN\bigl(\bmu(\bx_t, \btheta, t), \tilde{\beta}_t \bI\bigr)\Bigr) \\ 
+			&= \bbE_{\bepsilon} \left[ \frac{1}{2\tilde{\beta}_t} \bigl\| \tilde{\bmu}_t(\bx_t, \bx_0) - \bmu(\bx_t, \btheta, t) \bigr\|^2 \right]
+		\end{align*}
+	\end{itemize}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+	\end{frame}
+%=======
+\begin{frame}{Gaussian diffusion model as VAE}
+	\begin{multline*}
+		\cL_t = \bbE_{\bepsilon} \left[ \frac{1}{2\tilde{\beta}_t} \| {\color{violet} \tilde{\bmu}_t(\bx_t, \bx_0)} - \bmu(\bx_t, \btheta, t) \|^2 \right] = \\ 
+		= \bbE_{\bepsilon} \left[ \frac{1}{2\tilde{\beta}_t} \left\| {\color{violet} \frac{1}{\sqrt{1 - \beta_t}}\left( \bx_t - \frac{\beta_t}{\sqrt{1 - \bar{\alpha}_t} } \bepsilon \right)} - \bmu(\bx_t, \btheta, t) \right\|^2 \right]
+	\end{multline*}
+    {\color{gray}Here we used the analytic expression for $\tilde{\bmu}_t(\bx_t, \bx_0)$.}
+	\begin{block}{Reparametrization}
+		\vspace{-0.3cm}
+		\[
+			\bmu(\bx_t, \btheta, t) = \frac{1}{\sqrt{1 - \beta_t}}\left( \bx_t - \frac{\beta_t}{\sqrt{1 - \bar{\alpha}_t} } \bepsilon(\bx_t, \btheta, t) \right) 
+		\]
+		\vspace{-0.6cm}
+	\end{block}
+	\begin{block}{KL term}
+		\vspace{-0.2cm}
+		\[
+			\cL_t = \bbE_{\bepsilon} \left[ \frac{\beta_t^2}{2\tilde{\beta}_t (1 - \beta_t)} \left\| \frac{\bepsilon}{\sqrt{1 - \bar{\alpha}_t}} - \frac{\bepsilon({\color{teal}\bx_t}, \btheta, t)}{\sqrt{1 - \bar{\alpha}_t}}\right\|^2 \right]
+		\]
+		\[
+			{\color{teal}\bx_t} = \sqrt{\bar{\alpha}_t} \cdot \bx_{0} + \sqrt{1 - \bar{\alpha}_t} \cdot \bepsilon, \quad \text{where } \bepsilon \sim \cN(0, 1)
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+\end{frame}
+%=======
+\begin{frame}{Gaussian diffusion model vs Score matching}
+	\vspace{-0.3cm}
+	\[
+		\cL_t = {\color{olive}\bbE_{\bepsilon}} \left[ \frac{\beta_t^2}{2\tilde{\beta}_t (1 - \beta_t)} \left\| {\color{violet}\frac{\bepsilon}{\sqrt{1 - \bar{\alpha}_t}}} - {\color{teal}\frac{\bepsilon(\bx_t, \btheta, t)}{\sqrt{1 - \bar{\alpha}_t}}}\right\|^2 \right]
+	\]
+	\begin{itemize}
+		\item Result from Statement 2
+		\[
+			q(\bx_t | \bx_0) = \cN(\bx_t | \sqrt{\bar{\alpha}_t} \cdot \bx_0, (1 - \bar{\alpha}_t) \cdot \bI).
+		\]
+		\item Score of noised distribution
+		\[
+			\nabla_{\bx_t} \log q(\bx_t | \bx_0) = - \frac{\bepsilon}{\sqrt{1 - \bar{\alpha}_t}}, \quad \text{where } \bepsilon \sim \cN(0, 1).
+		\]
+		\item Let reparametrize our model: 
+		\[
+			\bs(\bx_t, \btheta, t) = \frac{\bepsilon(\bx_t, \btheta, t)}{\sqrt{1 - \bar{\alpha}_t}}.
+		\]
+	\end{itemize}
+	\begin{block}{Noise conditioned score network}
+		\vspace{-0.2cm}
+		\[
+			{\color{olive}\bbE_{p(\bx | \bx', \sigma_l)}}\bigl\| {\color{teal}\bs(\bx, \btheta, \sigma_l)} - {\color{violet}\nabla_\bx \log p(\bx | \bx', \sigma_l)} \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+	\end{frame}
+%=======
+\begin{frame}{Denoising diffusion probabilistic model (DDPM)}
+	\begin{block}{Samples}
+		\begin{figure}
+			\includegraphics[width=\linewidth]{figs/ddpm_samples}
+		\end{figure}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+\end{frame}
+%=======
+\begin{frame}{The poorest course overview :)}
+	\begin{figure}
+		\includegraphics[width=\linewidth]{figs/generative-overview}
+	\end{figure}
+	\myfootnotewithlink{https://lilianweng.github.io/posts/2021-07-11-diffusion-models/}{Weng L. What are Diffusion Models?, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Summary}
+	\begin{itemize}
+		\item Diffusion model is a VAE model which reverts gaussian diffusion process using variational inference.
+		\vfill
+		\item Objective of diffusion model is closely related to the noise conditioned score network and score matching.
+	\end{itemize}
+\end{frame}
+\end{document} 
