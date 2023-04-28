@@ -49,11 +49,12 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 22 | March, 28 | <b>Seminar 11:</b> StyleGAN coding and assessing. Unpaired I2I translation. CycleGAN: discussion and coding. | [notebook_todo](seminars/seminar11/seminar11_colab.ipynb)<br>[notebook_done](seminars/seminar11/seminar11_solutions.ipynb) | [video](https://youtu.be/PHyTmxRAtcY) |
 | 23 | April, 4 | <b>Lecture 12:</b> Vector quantization, straight-through gradient estimation (VQ-VAE). Gumbel-softmax trick (DALL-E). Neural ODE.  | [slides](lectures/lecture12/Lecture12.pdf) | [video](https://youtu.be/vw7r5oPcIqY) |
 | 24 | April, 11 | <b>Seminar 12:</b> Beyond GANs: Neural Optimal Transport: theory and practice. VQ-VAE implementation hints. | [notebook](seminars/seminar12/seminar12.ipynb)<br>[NOT_theory](seminars/seminar12/NOT_note.pdf);<br>[NOT](https://github.com/iamalexkorotin/NeuralOptimalTransport) seminar<br> by [Alex Korotin](https://scholar.google.ru/citations?user=1rIIvjAAAAAJ&hl=en):<br>[notebook](https://github.com/iamalexkorotin/NeuralOptimalTransport/blob/main/seminars/NOT_seminar_strong.ipynb), [solutions](https://github.com/iamalexkorotin/NeuralOptimalTransport/blob/main/seminars/NOT_seminar_strong_solutions.ipynb) | [video](https://youtu.be/mfkk6Og7m4A) |
-| 25 | April, 18 | <b>Lecture 13:</b> Adjoint method. Continuous-in-time NF (FFJORD, Hutchinson's trace estimator). Kolmogorov-Fokker-Planck equation and Langevin dynamic. SDE basics. Score matching. | [slides](lectures/lecture13/Lecture13.pdf) | TBA |
-| 26 | April, 25 | <b>Seminar 13:</b> CNF theory. Langevin Dynamics. Score matching practice. | TBA | TBA |
-| 27 | May, 2 | <b>Lecture 14:</b> Noise conditioned score network (NCSN). Gaussian diffusion process. Denoising diffusion probabilistic model (DDPM). | TBA | TBA |
+| 25 | April, 18 | <b>Lecture 13:</b> Adjoint method. Continuous-in-time NF (FFJORD, Hutchinson's trace estimator). Kolmogorov-Fokker-Planck equation and Langevin dynamic. SDE basics. | [slides](lectures/lecture13/Lecture13.pdf) | [video](https://youtu.be/ylovOLxhrj8) |
+| 26 | April, 25 | <b>Seminar 13:</b> CNF theory. Langevin Dynamics. Energy-Based Models. | [notebook](seminars/seminar13/seminar13.ipynb) | [video](https://youtu.be/yaIw5F9wsV8) |
+| 27 | May, 2 | <b>Lecture 14:</b> Score matching. Noise conditioned score network (NCSN). Gaussian diffusion process. | [slides](lectures/lecture13/Lecture13.pdf) | TBA |
 | 28 | May, 16 | <b>Seminar 14:</b> NCSN and DDPM : theory and implementation on 2D data. | TBA | TBA |
-|  | May, 23 | <b>Oral exam</b> |  |  |
+| 29 | May, 23 | <b>Lecture 15:</b> Denoising diffusion probabilistic model (DDPM). | TBA | TBA |
+|  | June, ??? | <b>Oral exam</b> |  |  |
 
 ## Homeworks
 | Homework | Date | Deadline | Description | Link |
@@ -68,7 +69,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 8 | March, 9 | March, 23 | <ol><li>Theory (IW dequantization, LSGAN, GP theorem).</li><li>WGAN/WGAN-GP/SN-GAN on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw8.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw8.ipynb) |
 | 9 | March, 23 | April, 6 | f-GAN on CIFAR10. | Available at the course chat |
 | 10 | April, 6 | April, 20 | <ol><li>Theory (Neural ODE Pontryagin theorem, Gumbel-Max trick).</li><li>FID and Inception Score.</li><li>VQ-VAE with PixelCNN prior.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw10.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2022-2023-DGM-MIPT-course/blob/main/homeworks/hw10.ipynb) |
-| 11 | April, 20 | May, 4 | TBA | TBA |
+| 11 | April, 20 | May, 4 | Continuous-in-time Normalizing Flows in 2D. | Available at the course chat |
 | 12 | May, 4 | May, 18 | TBA | TBA |
 
 ## Game rules
