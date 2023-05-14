@@ -265,31 +265,43 @@
 \end{frame}
 %=======
 \begin{frame}{Denoising score matching}
-	Let perturb original data by normal noise $p(\bx | \bx', \sigma) = \cN(\bx | \bx', \sigma^2 \bI)$
+	Let perturb original data $\bx \sim \pi(\bx)$ by random normal noise 
+	\[
+		\bx' = \bx + \sigma \cdot \bepsilon, \quad \bepsilon \sim \cN(0, 1), \quad p(\bx' | \bx, \sigma) = \cN(\bx' | \bx, \sigma^2 \bI)
+	\]
+	\vspace{-0.4cm}
+	\[
+		\pi(\bx' | \sigma) = \int \pi(\bx) p(\bx' | \bx, \sigma) d\bx.
+	\]
+	\vspace{-0.4cm} \\
+	Then the solution of 
+	\[
+		\frac{1}{2} \bbE_{\pi(\bx' | \sigma)}\bigl\| \bs(\bx', \btheta, \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 \rightarrow \min_{\btheta}
+	\]
+	\vspace{-0.3cm} \\
+	satisfies $\bs(\bx', \btheta, \sigma) \approx \bs(\bx', \btheta, 0) = \bs(\bx, \btheta)$ if $\sigma$ is small enough.
+	\myfootnotewithlink{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A Connection Between Score Matching and Denoising Autoencoders, 2010}
+\end{frame}
+%=======
+\begin{frame}{Denoising score matching}
+	\begin{block}{Theorem}
+	\vspace{-0.5cm}
+	\begin{multline*}
+		\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs(\bx', \btheta, \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\ = \bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma)}\bigl\| \bs(\bx', \btheta, \sigma) - \nabla_{\bx'} \log p(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+	\end{multline*}
+	\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Gradient of the noise kernel}
 	\vspace{-0.3cm}
 	\[
-		\pi(\bx | \sigma) = \int \pi(\bx') p(\bx | \bx', \sigma) d\bx'.
+		\nabla_{\bx'} \log p(\bx' | \bx, \sigma) = \nabla_{\bx'} \log \cN(\bx' | \bx, \sigma^2 \bI) = - \frac{\bx' - \bx}{\sigma^2}
 	\]
-	\vspace{-0.6cm} \\
-	Then the solution of 
-	\vspace{-0.2cm}
-	\[
-		\frac{1}{2} \bbE_{\pi(\bx | \sigma)}\bigl\| \bs(\bx, \btheta, \sigma) - \nabla_\bx \log \pi(\bx | \sigma) \bigr\|^2_2 \rightarrow \min_{\btheta}
-	\]
-	\vspace{-0.5cm} \\
-	satisfies $\bs(\bx, \btheta, \sigma) \approx \bs(\bx, \btheta, 0) = \bs(\bx, \btheta)$ if $\sigma$ is small enough.
-	\begin{block}{Theorem}
-	\vspace{-0.8cm}
-	\begin{multline*}
-		\bbE_{\pi(\bx | \sigma)}\bigl\| \bs(\bx, \btheta, \sigma) - \nabla_\bx \log \pi(\bx | \sigma) \bigr\|^2_2 = \\ = \bbE_{\pi(\bx')} \bbE_{p(\bx | \bx', \sigma)}\bigl\| \bs(\bx, \btheta, \sigma) - \nabla_\bx \log p(\bx | \bx', \sigma) \bigr\|^2_2 + \text{const}(\btheta)
-	\end{multline*}
-	\vspace{-0.8cm}
+	\vspace{-0.3cm}
 	\end{block}
-	Here $\nabla_{\bx} \log p(\bx | \bx', \sigma) = - \frac{\bx - \bx'}{\sigma^2}$.
 	\begin{itemize}
-		\item The RHS does not need to compute $\nabla_{\bx} \log \pi(\bx | \sigma)$ and even more $\nabla_{\bx} \log \pi(\bx)$.
-		\item $\bs(\bx, \btheta, \sigma)$ tries to \textbf{denoise} a corrupted sample.
-		\item Score function $\bs(\bx, \btheta, \sigma)$ parametrized by $\sigma$. How to make it?
+		\item The RHS does not need to compute $\nabla_{\bx'} \log \pi(\bx' | \sigma)$ and even $\nabla_{\bx'} \log \pi(\bx')$.
+		\item $\bs(\bx', \btheta, \sigma)$ tries to \textbf{denoise} a corrupted sample $\bx'$.
+		\item Score function $\bs(\bx', \btheta, \sigma)$ parametrized by $\sigma$. How to make it?
 	\end{itemize}
 	\myfootnotewithlink{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A Connection Between Score Matching and Denoising Autoencoders, 2010}
 \end{frame}
@@ -313,11 +325,11 @@
 \begin{frame}{Noise conditioned score network}
 	\begin{itemize}
 		\item Define the sequence of noise levels: $\sigma_1 > \sigma_2 > \dots > \sigma_L$.
-		\item Perturb the original data with the different noise level to get $\pi(\bx | \sigma_1), \dots, \pi(\bx | \sigma_L)$.
-		\item Train denoised score function $\bs(\bx, \btheta, \sigma)$ for each noise level:
+		\item Perturb the original data with the different noise level to get $\pi(\bx' | \sigma_1), \dots, \pi(\bx' | \sigma_L)$.
+		\item Train denoised score function $\bs(\bx', \btheta, \sigma)$ for each noise level:
 		\vspace{-0.2cm}
 		\[
-			\sum_{l=1}^L {\color{violet}\sigma_l^2} \bbE_{\pi(\bx')} \bbE_{p(\bx | \bx', \sigma_l)}\bigl\| \bs(\bx, \btheta, \sigma_l) - \nabla_\bx \log p(\bx | \bx', \sigma_l) \bigr\|^2_2 \rightarrow \min_{\btheta}
+			\sum_{l=1}^L {\color{violet}\sigma_l^2} \bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma_l)}\bigl\| \bs(\bx', \btheta, \sigma_l) - \nabla_\bx' \log p(\bx' | \bx, \sigma_l) \bigr\|^2_2 \rightarrow \min_{\btheta}
 		\]
 		\item Sample from \textbf{annealed} Langevin dynamics (for $l=1, \dots, L$).
 	\end{itemize}
@@ -337,14 +349,14 @@
 		\begin{block}{Training: loss function}
 			\vspace{-0.8cm}
 			\[
-			\sum_{i=1}^L \sigma_l^2\bbE_{\pi(\bx')} \bbE_{\bepsilon}\left\| \bs_l + \frac{\bepsilon}{\sigma_l} \right\|^2_2,
+			\sum_{i=1}^L \sigma_l^2\bbE_{\pi(\bx)} \bbE_{\bepsilon}\left\| \bs_l + \frac{\bepsilon}{\sigma_l} \right\|^2_2,
 			\]
 		\end{block}
 		\vspace{-0.5cm}
 		Here
 		\begin{itemize}
-			\item $\bs_l = \bs(\bx' + \sigma_l \cdot \bepsilon, \btheta, \sigma_l)$.
-			\item $\nabla_{\bx} \log p(\bx | \bx', \sigma) = - \frac{\bx - \bx'}{\sigma^2} = - \frac{\bepsilon}{\sigma_l}$.
+			\item $\bs_l = \bs(\bx + \sigma_l \cdot \bepsilon, \btheta, \sigma_l)$.
+			\item $\nabla_{\bx'} \log p(\bx' | \bx, \sigma) = - \frac{\bx' - \bx}{\sigma^2} = - \frac{\bepsilon}{\sigma_l}$.
 		\end{itemize}
 	\end{minipage}%
 	\begin{minipage}{0.5\linewidth}
@@ -446,6 +458,34 @@
 	\end{minipage}
 	\textbf{Note:} The forward process does not have any learnable parameters!
 	\myfootnotewithlink{https://lilianweng.github.io/posts/2021-07-11-diffusion-models/}{Weng L. What are Diffusion Models?, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Gaussian diffusion model as VAE}
+	\vspace{-0.2cm}
+	\begin{figure}
+		\includegraphics[width=0.65\linewidth]{figs/diffusion_pgm}
+	\end{figure}
+	\begin{itemize}
+		\item Let treat $\bz = (\bx_1, \dots, \bx_T)$ as a latent variable (\textbf{note:} each $\bx_t$ has the same size).
+		\item Variational posterior distribution (\textbf{note:} there is no learnable parameters)
+		\vspace{-0.4cm}
+		\[
+			q(\bz | \bx) = q(\bx_1, \dots, \bx_T | \bx_0) = \prod_{t = 1}^T q(\bx_t | \bx_{t - 1}).
+		\]
+		\vspace{-0.5cm}
+		\item Probabilistic model
+		\vspace{-0.2cm}
+		\[
+			p(\bx, \bz | \btheta) = p(\bx | \bz, \btheta) p(\bz | \btheta)
+		\]
+		\item Generative distribution and prior
+		\vspace{-0.3cm}
+		\[
+			p(\bx | \bz, \btheta) = p(\bx_0 | \bx_1, \btheta); \quad 
+			p(\bz | \btheta) = \prod_{t=2}^T p(\bx_{t - 1} | \bx_t, \btheta)  \cdot p(\bx_T)
+		\]
+	\end{itemize}
+	\myfootnotewithlink{https://ayandas.me/blog-tut/2021/12/04/diffusion-prob-models.html}{Das A. An introduction to Diffusion Probabilistic Models, blog post, 2021}
 \end{frame}
 %=======
 \begin{frame}{Summary}
