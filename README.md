@@ -52,8 +52,8 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 25 | April, 18 | <b>Lecture 13:</b> Adjoint method. Continuous-in-time NF (FFJORD, Hutchinson's trace estimator). Kolmogorov-Fokker-Planck equation and Langevin dynamic. SDE basics. | [slides](lectures/lecture13/Lecture13.pdf) | [video](https://youtu.be/ylovOLxhrj8) |
 | 26 | April, 25 | <b>Seminar 13:</b> CNF theory. Langevin Dynamics. Energy-based Models. | [notebook](seminars/seminar13/seminar13.ipynb) | [video](https://youtu.be/yaIw5F9wsV8) |
 | 27 | May, 2 | <b>Lecture 14:</b> Score matching. Noise conditioned score network (NCSN). Gaussian diffusion process. | [slides](lectures/lecture14/Lecture14.pdf) | [video](https://youtu.be/OcKwsXDRvNA) |
+| 29 | May, 16 | <b>Lecture 15:</b> Denoising diffusion probabilistic model (DDPM): objective, link to VAE and score matching. | [slides](lectures/lecture15/Lecture15.pdf) | TBA |
 | 28 | May, 16 | <b>Seminar 14:</b> NCSN and DDPM : theory and implementation on 2D data. | TBA | TBA |
-| 29 | May, 23 | <b>Lecture 15:</b> Denoising diffusion probabilistic model (DDPM). | TBA | TBA |
 |  | June, ??? | <b>Oral exam</b> |  |  |
 
 ## Homeworks
