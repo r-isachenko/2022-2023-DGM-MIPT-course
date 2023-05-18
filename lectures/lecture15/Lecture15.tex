@@ -202,10 +202,10 @@
 	\begin{block}{Important distribution}
 		\vspace{-0.6cm}
 		\[
-			q(\bx_{t-1}|\bx_{t}, \bx_0) = \frac{q(\bx_{t}|\bx_{t-1}, {\color{olive}\bx_0}) q(\bx_{t-1} | {\color{olive}\bx_0}) }{q(\bx_{t}| {\color{olive}\bx_0})} = \cN(\tilde{\bmu}_t(\bx_t, \bx_0))
+			q(\bx_{t-1}|\bx_{t}, \bx_0) = \frac{q(\bx_{t}|\bx_{t-1}, {\color{olive}\bx_0}) q(\bx_{t-1} | {\color{olive}\bx_0}) }{q(\bx_{t}| {\color{olive}\bx_0})} = \cN(\tilde{\bmu}_t(\bx_t, \bx_0), \tilde{\beta}_t \bI)
 		\]
 	\end{block}
-	\myfootnotewithlink{}{Feller W. On the theory of stochastic processes, with particular reference to applications, 1949}
+	\myfootnotewithlink{https://arxiv.org/abs/2112.07804}{Xiao Z., Kreis K., Vahdat A. Tackling the generative learning trilemma with denoising diffusion GANs, 2021}
 	\end{frame}
 %=======
 \subsection{Objective of DDPM}
@@ -264,9 +264,9 @@
 	\begin{itemize}
 		\item {\color{olive}First term} is a decoder distribution
 		\[
-			\log (\bx_0 | \bx_1, \btheta) = \log \cN \bigl(\bx_0 | \bmu(\bx_1, \btheta, t), \bsigma^2(\bx_1, \btheta, t)\bigr)
+			\log p(\bx_0 | \bx_1, \btheta) = \log \cN \bigl(\bx_0 | \bmu(\bx_1, \btheta, t), \bsigma^2(\bx_1, \btheta, t)\bigr)
 		\] 
-		\item {\color{violet}Third term} is constant ($p(\bx_T)$ is a standard Normal, $q(\bx_T | \bx_0)$ is a non-parametrical Normal).
+		\item {\color{violet}Second term} is constant ($p(\bx_T)$ is a standard Normal, $q(\bx_T | \bx_0)$ is a non-parametrical Normal).
 		\item $\cL_t$ is a KL between two normal distributions:
 		\[
 			q(\bx_{t-1} | \bx_t, \bx_0) = \cN(\bx_{t-1} | \tilde{\bmu}_t(\bx_t, \bx_0), \tilde{\beta}_t \bI),
@@ -338,7 +338,7 @@
 		\]
 		\item Let reparametrize our model: 
 		\[
-			\bs(\bx_t, \btheta, t) = \frac{\bepsilon(\bx_t, \btheta, t)}{\sqrt{1 - \bar{\alpha}_t}}.
+			\bs(\bx_t, \btheta, t) = - \frac{\bepsilon(\bx_t, \btheta, t)}{\sqrt{1 - \bar{\alpha}_t}}.
 		\]
 	\end{itemize}
 	\begin{block}{Noise conditioned score network}
@@ -403,7 +403,7 @@
 	\begin{figure}
 		\includegraphics[width=0.7\linewidth]{figs/trilemma}
 	\end{figure}
-	\myfootnotewithlink{https://arxiv.org/abs/2112.07804}{Xiao Z., Kreis K., Vahdat A. Tackling the generative learning trilemma with denoising diffusion GANs}
+	\myfootnotewithlink{https://arxiv.org/abs/2112.07804}{Xiao Z., Kreis K., Vahdat A. Tackling the generative learning trilemma with denoising diffusion GANs, 2021}
 \end{frame}
 %=======
 \begin{frame}{Summary}
